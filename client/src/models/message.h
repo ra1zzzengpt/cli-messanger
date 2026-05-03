@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <nlohmann/json.hpp>
 
 struct Message {
     std::uint32_t id = 0;
@@ -14,3 +15,6 @@ struct Message {
     std::string text;
     std::string created_at;
 };
+
+void to_json(nlohmann::json& j, const Message& message);
+void from_json(const nlohmann::json& j, Message& message);
