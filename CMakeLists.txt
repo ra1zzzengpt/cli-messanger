@@ -6,20 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(cli_messanger client/src/main.cpp
         client/src/app/app.cpp
         client/src/app/app.h
-        client/src/console/console.cpp
-        client/src/console/console.h
-        client/src/console/menu/main_menu.cpp
-        client/src/console/menu/main_menu.h
-        client/src/console/menu/server_menu.cpp
-        client/src/console/menu/server_menu.h
-        client/src/console/menu/profile_menu.cpp
-        client/src/console/menu/profile_menu.h
-        client/src/console/menu/chats_menu.cpp
-        client/src/console/menu/chats_menu.h
-        client/src/console/menu/chat_screen.cpp
-        client/src/console/menu/chat_screen.h
-        client/src/console/menu/register_menu.cpp
-        client/src/console/menu/register_menu.h
+        client/src/utils/console/console.cpp
+        client/src/utils/console/console.h
         client/src/api/message_api/imessage_api.h
         client/src/models/user_info.h
         client/src/models/message.h
@@ -34,7 +22,20 @@ add_executable(cli_messanger client/src/main.cpp
         client/src/utils/files/file_utils.cpp
         client/src/utils/files/file_utils.h
         client/src/api/message_api/httpapi/http_message_api.cpp
-        client/src/api/message_api/httpapi/http_message_api.h)
+        client/src/api/message_api/httpapi/http_message_api.h
+        client/src/screens/i_screen.h
+        client/src/screens/register_screen.cpp
+        client/src/screens/register_screen.h
+        client/src/screens/main_screen.cpp
+        client/src/screens/main_screen.h
+        client/src/screens/chat_screen.cpp
+        client/src/screens/chat_screen.h
+        client/src/screens/server_screen.cpp
+        client/src/screens/server_screen.h
+        client/src/screens/profile_screen.cpp
+        client/src/screens/profile_screen.h
+        client/src/screens/chats_screen.cpp
+        client/src/screens/chats_screen.h)
 
 add_library(cli_lib
         client/src/models/message.cpp)
