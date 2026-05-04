@@ -1,16 +1,18 @@
-//
-// Created by devnull on 04.05.2026.
-//
+#pragma once
 
-#ifndef CLI_MESSANGER_CHATSCREEN_H
-#define CLI_MESSANGER_CHATSCREEN_H
+#include "i_screen.h"
+#include "models/app_config.h"
+#include "models/chat_info.h"
 
+namespace screen {
+    class ChatScreen final : public IScreen {
+    public:
+        ChatScreen(AppConfig& cfg, ChatInfo& chat);
+        void run() override;
+        void printScreen() override;
 
-
-class chat_screen {
-
-};
-
-
-
-#endif //CLI_MESSANGER_CHATSCREEN_H
+    private:
+        AppConfig& config_;
+        ChatInfo& chat_;
+    };
+}
