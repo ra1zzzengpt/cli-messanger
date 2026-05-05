@@ -5,8 +5,9 @@ class Application final {
 public:
     void Run();
 private:
+    // -- FUNCTIONS --
     bool LoadConfig();
 
-private:
+    // -- VAR --
     AppConfig config;
 };

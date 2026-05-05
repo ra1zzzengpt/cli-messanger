@@ -36,4 +36,5 @@ namespace io
     }
 
     uint32_t SafeScanUint32(std::string_view prompt);
+    std::string ScanString(std::string_view prompt);
 }

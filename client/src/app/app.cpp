@@ -7,9 +7,22 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <random>
+#include <limits>
 
 namespace {
     constexpr const char* kConfigPath = "client/assets/save/save.json";
+
+    uint64_t RandomUInt64()
+    {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_int_distribution dist(
+            std::numeric_limits<uint64_t>::min(),
+            std::numeric_limits<uint64_t>::max()
+            );
+        return dist(gen);
+    };
 
     bool HasDefaultValues(const AppConfig& config) {
         return config.server.host.empty()
@@ -18,40 +31,19 @@ namespace {
             || config.user.nick.empty();
     }
 
-    std::string ScanString(const std::string_view prompt) {
-        std::string value;
-
-        while (value.empty()) {
-            io::print(prompt, io::COLOR::WHITE, "");
-            std::getline(std::cin, value);
-
-            if (value.empty()) {
-                io::print("[Error]: Value cannot be empty", io::COLOR::RED);
-            }
-        }
-
-        return value;
-    }
-
     void FillMissingConfigValues(AppConfig& config) {
         if (config.server.host.empty()) {
-            // todo replace with ScanHost()
-            config.server.host = ScanString("Server host: ");
+            config.server.host = io::ScanString("Server host: ");
         }
 
         if (config.server.port == 0) {
-            // todo replace with ScanPort()
             config.server.port = static_cast<int>(io::SafeScanUint32("Server port: "));
         }
 
-        if (config.user.id == 0) {
-            // todo replace with ScanUserId() or registration request to server
-            config.user.id = io::SafeScanUint32("User id: ");
-        }
+        config.user.id = RandomUInt64();
 
         if (config.user.nick.empty()) {
-            // todo replace with ScanNick()
-            config.user.nick = ScanString("User nick: ");
+            config.user.nick = io::ScanString("User nick: ");
         }
     }
 

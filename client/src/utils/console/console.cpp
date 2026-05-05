@@ -54,3 +54,18 @@ uint32_t io::SafeScanUint32(const std::string_view prompt) {
     }
     return result;
 }
+
+std::string io::ScanString(const std::string_view prompt) {
+    std::string value;
+
+    while (value.empty()) {
+        io::print(prompt, io::COLOR::WHITE, "");
+        std::getline(std::cin, value);
+
+        if (value.empty()) {
+            print("[Error]: Value cannot be empty", io::COLOR::RED);
+        }
+    }
+
+    return value;
+}
