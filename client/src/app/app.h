@@ -1,3 +1,12 @@
 #pragma once
+#include "models/app_config.h"
 
-int run_application();
+class Application final {
+public:
+    void Run();
+private:
+    bool LoadConfig();
+
+private:
+    AppConfig config;
+};

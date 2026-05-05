@@ -35,7 +35,12 @@ add_executable(cli_messanger client/src/main.cpp
         client/src/screens/profile_screen.cpp
         client/src/screens/profile_screen.h
         client/src/screens/chats_screen.cpp
-        client/src/screens/chats_screen.h)
+        client/src/screens/chats_screen.h
+        client/src/api/message_api/fakeapi/fake_message_api.cpp
+        client/src/api/message_api/fakeapi/fake_message_api.h
+        client/src/models/app_config.cpp
+        client/src/models/chat_info.cpp
+        client/src/models/server_info.cpp)
 
 add_library(cli_lib
         client/src/models/message.cpp)

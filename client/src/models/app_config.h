@@ -1,8 +1,10 @@
 #pragma once
 
 #include "server_info.h"
-#include <vector>
 #include "user_info.h"
+
+#include <nlohmann/json.hpp>
+#include <vector>
 
 struct AppConfig
 {
@@ -10,3 +12,6 @@ struct AppConfig
     UserInfo user;
     std::vector<ChatInfo> chats;
 };
+
+void to_json(nlohmann::json& j, const AppConfig& config);
+void from_json(const nlohmann::json& j, AppConfig& config);
