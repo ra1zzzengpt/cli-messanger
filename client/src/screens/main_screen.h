@@ -1,20 +1,23 @@
 #pragma once
 
 #include "i_screen.h"
-#include "models/app_config.h"
+#include "app/app_controller.h"
 
-namespace screen {
-    class MainScreen final : public IScreen {
+namespace screen
+{
+    class MainScreen final : public IScreen
+    {
     public:
-        explicit MainScreen(AppConfig& cfg);
+        explicit MainScreen(AppController& controller);
         void run() override;
         void printScreen() override;
     private:
-        AppConfig& config_;
+        AppController& controller_;
     };
 }
 
-enum class kMAIN_MENU {
+enum class kMAIN_MENU
+{
     kMinChoice = 1,
     kMaxChoice = 4,
     kChatScreen = 1,

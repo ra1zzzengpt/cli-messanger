@@ -3,8 +3,10 @@
 #include "i_screen.h"
 #include "models/app_config.h"
 
-namespace screen {
-    class ChatsScreen final : public IScreen {
+namespace screen
+{
+    class ChatsScreen final : public IScreen
+    {
     public:
         explicit ChatsScreen(AppConfig& cfg);
         void run() override;
@@ -15,7 +17,8 @@ namespace screen {
     };
 }
 
-enum class kCHATS_MENU {
+enum class kCHATS_MENU
+{
     kMinChoice = 1,
     kMaxChoice = 3,
     kSelectChat = 1,

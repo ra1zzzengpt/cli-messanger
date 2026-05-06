@@ -5,8 +5,10 @@
 #include "models/user_info.h"
 #include "models/message.h"
 
-namespace api {
-    class IMessageApi {
+namespace api
+{
+    class IMessageApi
+    {
     public:
         virtual ~IMessageApi() = default;
 
@@ -15,11 +17,11 @@ namespace api {
             const std::string& nick
         ) = 0;
 
-        virtual std::optional<UserInfo> getUserById(
+        virtual std::optional<UserInfo> getUsernameById(
             std::uint64_t id
         ) = 0;
 
-        virtual bool updateNick(
+        virtual bool updateNickname(
             std::uint64_t id,
             const std::string& newNick
         ) = 0;
@@ -33,7 +35,7 @@ namespace api {
         virtual std::vector<Message> fetchMessages(
             std::uint64_t myId,
             std::uint64_t peerId,
-            int sinceMessageId
+            uint64_t sinceMessageId
         ) = 0;
     };
 }

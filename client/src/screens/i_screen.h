@@ -1,7 +1,9 @@
 #pragma once
 
-namespace screen {
-    class IScreen {
+namespace screen
+{
+    class IScreen
+    {
     public:
         virtual ~IScreen() = default;
         virtual void run() = 0;

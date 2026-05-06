@@ -4,8 +4,10 @@
 #include "models/app_config.h"
 #include "models/chat_info.h"
 
-namespace screen {
-    class ChatScreen final : public IScreen {
+namespace screen
+{
+    class ChatScreen final : public IScreen
+    {
     public:
         ChatScreen(AppConfig& cfg, ChatInfo& chat);
         void run() override;

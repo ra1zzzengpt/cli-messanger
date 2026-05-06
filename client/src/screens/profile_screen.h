@@ -1,20 +1,24 @@
 #pragma once
 
 #include "i_screen.h"
+#include "app/app_controller.h"
 #include "models/app_config.h"
 
-namespace screen {
-    class ProfileScreen final : public IScreen {
+namespace screen
+{
+    class ProfileScreen final : public IScreen
+    {
     public:
-        explicit ProfileScreen(AppConfig& config);
+        explicit ProfileScreen(AppController& controller);
         void run() override;
         void printScreen() override;
     private:
-        AppConfig& config_;
+        AppController& controller_;
     };
 }
 
-enum class kPROFILE_MENU {
+enum class kPROFILE_MENU
+{
     kMinChoice = 1,
     kMaxChoice = 2,
     kChangeNickname = 1,

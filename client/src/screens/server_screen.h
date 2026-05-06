@@ -3,8 +3,10 @@
 #include "i_screen.h"
 #include "models/app_config.h"
 
-namespace screen {
-    class ServerScreen final : public IScreen {
+namespace screen
+{
+    class ServerScreen final : public IScreen
+    {
     public:
         explicit ServerScreen(AppConfig& cfg);
         void run() override;
@@ -15,7 +17,8 @@ namespace screen {
     };
 }
 
-enum class kSERVER_MENU {
+enum class kSERVER_MENU
+{
     kMinChoice = 1,
     kMaxChoice = 3,
     kChangeIp = 1,
