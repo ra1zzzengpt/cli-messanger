@@ -4,8 +4,8 @@ project(cli_messanger)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(cli_messanger client/src/main.cpp
-        client/src/app/app.cpp
-        client/src/app/app.h
+        client/src/app/app_controller.cpp
+        client/src/app/app_controller.h
         client/src/utils/console/console.cpp
         client/src/utils/console/console.h
         client/src/api/message_api/imessage_api.h
@@ -38,7 +38,9 @@ add_executable(cli_messanger client/src/main.cpp
         client/src/api/message_api/fakeapi/fake_message_api.h
         client/src/models/app_config.cpp
         client/src/models/chat_info.cpp
-        client/src/models/server_info.cpp)
+        client/src/models/server_info.cpp
+        client/src/utils/files/config_storage/config_storage.cpp
+        client/src/utils/files/config_storage/config_storage.h)
 
 add_library(cli_lib
         client/src/models/message.cpp)
