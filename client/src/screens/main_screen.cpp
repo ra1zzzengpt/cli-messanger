@@ -1,4 +1,8 @@
 #include "main_screen.h"
+
+#include "chats_screen.h"
+#include "profile_screen.h"
+#include "server_screen.h"
 #include "utils/console/console.h"
 
 namespace screen {
@@ -6,19 +10,23 @@ namespace screen {
 
     void MainScreen::run() {
         bool running = true;
+        std::unique_ptr<IScreen> currentScreen;
         while (running) {
             printScreen();
-            switch (io::SafeScanUint32("> ")) {
+            switch (io::ScanUint32("> ")) {
                 case static_cast<uint32_t>(kMAIN_MENU::kChatScreen): {
-                    // todo chats screen
+                    currentScreen = std::make_unique<ChatsScreen>(config_);
+                    currentScreen->run();
                     break;
                 }
                 case static_cast<uint32_t>(kMAIN_MENU::kProfileScreen): {
-                    // todo profile screen
+                    currentScreen = std::make_unique<ProfileScreen>(config_);
+                    currentScreen->run();
                     break;
                 }
                 case static_cast<uint32_t>(kMAIN_MENU::kServerScreen): {
-                    // todo server screen
+                    currentScreen = std::make_unique<ServerScreen>(config_);
+                    currentScreen->run();
                     break;
                 }
                 case static_cast<uint32_t>(kMAIN_MENU::kExit): {

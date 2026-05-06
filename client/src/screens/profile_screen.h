@@ -6,7 +6,7 @@
 namespace screen {
     class ProfileScreen final : public IScreen {
     public:
-        explicit ProfileScreen(AppConfig& cfg);
+        explicit ProfileScreen(AppConfig& config);
         void run() override;
         void printScreen() override;
     private:
@@ -16,9 +16,7 @@ namespace screen {
 
 enum class kPROFILE_MENU {
     kMinChoice = 1,
-    kMaxChoice = 4,
+    kMaxChoice = 2,
     kChangeNickname = 1,
-    kProfileScreen = 2,
-    kServerScreen = 3,
-    kExit = 4
+    kExit = 2
 };

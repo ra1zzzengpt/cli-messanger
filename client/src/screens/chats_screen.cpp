@@ -11,7 +11,7 @@ namespace screen {
         bool running = true;
         while (running) {
             printScreen();
-            switch (io::SafeScanUint32("> ")) {
+            switch (io::ScanUint32("> ")) {
                 case static_cast<uint32_t>(kCHATS_MENU::kSelectChat): {
                     // todo select chat
                     break;

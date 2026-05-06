@@ -24,8 +24,6 @@ add_executable(cli_messanger client/src/main.cpp
         client/src/api/message_api/httpapi/http_message_api.cpp
         client/src/api/message_api/httpapi/http_message_api.h
         client/src/screens/i_screen.h
-        client/src/screens/register_screen.cpp
-        client/src/screens/register_screen.h
         client/src/screens/main_screen.cpp
         client/src/screens/main_screen.h
         client/src/screens/chat_screen.cpp

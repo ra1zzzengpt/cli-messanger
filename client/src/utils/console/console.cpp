@@ -10,7 +10,7 @@ std::string io::ansiColor(const RGB &color)
                std::to_string(color.blue) + "m";
 }
 
-uint32_t io::SafeScanUint32(const std::string_view prompt) {
+uint32_t io::ScanUint32(const std::string_view prompt) {
     std::string input;
     uint32_t result{};
 

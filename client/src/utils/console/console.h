@@ -35,6 +35,6 @@ namespace io
         std::cout << ansiColor(color) << value << ansiReset() << separator;
     }
 
-    uint32_t SafeScanUint32(std::string_view prompt);
+    uint32_t ScanUint32(std::string_view prompt);
     std::string ScanString(std::string_view prompt);
 }
