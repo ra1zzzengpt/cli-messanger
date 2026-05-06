@@ -13,5 +13,5 @@ struct AppConfig
     std::vector<ChatInfo> chats;
 };
 
-void to_json(nlohmann::json& j, const AppConfig& config);
-void from_json(const nlohmann::json& j, AppConfig& config);
+void to_json(nlohmann::json& json, const AppConfig& config);
+void from_json(const nlohmann::json& json, AppConfig& config);

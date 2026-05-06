@@ -4,9 +4,10 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-struct UserInfo {
+struct UserInfo
+{
     std::uint64_t id = 0;
-    std::string nick;
+    std::string nickname;
 };
 
 void to_json(nlohmann::json& json, const UserInfo& user);

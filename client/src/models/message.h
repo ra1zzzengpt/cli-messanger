@@ -16,5 +16,5 @@ struct Message {
     std::string created_at;
 };
 
-void to_json(nlohmann::json& j, const Message& message);
-void from_json(const nlohmann::json& j, Message& message);
+void to_json(nlohmann::json& json, const Message& message);
+void from_json(const nlohmann::json& json, Message& message);

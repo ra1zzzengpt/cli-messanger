@@ -9,5 +9,5 @@ struct ServerInfo {
     uint32_t port = 0;
 };
 
-void to_json(nlohmann::json& j, const ServerInfo& server);
-void from_json(const nlohmann::json& j, ServerInfo& server);
+void to_json(nlohmann::json& json, const ServerInfo& server);
+void from_json(const nlohmann::json& json, ServerInfo& server);
