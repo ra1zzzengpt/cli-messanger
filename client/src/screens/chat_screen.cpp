@@ -2,10 +2,13 @@
 
 #include "utils/console/console.h"
 
-namespace screen {
-    ChatScreen::ChatScreen(AppConfig& cfg, ChatInfo& chat) : config_(cfg), chat_(chat) {}
+namespace screen
+{
+    ChatScreen::ChatScreen(AppConfig& cfg, ChatInfo& chat) : config_(cfg), chat_(chat)
+    { }
 
-    void ChatScreen::run() {
+    void ChatScreen::run()
+    {
         printScreen();
 
         // todo initialize HttpMessageApi for current server config
@@ -18,8 +21,10 @@ namespace screen {
         }
     }
 
-    void ChatScreen::printScreen() {
+    void ChatScreen::printScreen()
+    {
         io::print("Chat Screen");
         io::print("Peer: " + chat_.peer_nick);
+        io::print("Peer ID: " + std::to_string(chat_.peer_id));
     }
 }
