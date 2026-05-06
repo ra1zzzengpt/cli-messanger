@@ -5,35 +5,45 @@
 #include "server_screen.h"
 #include "utils/console/console.h"
 
-namespace screen {
-    MainScreen::MainScreen(AppConfig& cfg) : config_(cfg) {}
+namespace screen
+{
+    MainScreen::MainScreen(AppController& controller) : controller_(controller) {}
 
-    void MainScreen::run() {
+    void MainScreen::run()
+    {
         bool running = true;
         std::unique_ptr<IScreen> currentScreen;
-        while (running) {
+        controller_.LoadAppConfig();
+        while (running)
+            {
             printScreen();
-            switch (io::ScanUint32("> ")) {
-                case static_cast<uint32_t>(kMAIN_MENU::kChatScreen): {
-                    currentScreen = std::make_unique<ChatsScreen>(config_);
+            switch (io::ScanUint32("> "))
+            {
+                case static_cast<uint32_t>(kMAIN_MENU::kChatScreen):
+                {
+                    //currentScreen = std::make_unique<ChatsScreen>(controller_);
+                    //currentScreen->run();
+                    break;
+                }
+                case static_cast<uint32_t>(kMAIN_MENU::kProfileScreen):
+                {
+                    currentScreen = std::make_unique<ProfileScreen>(controller_);
                     currentScreen->run();
                     break;
                 }
-                case static_cast<uint32_t>(kMAIN_MENU::kProfileScreen): {
-                    currentScreen = std::make_unique<ProfileScreen>(config_);
-                    currentScreen->run();
+                case static_cast<uint32_t>(kMAIN_MENU::kServerScreen):
+                {
+                    //currentScreen = std::make_unique<ServerScreen>(controller_.GetAppConfig());
+                    //currentScreen->run();
                     break;
                 }
-                case static_cast<uint32_t>(kMAIN_MENU::kServerScreen): {
-                    currentScreen = std::make_unique<ServerScreen>(config_);
-                    currentScreen->run();
-                    break;
-                }
-                case static_cast<uint32_t>(kMAIN_MENU::kExit): {
+                case static_cast<uint32_t>(kMAIN_MENU::kExit):
+                {
                     running = false;
                     break;
                 }
-                default: {
+                default:
+                {
                     io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(kMAIN_MENU::kMinChoice)) +
                         " to " + std::to_string(static_cast<int>(kMAIN_MENU::kMaxChoice)), io::COLOR::RED);
                 }
