@@ -55,11 +55,50 @@ uint32_t io::ScanUint32(const std::string_view prompt) {
     return result;
 }
 
+uint64_t io::ScanUint64(const std::string_view prompt) {
+    std::string input;
+    uint64_t result{};
+
+    bool success = false;
+    while (!success)
+    {
+        print(prompt, COLOR::WHITE, "");
+        std::getline(std::cin, input);
+
+        if (input.empty())
+        {
+            continue;
+        }
+
+        if (const bool valid = std::ranges::all_of(input.begin(), input.end(),
+            [](const unsigned char c) {return std::isdigit(c);}); !valid)
+        {
+            print("[Error]: Invalid input", COLOR::RED);
+            continue;
+        }
+
+        try
+        {
+            result = std::stoull(input);
+            success = true;
+        }
+        catch (const std::out_of_range&)
+        {
+            print("[Error]: Value out of range for uint64_t", COLOR::RED);
+        }
+        catch (const std::invalid_argument&)
+        {
+            print("[Error]: Invalid number format", COLOR::RED);
+        }
+    }
+    return result;
+}
+
 std::string io::ScanString(const std::string_view prompt) {
     std::string value;
 
     while (value.empty()) {
-        io::print(prompt, io::COLOR::WHITE, "");
+        print(prompt, COLOR::WHITE, "");
         std::getline(std::cin, value);
 
         if (value.empty()) {
