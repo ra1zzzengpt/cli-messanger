@@ -4,7 +4,7 @@
 
 namespace screen
 {
-    ProfileScreen::ProfileScreen(AppController& controller) : controller_(controller)
+    ProfileScreen::ProfileScreen(app::AppController& controller) : controller_(controller)
     { }
 
     void ProfileScreen::run()
@@ -17,9 +17,17 @@ namespace screen
             {
                 case static_cast<uint32_t>(kPROFILE_MENU::kChangeNickname):
                 {
-                    config_.user.nickname = io::ScanString("Enter new nickname: ");
-                    if ()
-                    utils::SaveConfig(config_);
+                    if (std::string new_nickname = io::ScanString("Enter new nickname: "); controller_.updateNickname(new_nickname))
+                    {
+                        controller_.GetAppConfig().user.nickname = new_nickname;
+                        if (!controller_.SaveAppConfig())
+                        {
+                            io::print("[Error]: Your nickname will be same",io::COLOR::RED);
+                        }
+                    } else
+                    {
+                        io::print("[Error]: the server did not confirm the request", io::COLOR::RED);
+                    }
                     break;
                 }
                 case static_cast<uint32_t>(kPROFILE_MENU::kExit):
@@ -40,8 +48,8 @@ namespace screen
     {
         io::print("Profile Screen");
         io::print("Your profile:");
-        io::print("Nickname: " + config_.user.nickname);
-        io::print("Id: " + std::to_string(config_.user.id));
+        io::print("Nickname: " + controller_.GetAppConfig().user.nickname);
+        io::print("Id: " + std::to_string(controller_.GetAppConfig().user.id));
         io::print("1 - Change nickname");
         io::print("2 - Exit");
     }
