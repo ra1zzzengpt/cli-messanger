@@ -81,13 +81,20 @@ namespace utils {
 
     std::optional<AppConfig> ConfigStorage::Load() const
     {
-        std::ifstream file(filepath_);
-        if (!file.is_open())
-            return std::nullopt; // todo fix for fatal error with creating directory
+        const std::filesystem::path path{filepath_};
+        std::error_code error;
+        std::filesystem::create_directories(path.parent_path(), error);
 
+        if (error)
+        {
+            io::print("[FATAL ERROR]: Cannot create config directory", io::COLOR::RED);
+            return std::nullopt;
+        }
+
+        std::ifstream file(path);
         AppConfig config;
 
-        if (file.peek() != std::ifstream::traits_type::eof())
+        if (file.is_open() && file.peek() != std::ifstream::traits_type::eof())
         {
             try
             {
@@ -97,7 +104,7 @@ namespace utils {
             catch (const nlohmann::json::exception& ex)
             {
                 io::print("[Error]: Cannot parse config file: " + std::string(ex.what()), io::COLOR::RED);
-                return std::nullopt; // битый файл — возвращаем ошибку
+                config = AppConfig{};
             }
         }
 
