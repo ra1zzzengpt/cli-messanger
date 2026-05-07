@@ -5,16 +5,16 @@
 namespace
 {
     // YOU CAN CHANGE IT ON YOUR CONFIG FILEPATH
-    constexpr auto kConfigPath = "client/assets/save/save.json";
+    constexpr auto kConfigPath = "../client/assets/save/save.json";
 }
 
 int main()
 {
 
-    AppController controller(std::make_unique<api::FakeMessageApi>(),std::make_unique<utils::ConfigStorage>(kConfigPath));
+    app::AppController controller(std::make_unique<api::FakeMessageApi>(),std::make_unique<utils::ConfigStorage>(kConfigPath));
 
     screen::MainScreen mainMenu(controller);
-    mainMenu.Run();
+    mainMenu.run();
 
     return 0;
 }
