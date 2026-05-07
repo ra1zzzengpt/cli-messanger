@@ -2,8 +2,7 @@
 #include "utils/console/console.h"
 #include "utils/files/file_utils.h"
 
-namespace screen
-{
+namespace screen {
     ProfileScreen::ProfileScreen(app::AppController& controller) : controller_(controller)
     { }
 
