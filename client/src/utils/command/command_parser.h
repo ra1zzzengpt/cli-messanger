@@ -1,16 +1,12 @@
-//
-// Created by devnull on 03.05.2026.
-//
-
-#ifndef CLI_MESSANGER_COMMAND_PARSER_H
-#define CLI_MESSANGER_COMMAND_PARSER_H
+#pragma once
+#include <optional>
+#include <string>
 
 namespace utils {
+    enum class COMMAND {
+        QUIT,
+        HELP,
+    };
 
-class command_parser {
-
+    std::optional<COMMAND> ParseCommand(const std::string& command);
 };
-
-} // utils
-
-#endif //CLI_MESSANGER_COMMAND_PARSER_H
