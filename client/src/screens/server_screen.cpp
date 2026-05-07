@@ -21,13 +21,25 @@ namespace screen
                 case static_cast<uint32_t>(kSERVER_MENU::kChangeIp):
                 {
                     controller_.GetAppConfig().server.host = io::ScanString("Enter new host: ");
-                    //utils::SaveConfig(config_);
+                    if (controller_.SaveAppConfig())
+                    {
+                        io::print("[Success]: new host added",io::COLOR::GREEN);
+                    } else
+                    {
+                        io::print("[Error]: can't save new host", io::COLOR::RED);
+                    }
                     break;
                 }
                 case static_cast<uint32_t>(kSERVER_MENU::kChangePort):
                 {
                     controller_.GetAppConfig().server.port = io::ScanUint32("Enter new port: ");
-                    //utils::SaveConfig(config_);
+                    if (controller_.SaveAppConfig())
+                    {
+                        io::print("[Success]: new port added.",io::COLOR::GREEN);
+                    } else
+                    {
+                        io::print("[Error]: can't save new port.", io::COLOR::RED);
+                    }
                     break;
                 }
                 case static_cast<uint32_t>(kSERVER_MENU::kExit):

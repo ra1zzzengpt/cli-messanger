@@ -19,9 +19,12 @@ namespace screen {
                     if (std::string new_nickname = io::ScanString("Enter new nickname: "); controller_.updateNickname(new_nickname))
                     {
                         controller_.GetAppConfig().user.nickname = new_nickname;
-                        if (!controller_.SaveAppConfig())
+                        if (controller_.SaveAppConfig())
                         {
-                            io::print("[Error]: Your nickname will be same",io::COLOR::RED);
+                            io::print("[Success]: nickname was updated",io::COLOR::RED);
+                        } else
+                        {
+                            io::print("[Error]: Your nickname will be same.",io::COLOR::RED);
                         }
                     } else
                     {
