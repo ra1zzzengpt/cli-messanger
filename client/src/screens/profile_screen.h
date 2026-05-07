@@ -9,11 +9,11 @@ namespace screen
     class ProfileScreen final : public IScreen
     {
     public:
-        explicit ProfileScreen(AppController& controller);
+        explicit ProfileScreen(app::AppController& controller);
         void run() override;
         void printScreen() override;
     private:
-        AppController& controller_;
+        app::AppController& controller_;
     };
 }
 
