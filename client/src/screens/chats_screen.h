@@ -1,19 +1,20 @@
 #pragma once
 
 #include "i_screen.h"
-#include "models/app_config.h"
+#include "app/app_controller.h"
 
 namespace screen
 {
     class ChatsScreen final : public IScreen
     {
     public:
-        explicit ChatsScreen(AppConfig& cfg);
+        explicit ChatsScreen(app::AppController& controller);
         void run() override;
         void printScreen() override;
 
     private:
-        AppConfig& config_;
+        void addChat() const;
+        app::AppController& controller_;
     };
 }
 
