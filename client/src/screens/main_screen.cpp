@@ -13,7 +13,9 @@ namespace screen
     {
         bool running = true;
         std::unique_ptr<IScreen> currentScreen;
-        controller_.LoadAppConfig();
+        if (!controller_.LoadAppConfig()) {
+            return;
+        }
         while (running)
             {
             printScreen();
@@ -21,8 +23,8 @@ namespace screen
             {
                 case static_cast<uint32_t>(kMAIN_MENU::kChatScreen):
                 {
-                    //currentScreen = std::make_unique<ChatsScreen>(controller_);
-                    //currentScreen->run();
+                    currentScreen = std::make_unique<ChatsScreen>(controller_);
+                    currentScreen->run();
                     break;
                 }
                 case static_cast<uint32_t>(kMAIN_MENU::kProfileScreen):
