@@ -7,7 +7,7 @@
 
 namespace screen
 {
-    MainScreen::MainScreen(AppController& controller) : controller_(controller) {}
+    MainScreen::MainScreen(app::AppController& controller) : controller_(controller) {}
 
     void MainScreen::run()
     {
@@ -33,8 +33,8 @@ namespace screen
                 }
                 case static_cast<uint32_t>(kMAIN_MENU::kServerScreen):
                 {
-                    //currentScreen = std::make_unique<ServerScreen>(controller_.GetAppConfig());
-                    //currentScreen->run();
+                    currentScreen = std::make_unique<ServerScreen>(controller_);
+                    currentScreen->run();
                     break;
                 }
                 case static_cast<uint32_t>(kMAIN_MENU::kExit):

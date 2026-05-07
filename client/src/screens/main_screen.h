@@ -8,11 +8,11 @@ namespace screen
     class MainScreen final : public IScreen
     {
     public:
-        explicit MainScreen(AppController& controller);
+        explicit MainScreen(app::AppController& controller);
         void run() override;
         void printScreen() override;
     private:
-        AppController& controller_;
+        app::AppController& controller_;
     };
 }
 
