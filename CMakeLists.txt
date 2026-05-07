@@ -40,7 +40,8 @@ add_executable(cli_messanger client/src/main.cpp
         client/src/models/chat_info.cpp
         client/src/models/server_info.cpp
         client/src/utils/files/config_storage/config_storage.cpp
-        client/src/utils/files/config_storage/config_storage.h)
+        client/src/utils/files/config_storage/config_storage.h
+        client/src/api/message_api/httpapi/http_response.h)
 
 add_library(cli_lib
         client/src/models/message.cpp)
