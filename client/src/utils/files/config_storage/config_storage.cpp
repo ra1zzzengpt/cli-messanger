@@ -81,23 +81,24 @@ namespace utils {
 
     std::optional<AppConfig> ConfigStorage::Load() const
     {
-
         std::ifstream file(filepath_);
-        if (!file.is_open() || file.peek() == std::ifstream::traits_type::eof())
-        {
-            return std::nullopt;
-        }
+        if (!file.is_open())
+            return std::nullopt; // todo fix for fatal error with creating directory
 
         AppConfig config;
-        try
+
+        if (file.peek() != std::ifstream::traits_type::eof())
         {
-            nlohmann::json json = nlohmann::json::parse(file);
-            config = json.get<AppConfig>();
-        }
-        catch (const nlohmann::json::exception& ex)
-        {
-            io::print("[Error]: Cannot parse config file: " + std::string(ex.what()), io::COLOR::RED);
-            return std::nullopt;
+            try
+            {
+                nlohmann::json json = nlohmann::json::parse(file);
+                config = json.get<AppConfig>();
+            }
+            catch (const nlohmann::json::exception& ex)
+            {
+                io::print("[Error]: Cannot parse config file: " + std::string(ex.what()), io::COLOR::RED);
+                return std::nullopt; // битый файл — возвращаем ошибку
+            }
         }
 
         if (HasDefaultValues(config))

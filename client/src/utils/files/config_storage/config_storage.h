@@ -1,5 +1,4 @@
 #pragma once
-#include "app/app_controller.h"
 #include "models/app_config.h"
 
 namespace utils
