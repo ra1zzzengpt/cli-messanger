@@ -12,14 +12,16 @@ namespace app
 
         AppConfig& GetAppConfig();
 
-        void LoadAppConfig();
+        bool LoadAppConfig();
 
         [[nodiscard]] bool SaveAppConfig() const;
 
-        // todo make shells for Net
-        // std::vector<ChatInfo> GetChats();
-        // std::vector<Message> GetMessages();
-        // void SendMessage(std::uint64_t chatId, const std::string &text);
+        std::vector<ChatInfo>& GetChats();
+        [[nodiscard]] std::vector<Message> GetMessages(const UserInfo& other_user, const ChatInfo& chat) const;
+        [[nodiscard]] bool SendMessage(const UserInfo& other_user, const std::string &text) const;
+        [[nodiscard]] bool updateNickname(const std::string &new_nickname) const;
+        [[nodiscard]] std::optional<UserInfo> getNicknameById(uint64_t id) const;
+        [[nodiscard]] bool registerUser(const UserInfo& user) const;
     private:
         AppConfig config;
         std::unique_ptr<api::IMessageApi> messageApi_;

@@ -1,7 +1,5 @@
 #include "app_controller.h"
 
-#include "screens/main_screen.h"
-#include "utils/console/console.h"
 #include "utils/files/file_utils.h"
 
 #include <nlohmann/json.hpp>
@@ -18,19 +16,48 @@ namespace app
         return config;
     }
 
-    void AppController::LoadAppConfig()
+    bool AppController::LoadAppConfig()
     {
-        if (configStorage_->Load() == std::nullopt)
-        {
-            // todo rework this
-        } else
-        {
-            config = configStorage_->Load().value();
-        }
+        std::optional<AppConfig> opt = configStorage_->Load();
+        if (!opt.has_value())
+            return false;
+        config = std::move(opt.value());
+        return true;
     }
 
     bool AppController::SaveAppConfig() const
     {
         return configStorage_->Save(config);
+    }
+
+    // --- SHELLS FOR NETWORK ---
+    std::vector<ChatInfo>& AppController::GetChats()
+    {
+        return config.chats;
+    }
+
+    std::vector<Message> AppController::GetMessages(const UserInfo& other_user, const ChatInfo& chat) const
+    {
+        return messageApi_->fetchMessages(config.user.id,other_user.id,chat.last_message_id);
+    }
+
+    bool AppController::SendMessage(const UserInfo& other_user, const std::string& text) const
+    {
+        return messageApi_->sendMessage(config.user.id,other_user.id,text);
+    }
+
+    bool AppController::updateNickname(const std::string &new_nickname) const
+    {
+        return messageApi_->updateNickname(config.user.id,new_nickname);
+    }
+
+    std::optional<UserInfo> AppController::getNicknameById(const uint64_t id) const
+    {
+        return messageApi_->getUsernameById(id);
+    }
+
+    bool AppController::registerUser(const UserInfo &user) const
+    {
+        return messageApi_->registerUser(user.id,user.nickname);
     }
 }
