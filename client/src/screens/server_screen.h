@@ -1,6 +1,7 @@
 #pragma once
 
 #include "i_screen.h"
+#include "app/app_controller.h"
 #include "models/app_config.h"
 
 namespace screen
@@ -8,12 +9,12 @@ namespace screen
     class ServerScreen final : public IScreen
     {
     public:
-        explicit ServerScreen(AppConfig& cfg);
+        explicit ServerScreen(app::AppController& controller);
         void run() override;
         void printScreen() override;
 
     private:
-        AppConfig& config_;
+        app::AppController& controller_;
     };
 }
 

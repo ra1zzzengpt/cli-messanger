@@ -8,7 +8,7 @@
 
 namespace screen
 {
-    ServerScreen::ServerScreen(AppConfig& cfg) : config_(cfg)
+    ServerScreen::ServerScreen(app::AppController& controller) : controller_(controller)
     { }
 
     void ServerScreen::run()
@@ -20,14 +20,14 @@ namespace screen
             {
                 case static_cast<uint32_t>(kSERVER_MENU::kChangeIp):
                 {
-                    config_.server.host = io::ScanString("Enter new host: ");
-                    utils::SaveConfig(config_);
+                    controller_.GetAppConfig().server.host = io::ScanString("Enter new host: ");
+                    //utils::SaveConfig(config_);
                     break;
                 }
                 case static_cast<uint32_t>(kSERVER_MENU::kChangePort):
                 {
-                    config_.server.port = io::ScanUint32("Enter new port: ");
-                    utils::SaveConfig(config_);
+                    controller_.GetAppConfig().server.port = io::ScanUint32("Enter new port: ");
+                    //utils::SaveConfig(config_);
                     break;
                 }
                 case static_cast<uint32_t>(kSERVER_MENU::kExit):
@@ -48,8 +48,8 @@ namespace screen
     {
         io::print("Server Screen");
         io::print("Current server:");
-        io::print("Host: " + config_.server.host);
-        io::print("Port: " + std::to_string(config_.server.port));
+        io::print("Host: " + controller_.GetAppConfig().server.host);
+        io::print("Port: " + std::to_string(controller_.GetAppConfig().server.port));
         io::print("1 - Change IP");
         io::print("2 - Change port");
         io::print("3 - Exit");
