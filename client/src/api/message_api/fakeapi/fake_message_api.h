@@ -37,5 +37,8 @@ namespace api {
             std::uint64_t peerId,
             uint64_t sinceMessageId
         ) override;
+
+        void set_host(const std::string& host) override {}
+        void set_port(const std::string& port) override {}
     };
 }
