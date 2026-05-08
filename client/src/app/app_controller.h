@@ -11,6 +11,7 @@ namespace app
             std::unique_ptr<utils::ConfigStorage> storage);
 
         AppConfig& GetAppConfig();
+        [[nodiscard]] api::IMessageApi& GetMessageApi() const;
 
         bool LoadAppConfig();
 
