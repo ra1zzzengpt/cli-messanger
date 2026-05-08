@@ -118,7 +118,7 @@ namespace api {
         }
     }
 
-    bool HttpMessageApi::registerUser(std::uint64_t id, const std::string& nick) {
+    bool HttpMessageApi::registerUser(const std::uint64_t id, const std::string& nick) {
         const std::string url = to_url() + "/users/register";
 
         nlohmann::json body;
@@ -131,8 +131,7 @@ namespace api {
     }
 
     std::optional<UserInfo> HttpMessageApi::getUsernameById(const std::uint64_t id) {
-        auto resp = GET(to_url() + "/users/" + std::to_string(id));
-        if (resp.is_ok() && resp.data.value("ok", false)) {
+        if (auto resp = GET(to_url() + "/users/" + std::to_string(id)); resp.is_ok() && resp.data.value("ok", false)) {
             UserInfo info;
             info.id = std::stoull(resp.data["user"]["id"].get<std::string>());
             info.nickname = resp.data["user"]["nick"].get<std::string>();
@@ -148,7 +147,7 @@ namespace api {
         return resp.is_ok() && resp.data.value("ok", false);
     }
 
-    bool HttpMessageApi::sendMessage(std::uint64_t fromId, std::uint64_t toId, const std::string& text) {
+    bool HttpMessageApi::sendMessage(const std::uint64_t fromId, const std::uint64_t toId, const std::string& text) {
         nlohmann::json body;
         body["from_id"] = std::to_string(fromId);
         body["to_id"] = std::to_string(toId);

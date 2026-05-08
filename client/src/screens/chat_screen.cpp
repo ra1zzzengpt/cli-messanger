@@ -44,9 +44,7 @@ namespace screen
         other_user.id = chat_.peer_id;
         other_user.nickname = chat_.peer_nick;
 
-        auto messages = controller_.GetMessages(other_user, chat_);
-        
-        if (messages.empty())
+        if (const auto messages = controller_.GetMessages(other_user, chat_); messages.empty())
         {
             io::print("(No messages yet)", io::COLOR::YELLOW);
         }
