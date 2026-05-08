@@ -16,12 +16,19 @@ namespace app
         return config;
     }
 
+    api::IMessageApi& AppController::GetMessageApi() const
+    {
+        return *messageApi_;
+    }
+
     bool AppController::LoadAppConfig()
     {
         std::optional<AppConfig> opt = configStorage_->Load();
         if (!opt.has_value())
             return false;
         config = std::move(opt.value());
+        messageApi_->set_host(config.server.host);
+        messageApi_->set_port(std::to_string(config.server.port));
         return true;
     }
 
