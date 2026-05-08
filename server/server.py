@@ -97,7 +97,7 @@ def get_user_by_id_unlocked(user_id: int) -> dict | None:
 
 def public_user(user: dict) -> dict:
     return {
-        "id": user["id"],
+        "id": str(user["id"]),
         "nick": user["nick"]
     }
 
@@ -111,10 +111,10 @@ def public_message(message: dict) -> dict:
         from_nick = "unknown"
 
     return {
-        "id": message["id"],
-        "from_id": message["from_id"],
+        "id": str(message["id"]),
+        "from_id": str(message["from_id"]),
         "from_nick": from_nick,
-        "to_id": message["to_id"],
+        "to_id": str(message["to_id"]),
         "text": message["text"],
         "created_at": message["created_at"]
     }
