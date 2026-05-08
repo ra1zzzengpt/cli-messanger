@@ -13,10 +13,10 @@ void to_json(nlohmann::json& json, const Message& message) {
 }
 
 void from_json(const nlohmann::json& json, Message& message) {
-    message.id = json.value("id", 0);
-    message.from_id = json.value("from_id", 0ULL);
+    message.id = json.value<uint64_t>("id", 0);
+    message.from_id = json.value<uint64_t>("from_id", 0);
     message.from_nick = json.value("from_nick", "");
-    message.to_id = json.value("to_id", 0ULL);
+    message.to_id = json.value<uint64_t>("to_id", 0);
     message.text = json.value("text", "");
     message.created_at = json.value("created_at", "");
 }

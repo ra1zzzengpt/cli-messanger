@@ -11,6 +11,6 @@ void to_json(nlohmann::json& json, const UserInfo& user)
 
 void from_json(const nlohmann::json& json, UserInfo& user)
 {
-    user.id = json.value("id", 0);
+    user.id = json.value<std::uint64_t>("id", 0);
     user.nickname = json.value("nick", "");
 }
