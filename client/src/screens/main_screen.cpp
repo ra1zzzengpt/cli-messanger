@@ -16,6 +16,9 @@ namespace screen
         if (!controller_.LoadAppConfig()) {
             return;
         }
+        if (!controller_.registerUser(controller_.GetAppConfig().user)) {
+            io::print("[Warning]: Could not register on server. You might be offline.", io::COLOR::YELLOW);
+        }
         while (running)
             {
             printScreen();
