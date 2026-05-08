@@ -1,0 +1,8 @@
+{
+  "name": "cli-messenger",
+  "version": "0.1.0",
+  "dependencies": [
+    "libcurl",
+    "nlohmann-json"
+  ]
+}
