@@ -20,10 +20,12 @@ namespace screen
             {
                 case static_cast<uint32_t>(kSERVER_MENU::kChangeIp):
                 {
-                    controller_.GetAppConfig().server.host = io::ScanString("Enter new host: ");
+                    std::string new_host = io::ScanString("Enter new host: ");
                     if (controller_.SaveAppConfig())
                     {
-                        io::print("[Success]: new host added",io::COLOR::GREEN);
+                        controller_.GetAppConfig().server.host = new_host;
+                        controller_.GetMessageApi().set_host(new_host);
+                        io::print("[Success]: new host changed",io::COLOR::GREEN);
                     } else
                     {
                         io::print("[Error]: can't save new host", io::COLOR::RED);
@@ -32,10 +34,12 @@ namespace screen
                 }
                 case static_cast<uint32_t>(kSERVER_MENU::kChangePort):
                 {
-                    controller_.GetAppConfig().server.port = io::ScanUint32("Enter new port: ");
+                    std::string new_port = io::ScanString("Enter new port: ");
                     if (controller_.SaveAppConfig())
                     {
-                        io::print("[Success]: new port added.",io::COLOR::GREEN);
+                        controller_.GetAppConfig().server.host = new_port;
+                        controller_.GetMessageApi().set_port(new_port);
+                        io::print("[Success]: new port changed.",io::COLOR::GREEN);
                     } else
                     {
                         io::print("[Error]: can't save new port.", io::COLOR::RED);
