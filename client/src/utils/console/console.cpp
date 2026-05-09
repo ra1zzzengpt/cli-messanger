@@ -108,3 +108,14 @@ std::string io::ScanString(const std::string_view prompt) {
 
     return value;
 }
+
+void io::WaitForEnter()
+{
+    print("Press enter to continue...");
+    std::cin.get();
+}
+
+void io::ClearConsole()
+{
+    std::cout << "\x1B[3J\x1B[2J\x1B[H";
+}

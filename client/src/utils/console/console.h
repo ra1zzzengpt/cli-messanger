@@ -38,4 +38,6 @@ namespace io
     uint32_t ScanUint32(std::string_view prompt);
     uint64_t ScanUint64(std::string_view prompt);
     std::string ScanString(std::string_view prompt);
+    void WaitForEnter();
+    void ClearConsole();
 }
