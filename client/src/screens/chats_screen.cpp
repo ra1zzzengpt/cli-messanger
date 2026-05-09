@@ -1,8 +1,12 @@
 #include "chats_screen.h"
 #include "chat_screen.h"
 #include "utils/console/console.h"
+
 #include <algorithm>
 #include <string>
+
+#include "utils/files/files.h"
+#include "utils/files/paths.h"
 
 namespace
 {
@@ -43,9 +47,8 @@ namespace screen
                         io::print("[Error]: No chats to select", io::COLOR::RED);
                         break;
                     }
-                    
-                    uint32_t index = io::ScanUint32("Enter chat number: ");
-                    if (index > 0 && index <= chats.size())
+
+                    if (uint32_t index = io::ScanUint32("Enter chat number: "); index > 0 && index <= chats.size())
                     {
                         ChatScreen chat_view(controller_, chats[index - 1]);
                         chat_view.run();
@@ -77,10 +80,7 @@ namespace screen
 
     void ChatsScreen::printScreen()
     {
-        io::print("\n--- Chats Screen ---", io::COLOR::BLUE);
-        io::print("1 - Select chat");
-        io::print("2 - Add new chat");
-        io::print("3 - Exit");
+        utils::PrintFromFile(paths::CHATS);
     }
 
     void ChatsScreen::addChat() const {
@@ -91,6 +91,11 @@ namespace screen
             return chat.peer_id == peer_id;
         });
 
+        if (peer_id == controller_.GetAppConfig().user.id)
+        {
+            io::print("[Error]: you can't add chat with you", io::COLOR::RED);
+            return;
+        }
         if (it != chats.end())
         {
             io::print("[Error]: Chat with ID " + std::to_string(peer_id) + " already exists", io::COLOR::RED);
