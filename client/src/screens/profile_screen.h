@@ -2,7 +2,6 @@
 
 #include "i_screen.h"
 #include "app/app_controller.h"
-#include "models/app_config.h"
 
 namespace screen
 {
@@ -20,7 +19,8 @@ namespace screen
 enum class kPROFILE_MENU
 {
     kMinChoice = 1,
-    kMaxChoice = 2,
+    kMaxChoice = 3,
     kChangeNickname = 1,
-    kExit = 2
+    kChangePassword = 2,
+    kExit = 3
 };
