@@ -17,10 +17,6 @@ add_executable(cli_messanger client/src/main.cpp
         client/src/models/user_info.cpp
         client/src/utils/command/command_parser.cpp
         client/src/utils/command/command_parser.h
-        client/src/utils/files/json/json_parser.cpp
-        client/src/utils/files/json/json_parser.h
-        client/src/utils/files/file_utils.cpp
-        client/src/utils/files/file_utils.h
         client/src/api/message_api/httpapi/http_message_api.cpp
         client/src/api/message_api/httpapi/http_message_api.h
         client/src/screens/i_screen.h
@@ -41,7 +37,13 @@ add_executable(cli_messanger client/src/main.cpp
         client/src/models/server_info.cpp
         client/src/utils/files/config_storage/config_storage.cpp
         client/src/utils/files/config_storage/config_storage.h
-        client/src/api/message_api/httpapi/http_response.h)
+        client/src/api/message_api/httpapi/http_response.h
+        client/src/screens/auth_screen.cpp
+        client/src/screens/auth_screen.h
+        client/src/screens/auth_screen.cpp
+        client/src/utils/files/files.cpp
+        client/src/utils/files/files.h
+        client/src/utils/files/paths.h)
 
 add_library(cli_lib
         client/src/models/message.cpp)
