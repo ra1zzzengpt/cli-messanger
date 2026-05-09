@@ -1,0 +1,13 @@
+    __  __________    ____ 
+   / / / / ____/ /   / __ \
+  / /_/ / __/ / /   / /_/ /
+ / __  / /___/ /___/ ____/ 
+/_/ /_/_____/_____/_/
+
+ </update> - updating chat
+
+ </help> - help menu
+
+ </quit> - quit from chat
+
+ </dump> - dump chat in username.txt in assets/save (WIP)
