@@ -2,6 +2,8 @@
 
 #include "utils/command/command_parser.h"
 #include "utils/console/console.h"
+#include "utils/files/files.h"
+#include "utils/files/paths.h"
 
 namespace screen
 {
@@ -16,14 +18,25 @@ namespace screen
             printScreen();
             displayMessages();
 
-            const std::string text = io::ScanString("> ");
-            if (text.starts_with("/")) {
+            if (const std::string text = io::ScanString("> "); text.starts_with("/")) {
                 std::optional<utils::COMMAND> command = utils::ParseCommand(text);
                 if (command == utils::COMMAND::QUIT) {
                     in_chat = false;
                 }
                 if (command == utils::COMMAND::HELP) {
-                    //todo help output
+                    utils::PrintFromFile(paths::HELP);
+                    io::WaitForEnter();
+                }
+                if (command == utils::COMMAND::UPDATE)
+                {
+                    continue;
+                }
+                if (command == utils::COMMAND::DUMP)
+                {
+                    UserInfo other_user;
+                    other_user.id = chat_.peer_id;
+                    other_user.nickname = chat_.peer_nick;
+                    utils::DumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"),controller_.DumpMessages(other_user),chat_);
                 }
                 if (command == std::nullopt) {
                     io::print("[Error]: unknown command.", io::COLOR::RED);
@@ -36,7 +49,7 @@ namespace screen
 
     void ChatScreen::printScreen()
     {
-        io::print("\n--- Chat with " + chat_.peer_nick + " (ID: " + std::to_string(chat_.peer_id) + ") ---", io::COLOR::BLUE);
+        io::print("\n--- Chat with " + chat_.peer_nick + " (ID: " + std::to_string(chat_.peer_id) + ") ---");
     }
 
     void ChatScreen::displayMessages() const {
