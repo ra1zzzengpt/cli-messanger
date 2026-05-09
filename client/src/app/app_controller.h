@@ -18,11 +18,15 @@ namespace app
         [[nodiscard]] bool SaveAppConfig() const;
 
         std::vector<ChatInfo>& GetChats();
+        [[nodiscard]] std::optional<std::string> Ping() const;
+        [[nodiscard]] std::vector<Message> DumpMessages(const UserInfo& other_user) const;
         [[nodiscard]] std::vector<Message> GetMessages(const UserInfo& other_user, const ChatInfo& chat) const;
         [[nodiscard]] bool SendMessage(const UserInfo& other_user, const std::string &text) const;
+        [[nodiscard]] bool updatePassword(const std::string &new_password) const;
         [[nodiscard]] bool updateNickname(const std::string &new_nickname) const;
         [[nodiscard]] std::optional<UserInfo> getNicknameById(uint64_t id) const;
         [[nodiscard]] bool registerUser(const UserInfo& user) const;
+        [[nodiscard]] bool loginUser(uint64_t id, const std::string& password) const;
     private:
         AppConfig config;
         std::unique_ptr<api::IMessageApi> messageApi_;

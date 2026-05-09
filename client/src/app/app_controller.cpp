@@ -1,8 +1,6 @@
 #include "app_controller.h"
-
-#include "utils/files/file_utils.h"
-
 #include <nlohmann/json.hpp>
+
 namespace app
 {
     AppController::AppController(
@@ -38,9 +36,19 @@ namespace app
     }
 
     // --- SHELLS FOR NETWORK ---
+    std::optional<std::string> AppController::Ping() const
+    {
+        return messageApi_->ping();
+    }
+
     std::vector<ChatInfo>& AppController::GetChats()
     {
         return config.chats;
+    }
+    
+    std::vector<Message> AppController::DumpMessages(const UserInfo& other_user) const
+    {
+        return messageApi_->dumpMessages(config.user.id, other_user.id);
     }
 
     std::vector<Message> AppController::GetMessages(const UserInfo& other_user, const ChatInfo& chat) const
@@ -51,6 +59,12 @@ namespace app
     bool AppController::SendMessage(const UserInfo& other_user, const std::string& text) const
     {
         return messageApi_->sendMessage(config.user.id,other_user.id,text);
+    }
+
+    
+    bool AppController::updatePassword(const std::string &new_password) const
+    {
+        return messageApi_->updatePassword(config.user.id, new_password);
     }
 
     bool AppController::updateNickname(const std::string &new_nickname) const
@@ -65,6 +79,11 @@ namespace app
 
     bool AppController::registerUser(const UserInfo &user) const
     {
-        return messageApi_->registerUser(user.id,user.nickname);
+        return messageApi_->registerUser(user.id,user.nickname,user.password);
+    }
+
+    bool AppController::loginUser(const uint64_t id, const std::string& password) const
+    {
+        return messageApi_->loginUser(id, password);
     }
 }
