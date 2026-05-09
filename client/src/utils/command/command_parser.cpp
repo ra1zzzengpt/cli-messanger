@@ -8,6 +8,14 @@ namespace utils {
         if (command == "/help") {
             return COMMAND::HELP;
         }
+        if (command == "/update")
+        {
+            return COMMAND::UPDATE;
+        }
+        if (command == "/dump")
+        {
+            return COMMAND::DUMP;
+        }
         return std::nullopt;
     }
 }
