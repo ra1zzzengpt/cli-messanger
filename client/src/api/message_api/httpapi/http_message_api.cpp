@@ -118,16 +118,41 @@ namespace api {
         }
     }
 
-    bool HttpMessageApi::registerUser(const std::uint64_t id, const std::string& nick) {
+    std::optional<std::string> HttpMessageApi::ping()
+    {
+        if (const HttpResponse resp = GET(to_url() + "/ping"); resp.is_ok() && resp.data.value("ok", false))
+        {
+            std::string result;
+            result += "status: " + resp.data["status"].get<std::string>();
+            result += " uptime: " + resp.data["uptime"].get<std::string>();
+            return result;
+        }
+        return std::nullopt;
+    }
+
+    bool HttpMessageApi::registerUser(const std::uint64_t id, const std::string& nick, const std::string& password) {
         const std::string url = to_url() + "/users/register";
 
         nlohmann::json body;
         body["id"] = std::to_string(id);
         body["nick"] = nick;
+        body["password"] = password;
 
-        HttpResponse resp = POST(url, body.dump());
+        const HttpResponse resp = POST(url, body.dump());
 
-        return resp.is_ok() && resp.data.contains("ok") && resp.data["ok"].get<bool>();
+        return resp.is_ok() && resp.data.value("ok", false);
+    }
+
+    bool HttpMessageApi::loginUser(const std::uint64_t id, const std::string& password) {
+        const std::string url = to_url() + "/users/login";
+
+        nlohmann::json body;
+        body["id"] = std::to_string(id);
+        body["password"] = password;
+
+        const HttpResponse resp = POST(url, body.dump());
+
+        return resp.is_ok() && resp.data.value("ok", false);
     }
 
     std::optional<UserInfo> HttpMessageApi::getUsernameById(const std::uint64_t id) {
@@ -138,6 +163,14 @@ namespace api {
             return info;
         }
         return std::nullopt;
+    }
+
+    
+    bool HttpMessageApi::updatePassword(const std::uint64_t id, const std::string& newPassword) {
+        nlohmann::json body;
+        body["password"] = newPassword;
+        const HttpResponse resp = PATCH(to_url() + "/users/" + std::to_string(id) + "/password", body.dump());
+        return resp.is_ok() && resp.data.value("ok", false);
     }
 
     bool HttpMessageApi::updateNickname(const std::uint64_t id, const std::string& newNick) {
@@ -154,6 +187,27 @@ namespace api {
         body["text"] = text;
         const HttpResponse resp = POST(to_url() + "/messages/send", body.dump());
         return resp.is_ok() && resp.data.value("ok", false);
+    }
+
+    
+    std::vector<Message> HttpMessageApi::dumpMessages(const std::uint64_t myId, const std::uint64_t peerId) {
+        const std::string url = to_url() + "/messages/dump?me=" + std::to_string(myId) +
+                          "&peer=" + std::to_string(peerId);
+        HttpResponse resp = GET(url);
+
+        std::vector<Message> messages;
+        if (resp.is_ok() && resp.data.value("ok", false)) {
+            for (const auto& item : resp.data["messages"]) {
+                Message msg;
+                msg.id = std::stoull(item["id"].get<std::string>());
+                msg.from_id = std::stoull(item["from_id"].get<std::string>());
+                msg.to_id = std::stoull(item["to_id"].get<std::string>());
+                msg.text = item["text"].get<std::string>();
+                msg.created_at = item["created_at"].get<std::string>();
+                messages.push_back(msg);
+            }
+        }
+        return messages;
     }
 
     std::vector<Message> HttpMessageApi::fetchMessages(const std::uint64_t myId, const std::uint64_t peerId, const uint64_t sinceMessageId) {
