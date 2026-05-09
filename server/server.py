@@ -5,9 +5,11 @@ from datetime import datetime
 from pathlib import Path
 from threading import Lock
 import json
+import time
 
 
 app = Flask(__name__)
+start_time = time.time()
 
 STATE_FILE = Path("server_state.json")
 state_lock = Lock()
@@ -120,6 +122,16 @@ def public_message(message: dict) -> dict:
     }
 
 
+
+@app.get("/ping")
+def ping():
+    uptime_seconds = int(time.time() - start_time)
+    return ok_response({
+        "status": "online",
+        "uptime": f"{uptime_seconds}s"
+    })
+
+
 @app.get("/health")
 def health():
     return ok_response({
@@ -136,12 +148,16 @@ def register_user():
 
     user_id = parse_uint64(data.get("id"))
     nick = data.get("nick")
+    password = data.get("password")
 
     if user_id is None:
         return error_response("invalid user id", 400)
 
     if not isinstance(nick, str) or not nick.strip():
         return error_response("invalid nick", 400)
+
+    if not isinstance(password, str) or len(password) < 4:
+        return error_response("password must be at least 4 characters", 400)
 
     nick = nick.strip()
 
@@ -152,17 +168,12 @@ def register_user():
         existing_user = get_user_by_id_unlocked(user_id)
 
         if existing_user is not None:
-            if existing_user["nick"] == nick:
-                return ok_response({
-                    "user": public_user(existing_user),
-                    "already_registered": True
-                })
-
             return error_response("user id already exists", 409)
 
         user = {
             "id": user_id,
             "nick": nick,
+            "password": password,
             "created_at": now_timestamp()
         }
 
@@ -172,6 +183,36 @@ def register_user():
     return ok_response({
         "user": public_user(user)
     }, 201)
+
+
+@app.post("/users/login")
+def login_user():
+    data = get_json_body()
+
+    if data is None:
+        return error_response("expected JSON object", 400)
+
+    user_id = parse_uint64(data.get("id"))
+    password = data.get("password")
+
+    if user_id is None:
+        return error_response("invalid user id", 400)
+
+    if not isinstance(password, str):
+        return error_response("invalid password", 400)
+
+    with state_lock:
+        user = get_user_by_id_unlocked(user_id)
+
+        if user is None:
+            return error_response("user not found", 404)
+
+        if user["password"] != password:
+            return error_response("invalid password", 401)
+
+        return ok_response({
+            "user": public_user(user)
+        })
 
 
 @app.get("/users/<user_id>")
@@ -283,6 +324,79 @@ def send_message():
             "message_id": message["id"],
             "message": public_message(message)
         }, 201)
+
+
+
+@app.patch("/users/<user_id>/password")
+def update_password(user_id: str):
+    parsed_user_id = parse_uint64(user_id)
+
+    if parsed_user_id is None:
+        return error_response("invalid user id", 400)
+
+    data = get_json_body()
+
+    if data is None:
+        return error_response("expected JSON object", 400)
+
+    new_password = data.get("password")
+
+    if not isinstance(new_password, str) or len(new_password) < 4:
+        return error_response("password must be at least 4 characters", 400)
+
+    with state_lock:
+        user = get_user_by_id_unlocked(parsed_user_id)
+
+        if user is None:
+            return error_response("user not found", 404)
+
+        user["password"] = new_password
+        save_state(state)
+
+        return ok_response({
+            "user": public_user(user)
+        })
+
+
+
+@app.get("/messages/dump")
+def dump_messages():
+    me = parse_uint64(request.args.get("me"))
+    peer = parse_uint64(request.args.get("peer"))
+
+    if me is None:
+        return error_response("invalid me", 400)
+
+    if peer is None:
+        return error_response("invalid peer", 400)
+
+    with state_lock:
+        me_user = get_user_by_id_unlocked(me)
+        peer_user = get_user_by_id_unlocked(peer)
+
+        if me_user is None:
+            return error_response("current user not found", 404)
+
+        if peer_user is None:
+            return error_response("peer user not found", 404)
+
+        result = []
+        for message in state["messages"]:
+            is_dialog_message = (
+                    (message["from_id"] == me and message["to_id"] == peer)
+                    or
+                    (message["from_id"] == peer and message["to_id"] == me)
+            )
+
+            if is_dialog_message:
+                result.append(public_message(message))
+
+        result.sort(key=lambda item: item["id"])
+
+        return ok_response({
+            "messages": result,
+            "total_count": len(result)
+        })
 
 
 @app.get("/messages")
