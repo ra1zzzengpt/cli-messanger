@@ -6,7 +6,7 @@
 // #include "api/message_api/imessage_api.h"
 // #include "models/user_info.h"
 // #include "models/message.h"
-// todo fakeApi can be determined, now all test can be run with HttpApi
+
 // namespace api {
 //     class FakeMessageApi final : public IMessageApi{
 //     public:
