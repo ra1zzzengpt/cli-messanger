@@ -4,6 +4,8 @@
 #include "profile_screen.h"
 #include "server_screen.h"
 #include "utils/console/console.h"
+#include "utils/files/files.h"
+#include "utils/files/paths.h"
 
 namespace screen
 {
@@ -13,12 +15,6 @@ namespace screen
     {
         bool running = true;
         std::unique_ptr<IScreen> currentScreen;
-        if (!controller_.LoadAppConfig()) {
-            return;
-        }
-        if (!controller_.registerUser(controller_.GetAppConfig().user)) {
-            io::print("[Warning]: Could not register on server. You might be offline.", io::COLOR::YELLOW);
-        }
         while (running)
             {
             printScreen();
@@ -57,10 +53,6 @@ namespace screen
     }
 
     void MainScreen::printScreen() {
-        io::print("Main Screen");
-        io::print("1 - Chats");
-        io::print("2 - Profile");
-        io::print("3 - Server");
-        io::print("4 - Exit");
+        utils::PrintFromFile(paths::MAIN);
     }
 }
