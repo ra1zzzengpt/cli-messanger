@@ -1,5 +1,6 @@
 #include "app/app_controller.h"
 #include "screens/main_screen.h"
+#include "screens/auth_screen.h"
 #include "utils/files/config_storage/config_storage.h"
 #include "api/message_api/httpapi/http_message_api.h"
 #include <curl/curl.h>
@@ -21,8 +22,29 @@ int main()
     }
     app::AppController controller(std::make_unique<api::HttpMessageApi>(),std::make_unique<utils::ConfigStorage>(kConfigPath));
 
-    screen::MainScreen mainMenu(controller);
-    mainMenu.run();
+    if (controller.LoadAppConfig())
+    {
+        if (const auto& user = controller.GetAppConfig().user; user.id != 0 && !user.password.empty())
+        {
+            io::print("Checking server status...");
+
+            if (controller.GetMessageApi().ping().has_value())
+            {
+                io::print("Attempting auto-login...");
+                if (controller.loginUser(user.id, user.password))
+                {
+                    screen::MainScreen mainMenu(controller);
+                    mainMenu.run();
+                    return 0;
+                }
+            } else {
+                io::print("[Warning]: Server is offline or unreachable. Please check settings.", io::COLOR::YELLOW);
+                io::WaitForEnter();
+            }
+        }
+    }
+    screen::AuthScreen authScreen(controller);
+    authScreen.run();
 
     return 0;
 }
