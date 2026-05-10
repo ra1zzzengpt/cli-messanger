@@ -58,18 +58,17 @@ namespace app
 
     bool AppController::SendMessage(const UserInfo& other_user, const std::string& text) const
     {
-        return messageApi_->sendMessage(config.user.id,other_user.id,text);
+        return messageApi_->sendMessage(config.user.id, other_user.id, config.user.password, text);
     }
 
-    
-    bool AppController::updatePassword(const std::string &new_password) const
+    bool AppController::updatePassword(const std::string& new_password) const
     {
-        return messageApi_->updatePassword(config.user.id, new_password);
+        return messageApi_->updatePassword(config.user.id, config.user.password, new_password);
     }
 
-    bool AppController::updateNickname(const std::string &new_nickname) const
+    bool AppController::updateNickname(const std::string& new_nickname) const
     {
-        return messageApi_->updateNickname(config.user.id,new_nickname);
+        return messageApi_->updateNickname(config.user.id, config.user.password, new_nickname);
     }
 
     std::optional<UserInfo> AppController::getNicknameById(const uint64_t id) const
