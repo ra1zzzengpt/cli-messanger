@@ -2,7 +2,7 @@
 #include "screens/main_screen.h"
 #include "screens/auth_screen.h"
 #include "utils/files/config_storage/config_storage.h"
-#include "api/message_api/httpapi/http_message_api.h"
+#include "api/message_api/httpsapi/https_message_api.h"
 #include <curl/curl.h>
 
 #include "utils/console/console.h"
