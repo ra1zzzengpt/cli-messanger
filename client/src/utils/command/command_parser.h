@@ -3,12 +3,12 @@
 #include <string>
 
 namespace utils {
-    enum class COMMAND {
-        QUIT,
-        HELP,
-        UPDATE,
-        DUMP
+    enum class Command {
+        Quit,
+        Help,
+        Update,
+        Dump
     };
 
-    std::optional<COMMAND> ParseCommand(const std::string& command);
+    std::optional<Command> parseCommand(const std::string& command);
 };

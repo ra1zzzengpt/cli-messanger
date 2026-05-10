@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(cli_messanger)
-
+cmake_policy(SET CMP0135 NEW)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(cli_messanger
@@ -44,17 +44,12 @@ add_executable(cli_messanger
         client/src/utils/files/files.cpp
         client/src/utils/files/files.h
         client/src/utils/files/paths.h
-)
-
-add_library(cli_lib
         client/src/models/message.cpp
 )
 
 target_include_directories(cli_messanger PRIVATE
         ${PROJECT_SOURCE_DIR}/client/src
 )
-
-target_link_libraries(cli_messanger PRIVATE cli_lib)
 
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)

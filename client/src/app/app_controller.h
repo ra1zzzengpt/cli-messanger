@@ -10,25 +10,25 @@ namespace app
         AppController(std::unique_ptr<api::IMessageApi> api,
             std::unique_ptr<utils::ConfigStorage> storage);
 
-        AppConfig& GetAppConfig();
-        [[nodiscard]] api::IMessageApi& GetMessageApi() const;
+        AppConfig& getAppConfig();
+        [[nodiscard]] api::IMessageApi& getMessageApi() const;
 
-        bool LoadAppConfig();
+        bool loadAppConfig();
 
-        [[nodiscard]] bool SaveAppConfig() const;
+        [[nodiscard]] bool saveAppConfig() const;
 
-        std::vector<ChatInfo>& GetChats();
-        [[nodiscard]] std::optional<std::string> Ping() const;
-        [[nodiscard]] std::vector<Message> DumpMessages(const UserInfo& other_user) const;
-        [[nodiscard]] std::vector<Message> GetMessages(const UserInfo& other_user, const ChatInfo& chat) const;
-        [[nodiscard]] bool SendMessage(const UserInfo& other_user, const std::string &text) const;
+        std::vector<ChatInfo>& getChats();
+        [[nodiscard]] std::optional<std::string> ping() const;
+        [[nodiscard]] std::vector<Message> dumpMessages(const UserInfo& other_user) const;
+        [[nodiscard]] std::vector<Message> getMessages(const UserInfo& other_user, const ChatInfo& chat) const;
+        [[nodiscard]] bool sendMessage(const UserInfo& other_user, const std::string &text) const;
         [[nodiscard]] bool updatePassword(const std::string &new_password) const;
         [[nodiscard]] bool updateNickname(const std::string &new_nickname) const;
         [[nodiscard]] std::optional<UserInfo> getNicknameById(uint64_t id) const;
         [[nodiscard]] bool registerUser(const UserInfo& user) const;
         [[nodiscard]] bool loginUser(uint64_t id, const std::string& password) const;
     private:
-        AppConfig config;
+        AppConfig config_;
         std::unique_ptr<api::IMessageApi> messageApi_;
         std::unique_ptr<utils::ConfigStorage> configStorage_;
     };

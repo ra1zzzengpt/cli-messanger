@@ -16,12 +16,12 @@ namespace screen
     };
 }
 
-enum class kMAIN_MENU
+enum class MainMenu
 {
-    kMinChoice = 1,
-    kMaxChoice = 4,
-    kChatScreen = 1,
-    kProfileScreen = 2,
-    kServerScreen = 3,
-    kExit = 4
+    MinChoice = 1,
+    MaxChoice = 4,
+    ChatScreen = 1,
+    ProfileScreen = 2,
+    ServerScreen = 3,
+    Exit = 4
 };

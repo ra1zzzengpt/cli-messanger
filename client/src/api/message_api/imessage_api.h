@@ -60,7 +60,7 @@ namespace api
             uint64_t sinceMessageId
         ) = 0;
 
-        virtual void set_host(const std::string& host) = 0;
-        virtual void set_port(const std::string& port) = 0;
+        virtual void setHost(const std::string& host) = 0;
+        virtual void setPort(const std::string& port) = 0;
     };
 }

@@ -17,33 +17,33 @@ namespace screen
         while (running)
         {
             printScreen();
-            switch (io::ScanUint32("> "))
+            switch (io::scanUint32("> "))
             {
-                case static_cast<uint32_t>(kAUTH_MENU::kLogin):
+                case static_cast<uint32_t>(AuthMenu::Login):
                 {
                     handleLogin();
                     break;
                 }
-                case static_cast<uint32_t>(kAUTH_MENU::kRegister):
+                case static_cast<uint32_t>(AuthMenu::Register):
                 {
                     handleRegister();
                     break;
                 }
-                case static_cast<uint32_t>(kAUTH_MENU::kServerSettings):
+                case static_cast<uint32_t>(AuthMenu::ServerSettings):
                 {
                     ServerScreen server_screen(controller_);
                     server_screen.run();
                     break;
                 }
-                case static_cast<uint32_t>(kAUTH_MENU::kExit):
+                case static_cast<uint32_t>(AuthMenu::Exit):
                 {
                     running = false;
                     break;
                 }
                 default:
                 {
-                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(kAUTH_MENU::kMinChoice)) +
-                        " to " + std::to_string(static_cast<int>(kAUTH_MENU::kMaxChoice)), io::COLOR::RED);
+                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(AuthMenu::MinChoice)) +
+                        " to " + std::to_string(static_cast<int>(AuthMenu::MaxChoice)), io::Color::Red);
                 }
             }
         }
@@ -51,63 +51,63 @@ namespace screen
 
     void AuthScreen::printScreen()
     {
-        utils::PrintFromFile(paths::AUTH);
-        io::print("Your ID from save.json: " + std::to_string(controller_.GetAppConfig().user.id));
+        utils::printFromFile(paths::auth);
+        io::print("Your ID from save.json: " + std::to_string(controller_.getAppConfig().user.id));
     }
 
     void AuthScreen::handleLogin() const
     {
-        const uint64_t id = io::ScanUint64("Enter ID: ");
-        const std::string password = io::ScanString("Enter password: ");
+        const uint64_t id = io::scanUint64("Enter ID: ");
+        const std::string password = io::scanString("Enter password: ");
 
         if (controller_.loginUser(id, password))
         {
-            io::print("Login successful!",io::COLOR::GREEN);
+            io::print("Login successful!",io::Color::Green);
             if (const std::optional<UserInfo> user_opt = controller_.getNicknameById(id))
             {
-                controller_.GetAppConfig().user = *user_opt;
-                controller_.GetAppConfig().user.password = password;
-                if (controller_.SaveAppConfig())
+                controller_.getAppConfig().user = *user_opt;
+                controller_.getAppConfig().user.password = password;
+                if (controller_.saveAppConfig())
                 {
                     MainScreen main_screen(controller_);
                     main_screen.run();
                 } else
                 {
-                    io::print("[Error]: Failed to save user in config.",io::COLOR::RED);
-                    io::WaitForEnter();
+                    io::print("[Error]: Failed to save user in config.",io::Color::Red);
+                    io::waitForEnter();
                 }
             }
         }
         else
         {
-            io::print("[Error]: Server is offline or unreachable. Please check settings.",io::COLOR::RED);
-            io::WaitForEnter();
+            io::print("[Error]: Server is offline or unreachable. Please check settings.",io::Color::Red);
+            io::waitForEnter();
         }
     }
 
     void AuthScreen::handleRegister() const
     {
-        const std::string password = io::ScanString("Enter password: ");;
+        const std::string password = io::scanString("Enter password: ");;
 
         UserInfo user;
-        user.id = controller_.GetAppConfig().user.id;
-        user.nickname = controller_.GetAppConfig().user.nickname;
+        user.id = controller_.getAppConfig().user.id;
+        user.nickname = controller_.getAppConfig().user.nickname;
         user.password = password;
 
         if (controller_.registerUser(user))
         {
-            io::print("Registration successful! You can now login.",io::COLOR::GREEN);
-            controller_.GetAppConfig().user.password = password;
-            io::WaitForEnter();
+            io::print("Registration successful! You can now login.",io::Color::Green);
+            controller_.getAppConfig().user.password = password;
+            io::waitForEnter();
         }
         else
         {
-            io::print("Registration failed.", io::COLOR::RED);
-            io::WaitForEnter();
+            io::print("Registration failed.", io::Color::Red);
+            io::waitForEnter();
         }
-        if (!controller_.SaveAppConfig())
+        if (!controller_.saveAppConfig())
         {
-            io::print("[Error]: Failed to save user in config.", io::COLOR::RED);
+            io::print("[Error]: Failed to save user in config.", io::Color::Red);
         }
     }
 }

@@ -9,7 +9,7 @@
 
 namespace utils {
     namespace {
-        uint64_t RandomUInt64()
+        uint64_t randomUint64()
         {
             static std::random_device rd;
             static std::mt19937 gen(rd());
@@ -20,7 +20,7 @@ namespace utils {
             return dist(gen);
         };
 
-        bool HasDefaultValues(const AppConfig& config)
+        bool hasDefaultValues(const AppConfig& config)
         {
             return config.server.host.empty()
                 || config.server.port == 0
@@ -28,26 +28,26 @@ namespace utils {
                 || config.user.nickname.empty();
         }
 
-        void FillMissingConfigValues(AppConfig& config)
+        void fillMissingConfigValues(AppConfig& config)
         {
             if (config.server.host.empty())
             {
-                config.server.host = io::ScanString("Server host: ");
+                config.server.host = io::scanString("Server host: ");
             }
 
             if (config.server.port == 0)
             {
-                config.server.port = static_cast<int>(io::ScanUint32("Server port: "));
+                config.server.port = static_cast<int>(io::scanUint32("Server port: "));
             }
 
             if (config.user.id == 0)
             {
-                config.user.id = RandomUInt64();
+                config.user.id = randomUint64();
             }
 
             if (config.user.nickname.empty())
             {
-                config.user.nickname = io::ScanString("User nick: ");
+                config.user.nickname = io::scanString("User nick: ");
             }
         }
     }
@@ -55,7 +55,7 @@ namespace utils {
     ConfigStorage::ConfigStorage(std::string filepath) : filepath_(std::move(filepath))
     { }
 
-    bool ConfigStorage::Save(const AppConfig& config) const
+    bool ConfigStorage::save(const AppConfig& config) const
     {
 
         const std::filesystem::path path{filepath_};
@@ -64,14 +64,14 @@ namespace utils {
 
         if (error)
         {
-            io::print("[Error]: Cannot create config directory", io::COLOR::RED);
+            io::print("[Error]: Cannot create config directory", io::Color::Red);
             return false;
         }
 
         std::ofstream file(path);
         if (!file.is_open())
         {
-            io::print("[Error]: Cannot save config file", io::COLOR::RED);
+            io::print("[Error]: Cannot save config file", io::Color::Red);
             return false;
         }
 
@@ -79,7 +79,7 @@ namespace utils {
         return true;
     }
 
-    std::optional<AppConfig> ConfigStorage::Load() const
+    std::optional<AppConfig> ConfigStorage::load() const
     {
         const std::filesystem::path path{filepath_};
         std::error_code error;
@@ -87,7 +87,7 @@ namespace utils {
 
         if (error)
         {
-            io::print("[FATAL ERROR]: Cannot create config directory", io::COLOR::RED);
+            io::print("[FATAL ERROR]: Cannot create config directory", io::Color::Red);
             return std::nullopt;
         }
 
@@ -103,18 +103,18 @@ namespace utils {
             }
             catch (const nlohmann::json::exception& ex)
             {
-                io::print("[Error]: Cannot parse config file: " + std::string(ex.what()), io::COLOR::RED);
+                io::print("[Error]: Cannot parse config file: " + std::string(ex.what()), io::Color::Red);
                 config = AppConfig{};
             }
         }
 
-        if (HasDefaultValues(config))
+        if (hasDefaultValues(config))
         {
-            io::print("Config is incomplete. Please enter missing values:", io::COLOR::YELLOW);
-            FillMissingConfigValues(config);
-            if (!Save(config))
+            io::print("Config is incomplete. Please enter missing values:", io::Color::Yellow);
+            fillMissingConfigValues(config);
+            if (!save(config))
             {
-                io::print("[Error]: Failed to save updated config", io::COLOR::RED);
+                io::print("[Error]: Failed to save updated config", io::Color::Red);
             }
         }
 

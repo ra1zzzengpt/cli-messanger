@@ -5,7 +5,7 @@
 #include <nlohmann/json.hpp>
 
 struct Message {
-    std::uint32_t id = 0;
+    std::uint64_t id = 0;
 
     std::uint64_t from_id = 0;
     std::string from_nick;

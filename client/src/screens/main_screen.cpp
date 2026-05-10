@@ -14,45 +14,45 @@ namespace screen
     void MainScreen::run()
     {
         bool running = true;
-        std::unique_ptr<IScreen> currentScreen;
+        std::unique_ptr<IScreen> current_screen;
         while (running)
             {
             printScreen();
-            switch (io::ScanUint32("> "))
+            switch (io::scanUint32("> "))
             {
-                case static_cast<uint32_t>(kMAIN_MENU::kChatScreen):
+                case static_cast<uint32_t>(MainMenu::ChatScreen):
                 {
-                    currentScreen = std::make_unique<ChatsScreen>(controller_);
-                    currentScreen->run();
+                    current_screen = std::make_unique<ChatsScreen>(controller_);
+                    current_screen->run();
                     break;
                 }
-                case static_cast<uint32_t>(kMAIN_MENU::kProfileScreen):
+                case static_cast<uint32_t>(MainMenu::ProfileScreen):
                 {
-                    currentScreen = std::make_unique<ProfileScreen>(controller_);
-                    currentScreen->run();
+                    current_screen = std::make_unique<ProfileScreen>(controller_);
+                    current_screen->run();
                     break;
                 }
-                case static_cast<uint32_t>(kMAIN_MENU::kServerScreen):
+                case static_cast<uint32_t>(MainMenu::ServerScreen):
                 {
-                    currentScreen = std::make_unique<ServerScreen>(controller_);
-                    currentScreen->run();
+                    current_screen = std::make_unique<ServerScreen>(controller_);
+                    current_screen->run();
                     break;
                 }
-                case static_cast<uint32_t>(kMAIN_MENU::kExit):
+                case static_cast<uint32_t>(MainMenu::Exit):
                 {
                     running = false;
                     break;
                 }
                 default:
                 {
-                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(kMAIN_MENU::kMinChoice)) +
-                        " to " + std::to_string(static_cast<int>(kMAIN_MENU::kMaxChoice)), io::COLOR::RED);
+                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(MainMenu::MinChoice)) +
+                        " to " + std::to_string(static_cast<int>(MainMenu::MaxChoice)), io::Color::Red);
                 }
             }
         }
     }
 
     void MainScreen::printScreen() {
-        utils::PrintFromFile(paths::MAIN);
+        utils::printFromFile(paths::main);
     }
 }

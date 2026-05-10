@@ -10,11 +10,11 @@
 
 namespace
 {
-    void chats_print(const std::vector<ChatInfo>& chats)
+    void chatsPrint(const std::vector<ChatInfo>& chats)
     {
         if (chats.empty())
         {
-            io::print("No chats yet. Add some!", io::COLOR::YELLOW);
+            io::print("No chats yet. Add some!", io::Color::Yellow);
             return;
         }
 
@@ -35,44 +35,44 @@ namespace screen
         bool running = true;
         while (running) {
             printScreen();
-            auto& chats = controller_.GetChats();
-            chats_print(chats);
+            auto& chats = controller_.getChats();
+            chatsPrint(chats);
             
-            switch (io::ScanUint32("> "))
+            switch (io::scanUint32("> "))
             {
-                case static_cast<uint32_t>(kCHATS_MENU::kSelectChat):
+                case static_cast<uint32_t>(ChatsMenu::SelectChat):
                 {
                     if (chats.empty())
                     {
-                        io::print("[Error]: No chats to select", io::COLOR::RED);
+                        io::print("[Error]: No chats to select", io::Color::Red);
                         break;
                     }
 
-                    if (uint32_t index = io::ScanUint32("Enter chat number: "); index > 0 && index <= chats.size())
+                    if (const uint32_t index = io::scanUint32("Enter chat number: "); index > 0 && index <= chats.size())
                     {
                         ChatScreen chat_view(controller_, chats[index - 1]);
                         chat_view.run();
                     }
                     else
                     {
-                        io::print("[Error]: Invalid chat number", io::COLOR::RED);
+                        io::print("[Error]: Invalid chat number", io::Color::Red);
                     }
                     break;
                 }
-                case static_cast<uint32_t>(kCHATS_MENU::kAddChat):
+                case static_cast<uint32_t>(ChatsMenu::AddChat):
                 {
                     addChat();
                     break;
                 }
-                case static_cast<uint32_t>(kCHATS_MENU::kExit):
+                case static_cast<uint32_t>(ChatsMenu::Exit):
                 {
                     running = false;
                     break;
                 }
                 default:
                 {
-                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(kCHATS_MENU::kMinChoice)) +
-                        " to " + std::to_string(static_cast<int>(kCHATS_MENU::kMaxChoice)), io::COLOR::RED);
+                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(ChatsMenu::MinChoice)) +
+                        " to " + std::to_string(static_cast<int>(ChatsMenu::MaxChoice)), io::Color::Red);
                 }
             }
         }
@@ -80,32 +80,32 @@ namespace screen
 
     void ChatsScreen::printScreen()
     {
-        utils::PrintFromFile(paths::CHATS);
+        utils::printFromFile(paths::chats);
     }
 
     void ChatsScreen::addChat() const {
-        const uint64_t peer_id = io::ScanUint64("Enter user ID to add: ");
+        const uint64_t peer_id = io::scanUint64("Enter user ID to add: ");
 
-        auto& chats = controller_.GetChats();
+        std::vector<ChatInfo> & chats = controller_.getChats();
         const auto it = std::ranges::find_if(chats, [peer_id](const ChatInfo& chat) {
             return chat.peer_id == peer_id;
         });
 
-        if (peer_id == controller_.GetAppConfig().user.id)
+        if (peer_id == controller_.getAppConfig().user.id)
         {
-            io::print("[Error]: you can't add chat with you", io::COLOR::RED);
+            io::print("[Error]: you can't add chat with you", io::Color::Red);
             return;
         }
         if (it != chats.end())
         {
-            io::print("[Error]: Chat with ID " + std::to_string(peer_id) + " already exists", io::COLOR::RED);
+            io::print("[Error]: Chat with ID " + std::to_string(peer_id) + " already exists", io::Color::Red);
             return;
         }
 
-        const auto user_info = controller_.getNicknameById(peer_id);
+        const std::optional<UserInfo> user_info = controller_.getNicknameById(peer_id);
         if (!user_info.has_value())
         {
-            io::print("[Error]: User with ID " + std::to_string(peer_id) + " not found on server", io::COLOR::RED);
+            io::print("[Error]: User with ID " + std::to_string(peer_id) + " not found on server", io::Color::Red);
             return;
         }
 
@@ -115,13 +115,13 @@ namespace screen
         new_chat.last_message_id = 0;
 
         chats.push_back(new_chat);
-        if (controller_.SaveAppConfig())
+        if (controller_.saveAppConfig())
         {
-            io::print("[Success]: Added chat with " + new_chat.peer_nick, io::COLOR::GREEN);
+            io::print("[Success]: Added chat with " + new_chat.peer_nick, io::Color::Green);
         }
         else
         {
-            io::print("[Error]: Failed to save chat to configuration", io::COLOR::RED);
+            io::print("[Error]: Failed to save chat to configuration", io::Color::Red);
         }
     }
 }

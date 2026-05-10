@@ -54,8 +54,8 @@ namespace api {
             uint64_t sinceMessageId
         ) override;
 
-        void set_host(const std::string& host) override;
-        void set_port(const std::string& port) override;
+        void setHost(const std::string& host) override;
+        void setPort(const std::string& port) override;
     private:
         std::string host_;
         std::string port_;

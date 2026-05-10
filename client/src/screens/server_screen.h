@@ -18,11 +18,11 @@ namespace screen
     };
 }
 
-enum class kSERVER_MENU
+enum class ServerMenu
 {
-    kMinChoice = 1,
-    kMaxChoice = 3,
-    kChangeIp = 1,
-    kChangePort = 2,
-    kExit = 3
+    MinChoice = 1,
+    MaxChoice = 3,
+    ChangeHost = 1,
+    ChangePort = 2,
+    Exit = 3
 };

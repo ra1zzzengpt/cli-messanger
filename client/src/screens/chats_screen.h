@@ -18,11 +18,11 @@ namespace screen
     };
 }
 
-enum class kCHATS_MENU
+enum class ChatsMenu
 {
-    kMinChoice = 1,
-    kMaxChoice = 3,
-    kSelectChat = 1,
-    kAddChat = 2,
-    kExit = 3
+    MinChoice = 1,
+    MaxChoice = 3,
+    SelectChat = 1,
+    AddChat = 2,
+    Exit = 3
 };

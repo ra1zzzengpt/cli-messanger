@@ -22,13 +22,13 @@ int main()
     }
     app::AppController controller(std::make_unique<api::HttpMessageApi>(),std::make_unique<utils::ConfigStorage>(kConfigPath));
 
-    if (controller.LoadAppConfig())
+    if (controller.loadAppConfig())
     {
-        if (const auto& user = controller.GetAppConfig().user; user.id != 0 && !user.password.empty())
+        if (const auto& user = controller.getAppConfig().user; user.id != 0 && !user.password.empty())
         {
             io::print("Checking server status...");
 
-            if (controller.GetMessageApi().ping().has_value())
+            if (controller.getMessageApi().ping().has_value())
             {
                 io::print("Attempting auto-login...");
                 if (controller.loginUser(user.id, user.password))
@@ -38,8 +38,8 @@ int main()
                     return 0;
                 }
             } else {
-                io::print("[Warning]: Server is offline or unreachable. Please check settings.", io::COLOR::YELLOW);
-                io::WaitForEnter();
+                io::print("[Warning]: Server is offline or unreachable. Please check settings.", io::Color::Yellow);
+                io::waitForEnter();
             }
         }
     }

@@ -240,8 +240,8 @@ namespace api {
         return messages;
     }
 
-    void HttpMessageApi::set_host(const std::string& host) { host_ = host; }
-    void HttpMessageApi::set_port(const std::string& port) { port_ = port; }
+    void HttpMessageApi::setHost(const std::string& host) { host_ = host; }
+    void HttpMessageApi::setPort(const std::string& port) { port_ = port; }
     std::string HttpMessageApi::to_url() const
     {
         return "https://" + host_ + ":" + port_;

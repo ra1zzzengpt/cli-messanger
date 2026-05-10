@@ -1,20 +1,20 @@
 #include "command_parser.h"
 
 namespace utils {
-    std::optional<COMMAND> ParseCommand(const std::string& command) {
+    std::optional<Command> parseCommand(const std::string& command) {
         if (command == "/quit") {
-            return COMMAND::QUIT;
+            return Command::Quit;
         }
         if (command == "/help") {
-            return COMMAND::HELP;
+            return Command::Help;
         }
         if (command == "/update")
         {
-            return COMMAND::UPDATE;
+            return Command::Update;
         }
         if (command == "/dump")
         {
-            return COMMAND::DUMP;
+            return Command::Dump;
         }
         return std::nullopt;
     }

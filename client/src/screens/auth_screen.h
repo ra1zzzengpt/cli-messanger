@@ -18,12 +18,12 @@ namespace screen
     };
 }
 
-enum class kAUTH_MENU
+enum class AuthMenu
 {
-    kMinChoice = 1,
-    kMaxChoice = 4,
-    kLogin = 1,
-    kRegister = 2,
-    kServerSettings = 3,
-    kExit = 4
+    MinChoice = 1,
+    MaxChoice = 4,
+    Login = 1,
+    Register = 2,
+    ServerSettings = 3,
+    Exit = 4
 };

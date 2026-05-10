@@ -16,11 +16,11 @@ namespace screen
     };
 }
 
-enum class kPROFILE_MENU
+enum class ProfileMenu
 {
-    kMinChoice = 1,
-    kMaxChoice = 3,
-    kChangeNickname = 1,
-    kChangePassword = 2,
-    kExit = 3
+    MinChoice = 1,
+    MaxChoice = 3,
+    ChangeNickname = 1,
+    ChangePassword = 2,
+    Exit = 3
 };

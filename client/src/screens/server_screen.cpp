@@ -17,45 +17,45 @@ namespace screen
         bool running = true;
         while (running) {
             printScreen();
-            switch (io::ScanUint32("> "))
+            switch (io::scanUint32("> "))
             {
-                case static_cast<uint32_t>(kSERVER_MENU::kChangeIp):
+                case static_cast<uint32_t>(ServerMenu::ChangeHost):
                 {
-                    std::string new_host = io::ScanString("Enter new host: ");
-                    controller_.GetAppConfig().server.host = new_host;
-                    controller_.GetMessageApi().set_host(new_host);
-                    if (controller_.SaveAppConfig())
+                    std::string new_host = io::scanString("Enter new host: ");
+                    controller_.getAppConfig().server.host = new_host;
+                    controller_.getMessageApi().setHost(new_host);
+                    if (controller_.saveAppConfig())
                     {
-                        io::print("[Success]: new host changed",io::COLOR::GREEN);
+                        io::print("[Success]: new host changed",io::Color::Green);
                     } else
                     {
-                        io::print("[Error]: can't save new host", io::COLOR::RED);
+                        io::print("[Error]: can't save new host", io::Color::Red);
                     }
                     break;
                 }
-                case static_cast<uint32_t>(kSERVER_MENU::kChangePort):
+                case static_cast<uint32_t>(ServerMenu::ChangePort):
                 {
-                    std::string new_port = io::ScanString("Enter new port: ");
-                    controller_.GetAppConfig().server.host = new_port;
-                    controller_.GetMessageApi().set_port(new_port);
-                    if (controller_.SaveAppConfig())
+                    std::string new_port = io::scanString("Enter new port: ");
+                    controller_.getAppConfig().server.host = new_port;
+                    controller_.getMessageApi().setPort(new_port);
+                    if (controller_.saveAppConfig())
                     {
-                        io::print("[Success]: new port changed.",io::COLOR::GREEN);
+                        io::print("[Success]: new port changed.",io::Color::Green);
                     } else
                     {
-                        io::print("[Error]: can't save new port.", io::COLOR::RED);
+                        io::print("[Error]: can't save new port.", io::Color::Red);
                     }
                     break;
                 }
-                case static_cast<uint32_t>(kSERVER_MENU::kExit):
+                case static_cast<uint32_t>(ServerMenu::Exit):
                 {
                     running = false;
                     break;
                 }
                 default:
                 {
-                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(kSERVER_MENU::kMinChoice)) +
-                        " to " + std::to_string(static_cast<int>(kSERVER_MENU::kMaxChoice)), io::COLOR::RED);
+                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(ServerMenu::MinChoice)) +
+                        " to " + std::to_string(static_cast<int>(ServerMenu::MaxChoice)), io::Color::Red);
                 }
             }
         }
@@ -63,16 +63,16 @@ namespace screen
 
     void ServerScreen::printScreen()
     {
-        utils::PrintFromFile(paths::SERVER);
-        io::print("Host: " + controller_.GetAppConfig().server.host);
-        io::print("Port: " + std::to_string(controller_.GetAppConfig().server.port));
+        utils::printFromFile(paths::server);
+        io::print("Host: " + controller_.getAppConfig().server.host);
+        io::print("Port: " + std::to_string(controller_.getAppConfig().server.port));
         io::print("Checking server status...");
-        if (const std::optional<std::string> host = controller_.Ping(); host.has_value())
+        if (const std::optional<std::string> host = controller_.ping(); host.has_value())
         {
-            io::print(host.value(), io::COLOR::GREEN);
+            io::print(host.value(), io::Color::Green);
         } else
         {
-            io::print("[Error]: server now is offline", io::COLOR::RED);
+            io::print("[Error]: server now is offline", io::Color::Red);
         }
     }
 }

@@ -5,12 +5,12 @@
 
 namespace utils
 {
-    void PrintFromFile(const std::filesystem::path& path)
+    void printFromFile(const std::filesystem::path& path)
     {
         std::ifstream ifs(path);
         if (!ifs.is_open())
         {
-            io::print("[Error]: can't open " + path.string(),io::COLOR::RED);
+            io::print("[Error]: can't open " + path.string(),io::Color::Red);
             return;
         }
         std::string line;
@@ -21,21 +21,21 @@ namespace utils
         ifs.close();
     }
 
-    void DumpToFile(const std::filesystem::path& path,const std::vector<Message>& messages,const ChatInfo& chat)
+    void dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages, const ChatInfo& chat)
     {
         std::ofstream ofs(path);
         if (!ofs.is_open())
         {
-            io::print("[Error]: can't open " + path.string(),io::COLOR::RED);
+            io::print("[Error]: can't open " + path.string(),io::Color::Red);
             return;
         }
         for (const Message& message : messages)
         {
-            std::string messageLine;
+            std::string message_line;
             std::string time_str = message.created_at.empty() ? "" : "[" + message.created_at + "] ";
             std::string prefix = (message.from_id != chat.peer_id) ? "[You]: " : "[" + chat.peer_nick + "]: ";
-            messageLine = time_str + prefix + message.text;
-            ofs << messageLine << std::endl;
+            message_line = time_str + prefix + message.text;
+            ofs << message_line << std::endl;
         }
         ofs.close();
     }

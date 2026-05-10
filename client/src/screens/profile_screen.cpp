@@ -6,7 +6,7 @@
 namespace screen {
     namespace
     {
-        std::string MultiplyStr(const std::string& str,const std::size_t size)
+        std::string multiplyStr(const std::string& str,const std::size_t size)
         {
             std::string result;
             for (std::size_t i = 0; i < size; i++)
@@ -25,54 +25,54 @@ namespace screen {
         while (running)
         {
             printScreen();
-            switch (io::ScanUint32("> "))
+            switch (io::scanUint32("> "))
             {
-                case static_cast<uint32_t>(kPROFILE_MENU::kChangeNickname):
+                case static_cast<uint32_t>(ProfileMenu::ChangeNickname):
                 {
-                    if (std::string new_nickname = io::ScanString("Enter new nickname: "); controller_.updateNickname(new_nickname))
+                    if (std::string new_nickname = io::scanString("Enter new nickname: "); controller_.updateNickname(new_nickname))
                     {
-                        controller_.GetAppConfig().user.nickname = new_nickname;
-                        if (controller_.SaveAppConfig())
+                        controller_.getAppConfig().user.nickname = new_nickname;
+                        if (controller_.saveAppConfig())
                         {
-                            io::print("[Success]: nickname was updated",io::COLOR::GREEN);
+                            io::print("[Success]: nickname was updated",io::Color::Green);
                         } else
                         {
-                            io::print("[Error]: Your nickname will be same.",io::COLOR::RED);
+                            io::print("[Error]: Your nickname will be same.",io::Color::Red);
                         }
                     } else
                     {
-                        io::print("[Error]: the server did not confirm the request", io::COLOR::RED);
+                        io::print("[Error]: the server did not confirm the request", io::Color::Red);
                     }
                     break;
                 }
                 
-                case static_cast<uint32_t>(kPROFILE_MENU::kChangePassword):
+                case static_cast<uint32_t>(ProfileMenu::ChangePassword):
                 {
-                    if (std::string new_password = io::ScanString("Enter new password: "); controller_.updatePassword(new_password))
+                    if (std::string new_password = io::scanString("Enter new password: "); controller_.updatePassword(new_password))
                     {
-                        controller_.GetAppConfig().user.password = new_password;
-                        if (controller_.SaveAppConfig())
+                        controller_.getAppConfig().user.password = new_password;
+                        if (controller_.saveAppConfig())
                         {
-                            io::print("[Success]: password was updated", io::COLOR::GREEN);
+                            io::print("[Success]: password was updated", io::Color::Green);
                         } else
                         {
-                            io::print("[Error]: password updated on server but local save failed", io::COLOR::RED);
+                            io::print("[Error]: password updated on server but local save failed", io::Color::Red);
                         }
                     } else
                     {
-                        io::print("[Error]: the server did not confirm the password update", io::COLOR::RED);
+                        io::print("[Error]: the server did not confirm the password update", io::Color::Red);
                     }
                     break;
                 }
-                case static_cast<uint32_t>(kPROFILE_MENU::kExit):
+                case static_cast<uint32_t>(ProfileMenu::Exit):
                 {
                     running = false;
                     break;
                 }
                 default:
                 {
-                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(kPROFILE_MENU::kMinChoice)) +
-                        " to " + std::to_string(static_cast<int>(kPROFILE_MENU::kMaxChoice)), io::COLOR::RED);
+                    io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(ProfileMenu::MinChoice)) +
+                        " to " + std::to_string(static_cast<int>(ProfileMenu::MaxChoice)), io::Color::Red);
                 }
             }
         }
@@ -80,9 +80,9 @@ namespace screen {
 
     void ProfileScreen::printScreen()
     {
-        utils::PrintFromFile(paths::PROFILE);
-        io::print("Nickname: " + controller_.GetAppConfig().user.nickname);
-        io::print("Password: " + MultiplyStr("*",controller_.GetAppConfig().user.password.length()));
-        io::print("ID: " + std::to_string(controller_.GetAppConfig().user.id));
+        utils::printFromFile(paths::profile);
+        io::print("Nickname: " + controller_.getAppConfig().user.nickname);
+        io::print("Password: " + multiplyStr("*",controller_.getAppConfig().user.password.length()));
+        io::print("ID: " + std::to_string(controller_.getAppConfig().user.id));
     }
 }

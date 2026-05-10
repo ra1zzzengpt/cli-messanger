@@ -9,9 +9,9 @@ namespace utils
         explicit ConfigStorage(std::string filepath);
         ~ConfigStorage() = default;
 
-        [[nodiscard]] std::optional<AppConfig> Load() const;
+        [[nodiscard]] std::optional<AppConfig> load() const;
 
-        [[nodiscard]] bool Save(const AppConfig& config) const;
+        [[nodiscard]] bool save(const AppConfig& config) const;
     private:
         std::string filepath_;
     };
