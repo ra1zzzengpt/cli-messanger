@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ CLI Messenger (Private & Lightweight)
+# CLI Messenger
 
 ![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=c%2B%2B)
 ![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python)
@@ -11,7 +11,7 @@
 ![Last Commit](https://img.shields.io/github/last-commit/ra1zzzengpt/cli-messanger?style=for-the-badge)
 ![Commit Activity](https://img.shields.io/github/commit-activity/t/ra1zzzengpt/cli-messanger?style=for-the-badge)
 
-A minimalist, high-performance console messenger built with a focus on project architecture, separation of responsibilities, and a retro-terminal aesthetic.
+A minimalist console messenger built to practice decoupled client-server architecture, separation of responsibilities, and retro-terminal aesthetics.
 
 </div>
 
@@ -19,33 +19,33 @@ A minimalist, high-performance console messenger built with a focus on project a
 
 ## Overview
 
-**CLI Messenger** is a console application built to practice building decoupled client-server applications. It demonstrates how to separate network logic, data storage, user interfaces, and core application flow.
+**CLI Messenger** is a console application written in C++20 with a Python Flask backend. It demonstrates how to separate network logic, data storage, user interfaces, and core application flow.
 
-The project features a **Zero-Knowledge** vision approach where the Python Flask server acts as a blind relay, while the C++ client handles all logic, configurations, and identity management locally.
+The application supports two API modes:
+- **HttpMessageApi** — real networking mode, connects to the Python server over HTTP via `libcurl`.
+- **FakeMessageApi** — offline mode for UI/UX testing without a backend.
 
-The application currently supports two main API modes:
-- **HttpMessageApi:** Real networking mode connecting to the Python server via HTTP (`libcurl`).
-- **FakeMessageApi:** Offline mode for UI/UX testing without needing a backend.
+> **Note:** The project is currently in active development. Encryption, HTTPS, and secure credential storage are planned for a future release.
 
 ---
 
 ## Features
 
 ### Authentication & Profiles
-- Secure password-based registration and login.
-- Smart auto-login using local credential storage (`save.json`).
-- Profile management (updating nicknames and passwords directly from the CLI).
+- Password-based registration and login.
+- Auto-login using local credential storage (`save.json`).
+- Profile management — update nickname and password from the CLI.
 
 ### Messaging & Networking
 - Incremental message fetching to reduce overhead.
-- **Full Chat Dumps:** Export your entire conversation history to a local text file.
-- Built-in server health checks (`/ping` endpoint) to verify connectivity before launching.
+- **Full Chat Dumps** — export an entire conversation to a local text file.
+- Built-in server health check (`/ping` endpoint) to verify connectivity on launch.
 
 ### General UI & I/O
 - Modular screen-based navigation (`AuthScreen`, `MainScreen`, `ChatScreen`, etc.).
-- Beautifully crafted ASCII art menus for an immersive terminal experience.
+- ASCII art menus loaded from asset files.
 - Custom console utilities for safe user input with built-in validation and ANSI color support.
-- Configuration and logs loaded/saved from local JSON files.
+- Configuration stored in a local JSON file.
 
 ---
 
@@ -56,12 +56,6 @@ cli-messanger/
 ├── client/
 │   ├── assets/
 │   │   ├── menu/
-│   │   │   ├── auth.txt
-│   │   │   ├── chats.txt
-│   │   │   ├── help.txt
-│   │   │   ├── main.txt
-│   │   │   ├── profile.txt
-│   │   │   └── server.txt
 │   │   └── save/
 │   │       └── save.json
 │   └── src/
@@ -71,22 +65,8 @@ cli-messanger/
 │       │       ├── httpapi/
 │       │       └── imessage_api.h
 │       ├── app/
-│       │   ├── app_controller.cpp
-│       │   └── app_controller.h
 │       ├── models/
-│       │   ├── app_config.h
-│       │   ├── chat_info.h
-│       │   ├── message.h
-│       │   ├── server_info.h
-│       │   └── user_info.h
 │       ├── screens/
-│       │   ├── auth_screen.h
-│       │   ├── chat_screen.h
-│       │   ├── chats_screen.h
-│       │   ├── i_screen.h
-│       │   ├── main_screen.h
-│       │   ├── profile_screen.h
-│       │   └── server_screen.h
 │       ├── utils/
 │       │   ├── command/
 │       │   ├── console/
@@ -101,68 +81,91 @@ cli-messanger/
 ```
 
 ## Architecture
-The project is split into several independent layers and modules.
+
+The project is split into several independent layers.
+
 #### `api`
-Abstracts the network layer. The IMessageApi interface ensures that the rest of the application doesn't care whether data comes from a local mock (FakeMessageApi) or a real server (HttpMessageApi).
+Abstracts the network layer. The `IMessageApi` interface ensures the rest of the application does not depend on whether data comes from a local mock (`FakeMessageApi`) or a real server (`HttpMessageApi`).
+
 #### `app`
-Contains the AppController, which coordinates the application lifecycle, manages configurations, and bridges the UI screens with the API.
+Contains `AppController`, which coordinates the application lifecycle, manages the configuration, and bridges UI screens with the API layer via dependency injection.
+
 #### `models`
-Lightweight data structures (User, Message, ChatInfo, Config) serialized and deserialized using nlohmann/json.
+Lightweight data structures (`UserInfo`, `Message`, `ChatInfo`, `AppConfig`, `ServerInfo`) serialized and deserialized using `nlohmann/json`.
+
 #### `screens`
-Handles console rendering and user interaction. Each screen (Auth, Main, Chats, Profile) is an isolated class inheriting from IScreen.
+Handles console rendering and user interaction. Each screen (`Auth`, `Main`, `Chats`, `Profile`) is an isolated class inheriting from `IScreen`.
+
 #### `utils`
-Contains reusable application helpers: file I/O operations, text dumping, console formatting, and command parsers.
+Reusable helpers: file I/O, chat history export, console formatting, and command parsing.
+
 #### `server`
-A lightweight, stateless Python backend using Flask that manages a thread-safe dictionary of users and messages.
+A lightweight Python backend using Flask that manages a thread-safe dictionary of users and messages, persisted to `server_state.json`.
 
 ---
 
 ## Build
+
 #### Requirements
-- CMake 4.2+
+- CMake 3.2+
 - A compiler with C++20 support
 - libcurl development headers
-- Python 3.10+ (with Flask)
-#### Client Setup (Command Line)
-```
+- Python 3.10+ with Flask
+
+#### Client (command line)
+```bash
 cmake -S . -B cmake-build-debug
 cmake --build cmake-build-debug
 ```
+
+#### Server
+```bash
+cd server
+pip install flask
+python server.py
+```
+
 ---
-### Example Workflow
+
+## Example Workflow
+
 1. Start the Flask server.
-2. Launch the client: `./cmake-build-debug/cli_messanger`.
-3. At the Authorization Screen, register a new account. Your credentials will be saved in `client/assets/save/save.json`.
-4. On subsequent launches, the client will automatically ping the server and log you in.
+2. Launch the client: `./cmake-build-debug/cli_messanger`
+3. At the Authorization screen, register a new account. Credentials are saved to `client/assets/save/save.json`.
+4. On subsequent launches, the client pings the server and logs in automatically.
 5. In the Main Menu, navigate to Chats, enter a peer's ID, and start messaging.
-6. Use `/dump` inside a chat to save the full conversation history to your local disk.
+6. Use `/dump` inside a chat to export the full conversation history to a local file.
 7. Use `/help` to view all available chat commands.
 
 ---
 
-### Why I Built This Project
+## Why I Built This
+
 This project was created to practice:
 - Building decoupled client-server applications.
-- Advanced C++20 features and dependency injection.
+- C++20 features and dependency injection patterns.
 - Modular console application development.
-- Safe file handling and persistent configurations (JSON).
-- Integration of external libraries (libcurl, nlohmann/json) via CMake.
+- Safe file handling and persistent configuration with JSON.
+- Integration of external libraries (`libcurl`, `nlohmann/json`) via CMake.
 
-It also serves as a base for future improvements such as End-to-End Encryption (E2EE) and performance-focused server rewrites (C++ or Go).
+It also serves as a foundation for future improvements — HTTPS transport, password hashing, and encrypted local storage.
 
 ---
-### Contributing
+
+## Contributing
+
 Contributions, ideas, and suggestions are welcome.
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Commit and push them
+4. Commit and push
 5. Open a pull request
 
-Read CONTRIBUTING.md before opening a pull request.
+Read `CONTRIBUTING.md` before opening a pull request.
 
 ---
 
-### License
-This project is licensed under the AGPL-3.0 License.
-See LICENCE.md for details.
+## License
+
+This project is licensed under the AGPL-3.0 License. See `LICENCE.md` for details.
