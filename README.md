@@ -4,7 +4,7 @@
 
 ![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=c%2B%2B)
 ![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python)
-![CMake](https://img.shields.io/badge/CMake-3.2%2B-darkblue?style=for-the-badge&logo=cmake)
+![CMake](https://img.shields.io/badge/CMake-3.14%2B-darkblue?style=for-the-badge&logo=cmake)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-AGPL_3.0-orange?style=for-the-badge)
 ![Repo Size](https://img.shields.io/github/repo-size/ra1zzzengpt/cli-messanger?style=for-the-badge)
