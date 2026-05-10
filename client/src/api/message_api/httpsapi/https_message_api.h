@@ -25,17 +25,20 @@ namespace api {
         
         bool updatePassword(
             std::uint64_t id,
+            const std::string& currentPassword,
             const std::string& newPassword
         ) override;
 
         bool updateNickname(
             std::uint64_t id,
+            const std::string& password,
             const std::string& newNick
         ) override;
 
         bool sendMessage(
             std::uint64_t fromId,
             std::uint64_t toId,
+            const std::string& password,
             const std::string& text
         ) override;
 

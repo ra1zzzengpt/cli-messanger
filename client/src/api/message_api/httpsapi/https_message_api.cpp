@@ -1,8 +1,8 @@
-#include "http_message_api.h"
+#include "https_message_api.h"
 
 #include <curl/curl.h>
 
-#include "http_response.h"
+#include "https_response.h"
 
 namespace api {
     namespace
@@ -37,6 +37,8 @@ namespace api {
 
             std::string buffer;
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER,0L);
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST,0L);
             curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, WriteCallback);
             curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(handle, CURLOPT_TIMEOUT, 5L);
@@ -66,6 +68,8 @@ namespace api {
             headers = curl_slist_append(headers, "Content-Type: application/json");
 
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER,0L);
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST,0L);
             curl_easy_setopt(handle, CURLOPT_POSTFIELDS, json_body.c_str());
             curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
             curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, WriteCallback);
@@ -98,6 +102,8 @@ namespace api {
             headers = curl_slist_append(headers, "Content-Type: application/json");
 
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER,0L);
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST,0L);
             curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "PATCH");
             curl_easy_setopt(handle, CURLOPT_POSTFIELDS, json_body.c_str());
             curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
@@ -166,24 +172,27 @@ namespace api {
     }
 
     
-    bool HttpMessageApi::updatePassword(const std::uint64_t id, const std::string& newPassword) {
+    bool HttpMessageApi::updatePassword(const std::uint64_t id, const std::string& currentPassword, const std::string& newPassword) {
         nlohmann::json body;
+        body["old_password"] = currentPassword;
         body["password"] = newPassword;
         const HttpResponse resp = PATCH(to_url() + "/users/" + std::to_string(id) + "/password", body.dump());
         return resp.is_ok() && resp.data.value("ok", false);
     }
 
-    bool HttpMessageApi::updateNickname(const std::uint64_t id, const std::string& newNick) {
+    bool HttpMessageApi::updateNickname(const std::uint64_t id, const std::string& password, const std::string& newNick) {
         nlohmann::json body;
+        body["password"] = password;
         body["nick"] = newNick;
         const HttpResponse resp = PATCH(to_url() + "/users/" + std::to_string(id) + "/nick", body.dump());
         return resp.is_ok() && resp.data.value("ok", false);
     }
 
-    bool HttpMessageApi::sendMessage(const std::uint64_t fromId, const std::uint64_t toId, const std::string& text) {
+    bool HttpMessageApi::sendMessage(const std::uint64_t fromId, const std::uint64_t toId, const std::string& password, const std::string& text) {
         nlohmann::json body;
         body["from_id"] = std::to_string(fromId);
         body["to_id"] = std::to_string(toId);
+        body["password"] = password;
         body["text"] = text;
         const HttpResponse resp = POST(to_url() + "/messages/send", body.dump());
         return resp.is_ok() && resp.data.value("ok", false);
@@ -235,6 +244,6 @@ namespace api {
     void HttpMessageApi::set_port(const std::string& port) { port_ = port; }
     std::string HttpMessageApi::to_url() const
     {
-        return "http://" + host_ + ":" + port_;
+        return "https://" + host_ + ":" + port_;
     }
 }

@@ -32,17 +32,20 @@ namespace api
         
         virtual bool updatePassword(
             std::uint64_t id,
+            const std::string& currentPassword,
             const std::string& newPassword
         ) = 0;
 
         virtual bool updateNickname(
             std::uint64_t id,
+            const std::string& password,
             const std::string& newNick
         ) = 0;
 
         virtual bool sendMessage(
             std::uint64_t fromId,
             std::uint64_t toId,
+            const std::string& password,
             const std::string& text
         ) = 0;
         
