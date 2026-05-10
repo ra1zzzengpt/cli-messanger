@@ -8,11 +8,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install CMake 4.x
+        run: |
+          wget -qO- https://apt.kitware.com/keys/kitware-archive-latest.asc | sudo apt-key add -
+          sudo apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install -y cmake
+
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev nlohmann-json3-dev
+        run: sudo apt-get install -y libcurl4-openssl-dev nlohmann-json3-dev
 
       - name: Configure CMake
         run: cmake -S . -B build
 
       - name: Build
-        run: cmake --build build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
