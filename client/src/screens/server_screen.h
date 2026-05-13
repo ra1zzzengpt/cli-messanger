@@ -2,7 +2,6 @@
 
 #include "i_screen.h"
 #include "app/app_controller.h"
-#include "models/app_config.h"
 
 namespace screen
 {
