@@ -4,6 +4,7 @@
 
 ![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=c%2B%2B)
 ![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python)
+![Rust](https://img.shields.io/badge/Rust-1.23.0-brown?style=for-the-badge&logo=rust)
 ![CMake](https://img.shields.io/badge/CMake-3.14%2B-darkblue?style=for-the-badge&logo=cmake)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-AGPL_3.0-orange?style=for-the-badge)
@@ -25,7 +26,7 @@ The application supports two API modes:
 - **HttpMessageApi** — real networking mode, connects to the Python server over HTTP via `libcurl`.
 - **FakeMessageApi** — offline mode for UI/UX testing without a backend.
 
-> **Note:** The project is currently in active development. Encryption, HTTPS, and secure credential storage are planned for a future release.
+> **Note:** The project is currently in active development. Encryption, and secure credential storage are planned for a future release.
 
 ---
 
@@ -73,7 +74,8 @@ cli-messanger/
 │       │   └── files/
 │       └── main.cpp
 ├── server/
-│   └── server.py
+│   ├── python-server/
+│   └── rust-server/
 ├── CMakeLists.txt
 ├── README.md
 ├── LICENCE.md
@@ -85,7 +87,7 @@ cli-messanger/
 The project is split into several independent layers.
 
 #### `api`
-Abstracts the network layer. The `IMessageApi` interface ensures the rest of the application does not depend on whether data comes from a local mock (`FakeMessageApi`) or a real server (`HttpMessageApi`).
+Abstracts the network layer. The `IMessageApi` interface ensures the rest of the application does not depend on whether data comes from a local mock (`FakeMessageApi`) or a real server (`HttpsMessageApi`).
 
 #### `app`
 Contains `AppController`, which coordinates the application lifecycle, manages the configuration, and bridges UI screens with the API layer via dependency injection.
