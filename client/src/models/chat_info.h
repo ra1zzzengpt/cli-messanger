@@ -8,7 +8,6 @@ struct ChatInfo
 {
     std::uint64_t peer_id = 0;
     std::string peer_nick;
-    int last_message_id = 0;
 };
 
 void to_json(nlohmann::json& json, const ChatInfo& chat);

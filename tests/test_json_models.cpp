@@ -65,16 +65,14 @@ TEST(Message, EmptyTextSerializes) {
 
 TEST(ChatInfo, SerializeRoundTrip) {
     ChatInfo original;
-    original.peer_id        = 999;
-    original.peer_nick      = "bob";
-    original.last_message_id = 7;
+    original.peer_id   = 999;
+    original.peer_nick = "bob";
 
     nlohmann::json j = original;
     ChatInfo restored = j.get<ChatInfo>();
 
-    EXPECT_EQ(restored.peer_id,         original.peer_id);
-    EXPECT_EQ(restored.peer_nick,       original.peer_nick);
-    EXPECT_EQ(restored.last_message_id, original.last_message_id);
+    EXPECT_EQ(restored.peer_id,   original.peer_id);
+    EXPECT_EQ(restored.peer_nick, original.peer_nick);
 }
 
 // --- AppConfig ---
@@ -103,7 +101,6 @@ TEST(AppConfig, ChatsPreservedAfterRoundTrip) {
     ChatInfo chat;
     chat.peer_id = 10;
     chat.peer_nick = "charlie";
-    chat.last_message_id = 3;
     cfg.chats.push_back(chat);
 
     nlohmann::json j = cfg;

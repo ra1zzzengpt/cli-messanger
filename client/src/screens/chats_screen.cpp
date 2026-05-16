@@ -35,7 +35,7 @@ namespace screen
         bool running = true;
         while (running) {
             printScreen();
-            auto& chats = controller_.getChats();
+            const std::vector<ChatInfo>& chats = controller_.getChats();
             chatsPrint(chats);
             
             switch (io::scanUint32("> "))
@@ -86,7 +86,7 @@ namespace screen
     void ChatsScreen::addChat() const {
         const uint64_t peer_id = io::scanUint64("Enter user ID to add: ");
 
-        std::vector<ChatInfo> & chats = controller_.getChats();
+        const std::vector<ChatInfo>& chats = controller_.getChats();
         const auto it = std::ranges::find_if(chats, [peer_id](const ChatInfo& chat) {
             return chat.peer_id == peer_id;
         });
@@ -112,9 +112,8 @@ namespace screen
         ChatInfo new_chat;
         new_chat.peer_id = peer_id;
         new_chat.peer_nick = user_info->nickname;
-        new_chat.last_message_id = 0;
 
-        chats.push_back(new_chat);
+        controller_.addChat(new_chat);
         if (controller_.saveAppConfig())
         {
             io::print("[Success]: Added chat with " + new_chat.peer_nick, io::Color::Green);

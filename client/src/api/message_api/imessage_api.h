@@ -54,12 +54,6 @@ namespace api
             std::uint64_t peerId
         ) = 0;
 
-        virtual std::vector<Message> fetchMessages(
-            std::uint64_t myId,
-            std::uint64_t peerId,
-            uint64_t sinceMessageId
-        ) = 0;
-
         virtual void setHost(const std::string& host) = 0;
         virtual void setPort(const std::string& port) = 0;
     };
