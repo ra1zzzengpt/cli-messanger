@@ -80,7 +80,7 @@ TEST(ChatInfo, SerializeRoundTrip) {
 TEST(AppConfig, SerializeRoundTrip) {
     AppConfig cfg;
     cfg.server.host = "localhost";
-    cfg.server.port = 5000;
+    cfg.server.port = "5000";
     cfg.user.id       = 42;
     cfg.user.nickname = "alice";
     cfg.user.password = "pass";
@@ -89,7 +89,7 @@ TEST(AppConfig, SerializeRoundTrip) {
     AppConfig restored = j.get<AppConfig>();
 
     EXPECT_EQ(restored.server.host,    "localhost");
-    EXPECT_EQ(restored.server.port,    5000);
+    EXPECT_EQ(restored.server.port,    "5000");
     EXPECT_EQ(restored.user.id,        42u);
     EXPECT_EQ(restored.user.nickname,  "alice");
     EXPECT_EQ(restored.user.password,  "pass");
