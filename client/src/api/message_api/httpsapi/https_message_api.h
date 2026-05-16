@@ -48,12 +48,6 @@ namespace api {
             std::uint64_t peerId
         ) override;
 
-        std::vector<Message> fetchMessages(
-            std::uint64_t myId,
-            std::uint64_t peerId,
-            uint64_t sinceMessageId
-        ) override;
-
         void setHost(const std::string& host) override;
         void setPort(const std::string& port) override;
     private:

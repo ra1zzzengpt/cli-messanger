@@ -219,27 +219,6 @@ namespace api {
         return messages;
     }
 
-    std::vector<Message> HttpMessageApi::fetchMessages(const std::uint64_t myId, const std::uint64_t peerId, const uint64_t sinceMessageId) {
-        const std::string url = to_url() + "/messages?me=" + std::to_string(myId) +
-                          "&peer=" + std::to_string(peerId) +
-                          "&since_id=" + std::to_string(sinceMessageId);
-        HttpResponse resp = GET(url);
-
-        std::vector<Message> messages;
-        if (resp.is_ok() && resp.data.value("ok", false)) {
-            for (const auto& item : resp.data["messages"]) {
-                Message msg;
-                msg.id = std::stoull(item["id"].get<std::string>());
-                msg.from_id = std::stoull(item["from_id"].get<std::string>());
-                msg.to_id = std::stoull(item["to_id"].get<std::string>());
-                msg.text = item["text"].get<std::string>();
-                msg.created_at = item["created_at"].get<std::string>();
-                messages.push_back(msg);
-            }
-        }
-        return messages;
-    }
-
     void HttpMessageApi::setHost(const std::string& host) { host_ = host; }
     void HttpMessageApi::setPort(const std::string& port) { port_ = port; }
     std::string HttpMessageApi::to_url() const
