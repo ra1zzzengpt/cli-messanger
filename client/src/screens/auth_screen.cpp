@@ -65,8 +65,7 @@ namespace screen
             io::print("Login successful!",io::Color::Green);
             if (const std::optional<UserInfo> user_opt = controller_.getNicknameById(id))
             {
-                controller_.getAppConfig().user = *user_opt;
-                controller_.getAppConfig().user.password = password;
+                controller_.setLogin(*user_opt,password);
                 if (controller_.saveAppConfig())
                 {
                     MainScreen main_screen(controller_);
@@ -97,7 +96,7 @@ namespace screen
         if (controller_.registerUser(user))
         {
             io::print("Registration successful! You can now login.",io::Color::Green);
-            controller_.getAppConfig().user.password = password;
+            controller_.updateConfigPassword(password);
             io::waitForEnter();
         }
         else

@@ -22,13 +22,12 @@ int main()
     }
     app::AppController controller(std::make_unique<api::HttpMessageApi>(),std::make_unique<utils::ConfigStorage>(kConfigPath));
 
-    if (controller.loadAppConfig())
-    {
+    controller.loadAppConfig();
         if (const auto& user = controller.getAppConfig().user; user.id != 0 && !user.password.empty())
         {
             io::print("Checking server status...");
 
-            if (controller.getMessageApi().ping().has_value())
+            if (controller.ping().has_value())
             {
                 io::print("Attempting auto-login...");
                 if (controller.loginUser(user.id, user.password))
@@ -42,7 +41,6 @@ int main()
                 io::waitForEnter();
             }
         }
-    }
     screen::AuthScreen authScreen(controller);
     authScreen.run();
 

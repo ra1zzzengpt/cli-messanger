@@ -31,7 +31,7 @@ namespace screen {
                 {
                     if (std::string new_nickname = io::scanString("Enter new nickname: "); controller_.updateNickname(new_nickname))
                     {
-                        controller_.getAppConfig().user.nickname = new_nickname;
+                        controller_.updateConfigNickname(new_nickname);
                         if (controller_.saveAppConfig())
                         {
                             io::print("[Success]: nickname was updated",io::Color::Green);
@@ -50,7 +50,7 @@ namespace screen {
                 {
                     if (std::string new_password = io::scanString("Enter new password: "); controller_.updatePassword(new_password))
                     {
-                        controller_.getAppConfig().user.password = new_password;
+                        controller_.updateConfigPassword(new_password);
                         if (controller_.saveAppConfig())
                         {
                             io::print("[Success]: password was updated", io::Color::Green);

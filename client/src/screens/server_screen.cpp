@@ -22,8 +22,8 @@ namespace screen
                 case static_cast<uint32_t>(ServerMenu::ChangeHost):
                 {
                     std::string new_host = io::scanString("Enter new host: ");
-                    controller_.getAppConfig().server.host = new_host;
-                    controller_.getMessageApi().setHost(new_host);
+                    controller_.updateConfigHost(new_host);
+                    controller_.updateHost(new_host);
                     if (controller_.saveAppConfig())
                     {
                         io::print("[Success]: new host changed",io::Color::Green);
@@ -36,8 +36,8 @@ namespace screen
                 case static_cast<uint32_t>(ServerMenu::ChangePort):
                 {
                     std::string new_port = io::scanString("Enter new port: ");
-                    controller_.getAppConfig().server.host = new_port;
-                    controller_.getMessageApi().setPort(new_port);
+                    controller_.updateConfigPort(new_port);
+                    controller_.updatePort(new_port);
                     if (controller_.saveAppConfig())
                     {
                         io::print("[Success]: new port changed.",io::Color::Green);
@@ -65,7 +65,7 @@ namespace screen
     {
         utils::printFromFile(paths::server);
         io::print("Host: " + controller_.getAppConfig().server.host);
-        io::print("Port: " + std::to_string(controller_.getAppConfig().server.port));
+        io::print("Port: " + controller_.getAppConfig().server.port);
         io::print("Checking server status...");
         if (const std::optional<std::string> host = controller_.ping(); host.has_value())
         {
