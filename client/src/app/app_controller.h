@@ -7,20 +7,31 @@ namespace app
     class AppController final
     {
     public:
+        // - OBJ -
         AppController(std::unique_ptr<api::IMessageApi> api,
             std::unique_ptr<utils::ConfigStorage> storage);
+        ~AppController() = default;
+        AppController(AppController&&) = delete;
+        AppController& operator=(const AppController&) = delete;
+        AppController& operator=(AppController&&) = delete;
 
-        AppConfig& getAppConfig();
-        [[nodiscard]] api::IMessageApi& getMessageApi() const;
+        // - CONFIG -
+        [[nodiscard]] const AppConfig& getAppConfig() const noexcept;
+        void loadAppConfig();
+        [[nodiscard]] bool saveAppConfig();
+        void setLogin(const UserInfo& user, const std::string& password);
+        void updateConfigPassword(const std::string &new_password);
+        void updateConfigNickname(const std::string& new_nickname);
+        void updateConfigHost(const std::string& new_host);
+        void updateConfigPort(const std::string& new_port);
+        [[nodiscard]] const std::vector<ChatInfo>& getChats() const;
+        void addChat(const ChatInfo& new_chat);
 
-        bool loadAppConfig();
-
-        [[nodiscard]] bool saveAppConfig() const;
-
-        std::vector<ChatInfo>& getChats();
+        // - NET -
+        void updateHost(const std::string& new_host) const;
+        void updatePort(const std::string& new_port) const;
         [[nodiscard]] std::optional<std::string> ping() const;
-        [[nodiscard]] std::vector<Message> dumpMessages(const UserInfo& other_user) const;
-        [[nodiscard]] std::vector<Message> getMessages(const UserInfo& other_user, const ChatInfo& chat) const;
+        [[nodiscard]] std::vector<Message> getMessages(const UserInfo& other_user) const;
         [[nodiscard]] bool sendMessage(const UserInfo& other_user, const std::string &text) const;
         [[nodiscard]] bool updatePassword(const std::string &new_password) const;
         [[nodiscard]] bool updateNickname(const std::string &new_nickname) const;
@@ -28,7 +39,6 @@ namespace app
         [[nodiscard]] bool registerUser(const UserInfo& user) const;
         [[nodiscard]] bool loginUser(uint64_t id, const std::string& password) const;
     private:
-        AppConfig config_;
         std::unique_ptr<api::IMessageApi> messageApi_;
         std::unique_ptr<utils::ConfigStorage> configStorage_;
     };

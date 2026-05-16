@@ -1,5 +1,4 @@
 #include "app_controller.h"
-#include <nlohmann/json.hpp>
 
 namespace app
 {
@@ -9,66 +8,92 @@ namespace app
         ) : messageApi_(std::move(api)), configStorage_(std::move(storage))
     { }
 
-    AppConfig& AppController::getAppConfig()
+    const AppConfig& AppController::getAppConfig() const noexcept
     {
-        return config_;
+        return configStorage_->getConfig();
     }
 
-    api::IMessageApi& AppController::getMessageApi() const
+    void AppController::loadAppConfig()
     {
-        return *messageApi_;
+        configStorage_->load();
+        messageApi_->setHost(configStorage_->getConfig().server.host);
+        messageApi_->setPort(configStorage_->getConfig().server.port);
     }
 
-    bool AppController::loadAppConfig()
+    bool AppController::saveAppConfig()
     {
-        std::optional<AppConfig> opt = configStorage_->load();
-        if (!opt.has_value())
-            return false;
-        config_ = std::move(opt.value());
-        messageApi_->setHost(config_.server.host);
-        messageApi_->setPort(std::to_string(config_.server.port));
-        return true;
+        return configStorage_->save();
     }
 
-    bool AppController::saveAppConfig() const
+    void AppController::setLogin(const UserInfo &user, const std::string &password)
     {
-        return configStorage_->save(config_);
+        configStorage_->setByLogin(user, password);
+    }
+
+    void AppController::updateConfigPassword(const std::string &new_password)
+    {
+        configStorage_->updatePassword(new_password);
+    }
+
+    void AppController::updateConfigNickname(const std::string &new_nickname)
+    {
+        configStorage_->updateNickname(new_nickname);
+    }
+
+    void AppController::addChat(const ChatInfo &new_chat)
+    {
+        configStorage_->addChat(new_chat);
+    }
+
+    void AppController::updateConfigHost(const std::string &new_host)
+    {
+        configStorage_->updateHost(new_host);
+    }
+
+    void AppController::updateConfigPort(const std::string& new_port)
+    {
+        configStorage_->updatePort(new_port);
     }
 
     // --- SHELLS FOR NETWORK ---
+    void AppController::updateHost(const std::string &new_host) const
+    {
+        messageApi_->setHost(new_host);
+    }
+
+    void AppController::updatePort(const std::string &new_port) const
+    {
+        messageApi_->setPort(new_port);
+    }
+
     std::optional<std::string> AppController::ping() const
     {
         return messageApi_->ping();
     }
 
-    std::vector<ChatInfo>& AppController::getChats()
+    const std::vector<ChatInfo>& AppController::getChats() const
     {
-        return config_.chats;
-    }
-    
-    std::vector<Message> AppController::dumpMessages(const UserInfo& other_user) const
-    {
-        return messageApi_->dumpMessages(config_.user.id, other_user.id);
+        return configStorage_->getConfig().chats;
     }
 
-    std::vector<Message> AppController::getMessages(const UserInfo& other_user, const ChatInfo& chat) const
+    std::vector<Message> AppController::getMessages(const UserInfo& other_user) const
     {
-        return messageApi_->fetchMessages(config_.user.id,other_user.id,chat.last_message_id);
+        return messageApi_->dumpMessages(configStorage_->getConfig().user.id, other_user.id);
     }
 
     bool AppController::sendMessage(const UserInfo& other_user, const std::string& text) const
     {
-        return messageApi_->sendMessage(config_.user.id, other_user.id, config_.user.password, text);
+        return messageApi_->sendMessage(configStorage_->getConfig().user.id, other_user.id, configStorage_->getConfig().user.password, text);
     }
 
     bool AppController::updatePassword(const std::string& new_password) const
     {
-        return messageApi_->updatePassword(config_.user.id, config_.user.password, new_password);
+        return messageApi_->updatePassword(configStorage_->getConfig().user.id, configStorage_->getConfig().user.password, new_password);
     }
 
     bool AppController::updateNickname(const std::string& new_nickname) const
     {
-        return messageApi_->updateNickname(config_.user.id, config_.user.password, new_nickname);
+        return messageApi_->updateNickname(configStorage_->getConfig().user.id, configStorage_->getConfig().user.password, new_nickname);
     }
 
     std::optional<UserInfo> AppController::getNicknameById(const uint64_t id) const
