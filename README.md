@@ -4,7 +4,7 @@
 
 ![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=c%2B%2B)
 ![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python)
-![Rust](https://img.shields.io/badge/Rust-1.23.0-brown?style=for-the-badge&logo=rust)
+![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge&logo=rust)
 ![CMake](https://img.shields.io/badge/CMake-3.14%2B-darkblue?style=for-the-badge&logo=cmake)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-AGPL_3.0-orange?style=for-the-badge)
@@ -20,13 +20,16 @@ A minimalist console messenger built to practice decoupled client-server archite
 
 ## Overview
 
-**CLI Messenger** is a console application written in C++20 with a Python Flask backend. It demonstrates how to separate network logic, data storage, user interfaces, and core application flow.
+**CLI Messenger** is a console application written in C++20. The client connects to one of two interchangeable backends over HTTPS via `libcurl`. The project demonstrates layered architecture, interface-based dependency injection, and modular screen navigation.
 
-The application supports two API modes:
-- **HttpMessageApi** — real networking mode, connects to the Python server over HTTP via `libcurl`.
-- **FakeMessageApi** — offline mode for UI/UX testing without a backend.
+Two server implementations are provided and are functionally equivalent:
 
-> **Note:** The project is currently in active development. Encryption, and secure credential storage are planned for a future release.
+| Server | Stack | TLS |
+|---|---|---|
+| Python | Flask + bcrypt | self-signed cert (optional) |
+| Rust | axum 0.7 + bcrypt + rustls | self-signed cert (required) |
+
+> **Note:** The project is in active development. Token-based authentication and encrypted local config storage (libsodium) are planned for upcoming releases.
 
 ---
 
@@ -34,19 +37,20 @@ The application supports two API modes:
 
 ### Authentication & Profiles
 - Password-based registration and login.
-- Auto-login using local credential storage (`save.json`).
+- Auto-login on startup using locally stored credentials (`save.json`).
 - Profile management — update nickname and password from the CLI.
+- Built-in server health check (`/ping`) on every launch.
 
-### Messaging & Networking
-- Incremental message fetching to reduce overhead.
-- **Full Chat Dumps** — export an entire conversation to a local text file.
-- Built-in server health check (`/ping` endpoint) to verify connectivity on launch.
+### Messaging
+- Full conversation history fetched on every request — no stale state.
+- **Chat dump** — export an entire conversation to a local text file via `/dump`.
+- Chat list stored locally; peers are resolved by ID from the server.
 
-### General UI & I/O
-- Modular screen-based navigation (`AuthScreen`, `MainScreen`, `ChatScreen`, etc.).
+### UI & I/O
+- Screen-based navigation: `AuthScreen`, `MainScreen`, `ChatsScreen`, `ChatScreen`, `ProfileScreen`, `ServerScreen`.
 - ASCII art menus loaded from asset files.
-- Custom console utilities for safe user input with built-in validation and ANSI color support.
-- Configuration stored in a local JSON file.
+- Safe user input with validation and ANSI color output.
+- Configuration persisted in a local JSON file.
 
 ---
 
@@ -56,115 +60,163 @@ The application supports two API modes:
 cli-messanger/
 ├── client/
 │   ├── assets/
-│   │   ├── menu/
+│   │   ├── menu/          # ASCII art menus
 │   │   └── save/
-│   │       └── save.json
+│   │       └── save.json  # local config and chat list
 │   └── src/
 │       ├── api/
 │       │   └── message_api/
-│       │       ├── fakeapi/
-│       │       ├── httpapi/
+│       │       ├── httpsapi/      # HttpMessageApi (libcurl)
+│       │       ├── fakeapi/       # FakeMessageApi (offline stub, inactive)
 │       │       └── imessage_api.h
-│       ├── app/
-│       ├── models/
-│       ├── screens/
-│       ├── utils/
-│       │   ├── command/
-│       │   ├── console/
-│       │   └── files/
-│       └── main.cpp
+│       ├── app/           # AppController
+│       ├── models/        # UserInfo, Message, ChatInfo, AppConfig, ServerInfo
+│       ├── screens/       # IScreen and all screen implementations
+│       └── utils/
+│           ├── command/   # command parser (/quit, /help, /dump, /update)
+│           ├── console/   # ANSI output, safe input
+│           └── files/     # config storage, chat export, path resolution
 ├── server/
 │   ├── python-server/
+│   │   └── server.py
 │   └── rust-server/
+│       └── src/
+│           ├── main.rs
+│           ├── handlers.rs
+│           ├── models.rs
+│           ├── state.rs
+│           └── error.rs
+├── tests/
+│   ├── test_command_parser.cpp
+│   └── test_json_models.cpp
 ├── CMakeLists.txt
 ├── README.md
-├── LICENCE.md
-└── vcpkg.json
+├── CONTRIBUTING.md
+└── LICENCE.md
 ```
+
+---
 
 ## Architecture
 
-The project is split into several independent layers.
+### Client layers
 
 #### `api`
-Abstracts the network layer. The `IMessageApi` interface ensures the rest of the application does not depend on whether data comes from a local mock (`FakeMessageApi`) or a real server (`HttpsMessageApi`).
+Abstracts the network layer behind `IMessageApi`. The rest of the application has no knowledge of whether data comes from a real server or a local stub. The active implementation is `HttpMessageApi` (`httpsapi/`).
 
 #### `app`
-Contains `AppController`, which coordinates the application lifecycle, manages the configuration, and bridges UI screens with the API layer via dependency injection.
+`AppController` is the central coordinator. It owns the API and config storage via `unique_ptr` and exposes a clean interface to the screen layer. Screens never talk to the network or filesystem directly.
 
 #### `models`
-Lightweight data structures (`UserInfo`, `Message`, `ChatInfo`, `AppConfig`, `ServerInfo`) serialized and deserialized using `nlohmann/json`.
+Plain data structures serialized with `nlohmann/json`. IDs are transmitted as strings to avoid precision loss across language boundaries; `from_json` handles both string and numeric forms transparently.
 
 #### `screens`
-Handles console rendering and user interaction. Each screen (`Auth`, `Main`, `Chats`, `Profile`) is an isolated class inheriting from `IScreen`.
+Each screen inherits from `IScreen` and manages one UI state. Screens read config and send requests only through `AppController`.
 
 #### `utils`
-Reusable helpers: file I/O, chat history export, console formatting, and command parsing.
+`ConfigStorage` — loads and persists `AppConfig` to JSON.  
+`console` — safe typed input, ANSI color output.  
+`command` — parses `/`-prefixed chat commands.  
+`files` — chat history export, asset path resolution.
 
-#### `server`
-A lightweight Python backend using Flask that manages a thread-safe dictionary of users and messages, persisted to `server_state.json`.
+### Server API
+
+Both servers expose the same REST endpoints:
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/ping` | uptime check |
+| `GET` | `/health` | service check |
+| `POST` | `/users/register` | register a new user |
+| `POST` | `/users/login` | verify credentials |
+| `GET` | `/users/:id` | get public user info |
+| `PATCH` | `/users/:id/nick` | update nickname |
+| `PATCH` | `/users/:id/password` | update password |
+| `POST` | `/messages/send` | send a message |
+| `GET` | `/messages/dump` | fetch full conversation history |
+
+State is persisted to `server_state.json` on every write operation.
 
 ---
 
 ## Build
 
-#### Requirements
-- CMake 3.2+
-- A compiler with C++20 support
-- libcurl development headers
-- Python 3.10+ with Flask
+### Requirements
 
-#### Client (command line)
+**Client:**
+- CMake 3.14+
+- C++20 compiler (GCC 12+ / Clang 15+)
+- libcurl development headers
+- nlohmann/json (resolved via CMake)
+- GoogleTest (fetched automatically for tests)
+
+**Python server:**
+- Python 3.10+
+- `pip install flask bcrypt`
+- TLS certificate (optional; required if the client uses `https://`)
+
+**Rust server:**
+- Rust 1.75+
+- Self-signed TLS certificate (required — see below)
+
+### Client
+
 ```bash
-cmake -S . -B cmake-build-debug
-cmake --build cmake-build-debug
+cmake -S . -B build
+cmake --build build
+./build/cli_messanger
 ```
 
-#### Server
+### Tests
+
 ```bash
-cd server
-pip install flask
+cmake -S . -B build
+cmake --build build --target cli_tests
+cd build && ctest --output-on-failure
+```
+
+### Python server
+
+```bash
+cd server/python-server
+pip install flask bcrypt
 python server.py
 ```
+
+### Rust server
+
+Generate a self-signed certificate first:
+
+```bash
+cd server/rust-server
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+cargo run --release
+```
+
+The server listens on `https://127.0.0.1:5000`.
 
 ---
 
 ## Example Workflow
 
-1. Start the Flask server.
-2. Launch the client: `./cmake-build-debug/cli_messanger`
-3. At the Authorization screen, register a new account. Credentials are saved to `client/assets/save/save.json`.
-4. On subsequent launches, the client pings the server and logs in automatically.
-5. In the Main Menu, navigate to Chats, enter a peer's ID, and start messaging.
-6. Use `/dump` inside a chat to export the full conversation history to a local file.
-7. Use `/help` to view all available chat commands.
+1. Start either server.
+2. Launch the client: `./build/cli_messanger`.
+3. On first launch, enter server host, port, and your nickname — saved to `save.json`.
+4. Register a new account, then login. Credentials are stored locally for auto-login.
+5. On subsequent launches the client pings the server and logs in automatically.
+6. In the Chats menu, add a peer by their ID and start messaging.
+7. Use `/dump` inside a chat to export the full conversation to a local file.
+8. Use `/help` to see all available commands.
 
 ---
 
 ## Why I Built This
 
-This project was created to practice:
-- Building decoupled client-server applications.
-- C++20 features and dependency injection patterns.
-- Modular console application development.
-- Safe file handling and persistent configuration with JSON.
-- Integration of external libraries (`libcurl`, `nlohmann/json`) via CMake.
-
-It also serves as a foundation for future improvements — HTTPS transport, password hashing, and encrypted local storage.
-
----
-
-## Contributing
-
-Contributions, ideas, and suggestions are welcome.
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Commit and push
-5. Open a pull request
-
-Read `CONTRIBUTING.md` before opening a pull request.
+- Practice building decoupled client-server applications in C++20.
+- Explore interface-based dependency injection and modular screen navigation.
+- Understand safe file handling and persistent configuration with JSON.
+- Learn Rust by implementing a feature-equivalent backend alongside the Python one.
+- Build a foundation for future improvements: token-based auth, libsodium-encrypted config, and machine-bound credential storage.
 
 ---
 
