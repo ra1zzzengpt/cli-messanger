@@ -7,7 +7,7 @@
 
 namespace screen
 {
-    ChatScreen::ChatScreen(app::AppController& controller, ChatInfo& chat) 
+    ChatScreen::ChatScreen(app::AppController& controller, const ChatInfo& chat)
         : controller_(controller), chat_(chat) {}
 
     void ChatScreen::run()
@@ -19,26 +19,19 @@ namespace screen
             displayMessages();
 
             if (const std::string text = io::scanString("> "); text.starts_with("/")) {
-                std::optional<utils::Command> command = utils::parseCommand(text);
-                if (command == utils::Command::Quit) {
+                if (std::optional<utils::Command> command = utils::parseCommand(text); command == utils::Command::Quit) {
                     in_chat = false;
-                }
-                if (command == utils::Command::Help) {
+                } else if (command == utils::Command::Help) {
                     utils::printFromFile(paths::help);
                     io::waitForEnter();
-                }
-                if (command == utils::Command::Update)
-                {
+                } else if (command == utils::Command::Update) {
                     continue;
-                }
-                if (command == utils::Command::Dump)
-                {
+                } else if (command == utils::Command::Dump) {
                     UserInfo other_user;
                     other_user.id = chat_.peer_id;
                     other_user.nickname = chat_.peer_nick;
-                    utils::dumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"),controller_.dumpMessages(other_user),chat_);
-                }
-                if (command == std::nullopt) {
+                    utils::dumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"),controller_.getMessages(other_user),chat_);
+                } else {
                     io::print("[Error]: unknown command.", io::Color::Red);
                 }
             } else {
@@ -57,7 +50,7 @@ namespace screen
         other_user.id = chat_.peer_id;
         other_user.nickname = chat_.peer_nick;
 
-        if (const auto messages = controller_.getMessages(other_user, chat_); messages.empty())
+        if (const auto messages = controller_.getMessages(other_user); messages.empty())
         {
             io::print("(No messages yet)", io::Color::Yellow);
         }
@@ -67,13 +60,7 @@ namespace screen
             {
                 std::string time_str = msg.created_at.empty() ? "" : "[" + msg.created_at + "] ";
                 std::string prefix = (msg.from_id == controller_.getAppConfig().user.id) ? "[You]: " : "[" + chat_.peer_nick + "]: ";
-                
                 io::print(time_str + prefix + msg.text);
-                
-                if (msg.id > chat_.last_message_id)
-                {
-                    chat_.last_message_id = static_cast<int>(msg.id);
-                }
             }
         }
     }
