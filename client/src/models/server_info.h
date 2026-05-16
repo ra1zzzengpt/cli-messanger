@@ -6,7 +6,7 @@
 
 struct ServerInfo {
     std::string host;
-    uint32_t port = 0;
+    std::string port;
 };
 
 void to_json(nlohmann::json& json, const ServerInfo& server);
