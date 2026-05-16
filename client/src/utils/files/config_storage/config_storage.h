@@ -9,10 +9,27 @@ namespace utils
         explicit ConfigStorage(std::string filepath);
         ~ConfigStorage() = default;
 
-        [[nodiscard]] std::optional<AppConfig> load() const;
+        [[nodiscard]] const AppConfig& getConfig() const noexcept;
 
-        [[nodiscard]] bool save(const AppConfig& config) const;
+        void load();
+
+        [[nodiscard]] bool save() const;
+
+        // - USER -
+        void setByLogin(const UserInfo& user, const std::string& password);
+        void updatePassword(const std::string& new_password);
+        void updateNickname(const std::string& new_nickname);
+
+        // - SERVER -
+
+        void updateHost(const std::string& new_host);
+        void updatePort(const std::string& new_port);
+
+        // - CHATS -
+        void addChat(const ChatInfo& new_chat);
+
     private:
         std::string filepath_;
+        AppConfig config_;
     };
 }

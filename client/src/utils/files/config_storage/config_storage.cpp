@@ -23,7 +23,7 @@ namespace utils {
         bool hasDefaultValues(const AppConfig& config)
         {
             return config.server.host.empty()
-                || config.server.port == 0
+                || config.server.port.empty()
                 || config.user.id == 0
                 || config.user.nickname.empty();
         }
@@ -35,9 +35,9 @@ namespace utils {
                 config.server.host = io::scanString("Server host: ");
             }
 
-            if (config.server.port == 0)
+            if (config.server.port.empty())
             {
-                config.server.port = static_cast<int>(io::scanUint32("Server port: "));
+                config.server.port = io::scanString("Server port: ");
             }
 
             if (config.user.id == 0)
@@ -55,7 +55,7 @@ namespace utils {
     ConfigStorage::ConfigStorage(std::string filepath) : filepath_(std::move(filepath))
     { }
 
-    bool ConfigStorage::save(const AppConfig& config) const
+    bool ConfigStorage::save() const
     {
 
         const std::filesystem::path path{filepath_};
@@ -75,11 +75,11 @@ namespace utils {
             return false;
         }
 
-        file << nlohmann::json(config).dump(4);
+        file << nlohmann::json(config_).dump(4);
         return true;
     }
 
-    std::optional<AppConfig> ConfigStorage::load() const
+    void ConfigStorage::load()
     {
         const std::filesystem::path path{filepath_};
         std::error_code error;
@@ -88,7 +88,7 @@ namespace utils {
         if (error)
         {
             io::print("[FATAL ERROR]: Cannot create config directory", io::Color::Red);
-            return std::nullopt;
+            std::terminate();
         }
 
         std::ifstream file(path);
@@ -112,12 +112,48 @@ namespace utils {
         {
             io::print("Config is incomplete. Please enter missing values:", io::Color::Yellow);
             fillMissingConfigValues(config);
-            if (!save(config))
-            {
-                io::print("[Error]: Failed to save updated config", io::Color::Red);
-            }
         }
 
-        return config;
+        config_ = config;
+        if (!save())
+        {
+            io::print("[Error]: Failed to save updated config", io::Color::Red);
+        }
+    }
+
+    const AppConfig& ConfigStorage::getConfig() const noexcept
+    {
+        return config_;
+    }
+
+    void ConfigStorage::setByLogin(const UserInfo& user, const std::string& password)
+    {
+        config_.user = user;
+        config_.user.password = password;
+    }
+
+    void ConfigStorage::updatePassword(const std::string &new_password)
+    {
+        config_.user.password = new_password;
+    }
+
+    void ConfigStorage::updateNickname(const std::string& new_nickname)
+    {
+        config_.user.nickname = new_nickname;
+    }
+
+    void ConfigStorage::addChat(const ChatInfo &new_chat)
+    {
+        config_.chats.push_back(new_chat);
+    }
+
+    void ConfigStorage::updateHost(const std::string &new_host)
+    {
+        config_.server.host = new_host;
+    }
+
+    void ConfigStorage::updatePort(const std::string &new_port)
+    {
+        config_.server.port = new_port;
     }
 }
