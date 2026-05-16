@@ -16,13 +16,13 @@ namespace screen
         void addChat() const;
         app::AppController& controller_;
     };
-}
 
-enum class ChatsMenu
-{
-    MinChoice = 1,
-    MaxChoice = 3,
-    SelectChat = 1,
-    AddChat = 2,
-    Exit = 3
-};
+    enum class ChatsMenu
+    {
+        MinChoice = 1,
+        MaxChoice = 3,
+        SelectChat = 1,
+        AddChat = 2,
+        Exit = 3
+    };
+}

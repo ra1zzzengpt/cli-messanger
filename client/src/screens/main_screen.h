@@ -14,14 +14,14 @@ namespace screen
     private:
         app::AppController& controller_;
     };
-}
 
-enum class MainMenu
-{
-    MinChoice = 1,
-    MaxChoice = 4,
-    ChatScreen = 1,
-    ProfileScreen = 2,
-    ServerScreen = 3,
-    Exit = 4
-};
+    enum class MainMenu
+    {
+        MinChoice = 1,
+        MaxChoice = 4,
+        ChatScreen = 1,
+        ProfileScreen = 2,
+        ServerScreen = 3,
+        Exit = 4
+    };
+}

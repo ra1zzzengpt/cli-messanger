@@ -14,13 +14,12 @@ namespace screen
     private:
         app::AppController& controller_;
     };
+    enum class ProfileMenu
+    {
+        MinChoice = 1,
+        MaxChoice = 3,
+        ChangeNickname = 1,
+        ChangePassword = 2,
+        Exit = 3
+    };
 }
-
-enum class ProfileMenu
-{
-    MinChoice = 1,
-    MaxChoice = 3,
-    ChangeNickname = 1,
-    ChangePassword = 2,
-    Exit = 3
-};

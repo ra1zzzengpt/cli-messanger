@@ -16,14 +16,14 @@ namespace screen
         void handleLogin() const;
         void handleRegister() const;
     };
-}
 
-enum class AuthMenu
-{
-    MinChoice = 1,
-    MaxChoice = 4,
-    Login = 1,
-    Register = 2,
-    ServerSettings = 3,
-    Exit = 4
-};
+    enum class AuthMenu
+    {
+        MinChoice = 1,
+        MaxChoice = 4,
+        Login = 1,
+        Register = 2,
+        ServerSettings = 3,
+        Exit = 4
+    };
+}

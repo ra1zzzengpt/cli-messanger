@@ -15,13 +15,13 @@ namespace screen
     private:
         app::AppController& controller_;
     };
-}
 
-enum class ServerMenu
-{
-    MinChoice = 1,
-    MaxChoice = 3,
-    ChangeHost = 1,
-    ChangePort = 2,
-    Exit = 3
-};
+    enum class ServerMenu
+    {
+        MinChoice = 1,
+        MaxChoice = 3,
+        ChangeHost = 1,
+        ChangePort = 2,
+        Exit = 3
+    };
+}
