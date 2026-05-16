@@ -22,10 +22,10 @@ namespace paths
         return base;
     }
 
-    inline std::filesystem::path main    = getAssetsBase() / "menu" / "main.txt";
-    inline std::filesystem::path help    = getAssetsBase() / "menu" / "help.txt";
-    inline std::filesystem::path chats   = getAssetsBase() / "menu" / "chats.txt";
-    inline std::filesystem::path profile = getAssetsBase() / "menu" / "profile.txt";
-    inline std::filesystem::path server  = getAssetsBase() / "menu" / "server.txt";
-    inline std::filesystem::path auth    = getAssetsBase() / "menu" / "auth.txt";
+    inline std::filesystem::path main_menu = getAssetsBase() / "menu" / "main.txt";
+    inline std::filesystem::path help      = getAssetsBase() / "menu" / "help.txt";
+    inline std::filesystem::path chats     = getAssetsBase() / "menu" / "chats.txt";
+    inline std::filesystem::path profile   = getAssetsBase() / "menu" / "profile.txt";
+    inline std::filesystem::path server    = getAssetsBase() / "menu" / "server.txt";
+    inline std::filesystem::path auth      = getAssetsBase() / "menu" / "auth.txt";
 }

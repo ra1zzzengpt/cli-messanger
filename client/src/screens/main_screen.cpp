@@ -53,6 +53,6 @@ namespace screen
     }
 
     void MainScreen::printScreen() {
-        utils::printFromFile(paths::main);
+        utils::printFromFile(paths::main_menu);
     }
 }
