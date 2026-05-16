@@ -9,7 +9,7 @@ namespace screen
     class ChatScreen final : public IScreen
     {
     public:
-        ChatScreen(app::AppController& controller, ChatInfo& chat);
+        ChatScreen(app::AppController& controller, const ChatInfo& chat);
         void run() override;
         void printScreen() override;
 
@@ -18,6 +18,6 @@ namespace screen
         void sendMessage(const std::string& text) const;
 
         app::AppController& controller_;
-        ChatInfo& chat_;
+        const ChatInfo& chat_;
     };
 }
