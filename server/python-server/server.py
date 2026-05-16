@@ -380,44 +380,6 @@ def dump_messages():
         return ok_response({"messages": result, "total_count": len(result)})
 
 
-@app.get("/messages")
-def fetch_messages():
-    me = parse_uint64(request.args.get("me"))
-    peer = parse_uint64(request.args.get("peer"))
-
-    try:
-        since_id = int(request.args.get("since_id", "0"))
-    except ValueError:
-        return error_response("invalid since_id", 400)
-
-    if me is None:
-        return error_response("invalid me", 400)
-    if peer is None:
-        return error_response("invalid peer", 400)
-    if since_id < 0:
-        return error_response("invalid since_id", 400)
-
-    with state_lock:
-        me_user = get_user_by_id_unlocked(me)
-        peer_user = get_user_by_id_unlocked(peer)
-
-        if me_user is None:
-            return error_response("current user not found", 404)
-        if peer_user is None:
-            return error_response("peer user not found", 404)
-
-        result = [
-            public_message(m) for m in state["messages"]
-            if (
-                (m["from_id"] == me and m["to_id"] == peer)
-                or (m["from_id"] == peer and m["to_id"] == me)
-            ) and m["id"] > since_id
-        ]
-        result.sort(key=lambda item: item["id"])
-
-        return ok_response({"messages": result})
-
-
 if DEBUG_MODE:
     @app.get("/debug/state")
     def debug_state():

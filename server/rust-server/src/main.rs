@@ -80,8 +80,7 @@ async fn main() {
         .route("/users/:user_id/nick", patch(update_nick))
         .route("/users/:user_id/password", patch(update_password))
         .route("/messages/send", post(send_message))
-        .route("/messages/dump", get(dump_messages))
-        .route("/messages", get(fetch_messages));
+        .route("/messages/dump", get(dump_messages));
 
     if debug_mode {
         router = router

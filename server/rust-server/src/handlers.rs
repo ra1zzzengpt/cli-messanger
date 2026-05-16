@@ -77,13 +77,6 @@ pub struct MessagesQuery {
     pub peer: Option<String>,
 }
 
-#[derive(Deserialize)]
-pub struct FetchQuery {
-    pub me: Option<String>,
-    pub peer: Option<String>,
-    pub since_id: Option<String>,
-}
-
 // ── Handlers ──────────────────────────────────────────────────────────────────
 
 // GET /ping
@@ -434,58 +427,6 @@ pub async fn dump_messages(
         "messages": messages,
         "total_count": total,
     })))
-}
-
-// GET /messages
-pub async fn fetch_messages(
-    State(state): State<SharedState>,
-    Query(params): Query<FetchQuery>,
-) -> Result<impl IntoResponse> {
-    let me = params
-        .me
-        .as_deref()
-        .and_then(parse_id_str)
-        .ok_or_else(|| AppError::bad_request("invalid me"))?;
-    let peer = params
-        .peer
-        .as_deref()
-        .and_then(parse_id_str)
-        .ok_or_else(|| AppError::bad_request("invalid peer"))?;
-
-    let since_id: i64 = params
-        .since_id
-        .as_deref()
-        .unwrap_or("0")
-        .parse()
-        .map_err(|_| AppError::bad_request("invalid since_id"))?;
-
-    if since_id < 0 {
-        return Err(AppError::bad_request("invalid since_id"));
-    }
-    let since_id = since_id as u64;
-
-    let data = state.data.lock().await;
-
-    if !data.users.contains_key(&me.to_string()) {
-        return Err(AppError::not_found("current user not found"));
-    }
-    if !data.users.contains_key(&peer.to_string()) {
-        return Err(AppError::not_found("peer user not found"));
-    }
-
-    let mut messages: Vec<_> = data
-        .messages
-        .iter()
-        .filter(|m| {
-            ((m.from_id == me && m.to_id == peer) || (m.from_id == peer && m.to_id == me))
-                && m.id > since_id
-        })
-        .map(|m| to_public_message(m, &data.users))
-        .collect();
-
-    messages.sort_by_key(|m| m.id.parse::<u64>().unwrap_or(0));
-
-    Ok(Json(json!({"ok": true, "messages": messages})))
 }
 
 // ── Debug endpoints (только при DEBUG_MODE=1) ─────────────────────────────────
