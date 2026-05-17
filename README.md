@@ -20,16 +20,14 @@ A minimalist console messenger built to practice decoupled client-server archite
 
 ## Overview
 
-**CLI Messenger** is a console application written in C++20. The client connects to one of two interchangeable backends over HTTPS via `libcurl`. The project demonstrates layered architecture, interface-based dependency injection, and modular screen navigation.
+**CLI Messenger** is a console application written in C++20. The client connects to one of two interchangeable backends over HTTPS via `libcurl`. The project demonstrates layered architecture, interface-based dependency injection, modular screen navigation, and machine-bound encrypted local storage powered by libsodium.
 
 Two server implementations are provided and are functionally equivalent:
 
 | Server | Stack | TLS |
 |---|---|---|
-| Python | Flask + bcrypt | self-signed cert (optional) |
-| Rust | axum 0.7 + bcrypt + rustls | self-signed cert (required) |
-
-> **Note:** The project is in active development. Token-based authentication and encrypted local config storage (libsodium) are planned for upcoming releases.
+| Python | Flask + bcrypt | optional |
+| Rust | axum 0.7 + bcrypt + rustls | required (self-signed) |
 
 ---
 
@@ -45,6 +43,10 @@ Two server implementations are provided and are functionally equivalent:
 - Full conversation history fetched on every request — no stale state.
 - **Chat dump** — export an entire conversation to a local text file via `/dump`.
 - Chat list stored locally; peers are resolved by ID from the server.
+
+### Security
+- Local config is encrypted with **libsodium** (XSalsa20-Poly1305) and persisted as Base64-encoded ciphertext with a random salt and nonce.
+- The encryption key is derived from the salt and is **machine-bound** — the config cannot be decrypted on a different machine.
 
 ### UI & I/O
 - Screen-based navigation: `AuthScreen`, `MainScreen`, `ChatsScreen`, `ChatScreen`, `ProfileScreen`, `ServerScreen`.
@@ -62,12 +64,12 @@ cli-messanger/
 │   ├── assets/
 │   │   ├── menu/          # ASCII art menus
 │   │   └── save/
-│   │       └── save.json  # local config and chat list
+│   │       └── save.json  # encrypted local config and chat list
 │   └── src/
 │       ├── api/
 │       │   └── message_api/
 │       │       ├── httpsapi/      # HttpMessageApi (libcurl)
-│       │       ├── fakeapi/       # FakeMessageApi (offline stub, inactive)
+│       │       ├── fakeapi/       # FakeMessageApi (offline stub)
 │       │       └── imessage_api.h
 │       ├── app/           # AppController
 │       ├── models/        # UserInfo, Message, ChatInfo, AppConfig, ServerInfo
@@ -75,7 +77,8 @@ cli-messanger/
 │       └── utils/
 │           ├── command/   # command parser (/quit, /help, /dump, /update)
 │           ├── console/   # ANSI output, safe input
-│           └── files/     # config storage, chat export, path resolution
+│           ├── crypto/    # CryptoSodium, CryptoInfo, base64 helpers
+│           └── files/     # ConfigStorage, chat export, path resolution
 ├── server/
 │   ├── python-server/
 │   │   └── server.py
@@ -114,7 +117,8 @@ Plain data structures serialized with `nlohmann/json`. IDs are transmitted as st
 Each screen inherits from `IScreen` and manages one UI state. Screens read config and send requests only through `AppController`.
 
 #### `utils`
-`ConfigStorage` — loads and persists `AppConfig` to JSON.  
+`ConfigStorage` — loads and persists `AppConfig` to JSON. Encryption and decryption are handled transparently via the embedded `CryptoSodium` instance.  
+`crypto` — `CryptoSodium` wraps libsodium's secretstream; `CryptoInfo` carries salt, nonce, and ciphertext; base64 helpers bridge binary data and JSON.  
 `console` — safe typed input, ANSI color output.  
 `command` — parses `/`-prefixed chat commands.  
 `files` — chat history export, asset path resolution.
@@ -137,6 +141,13 @@ Both servers expose the same REST endpoints:
 
 State is persisted to `server_state.json` on every write operation.
 
+The Rust server additionally exposes debug endpoints when `DEBUG_MODE=1`:
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/debug/state` | dump full server state |
+| `DELETE` | `/debug/reset` | reset server state |
+
 ---
 
 ## Build
@@ -148,12 +159,12 @@ State is persisted to `server_state.json` on every write operation.
 - C++20 compiler (GCC 12+ / Clang 15+)
 - libcurl development headers
 - nlohmann/json (resolved via CMake)
+- libsodium development headers
 - GoogleTest (fetched automatically for tests)
 
 **Python server:**
 - Python 3.10+
 - `pip install flask bcrypt`
-- TLS certificate (optional; required if the client uses `https://`)
 
 **Rust server:**
 - Rust 1.75+
@@ -197,11 +208,17 @@ The server listens on `https://127.0.0.1:5000`.
 
 ---
 
+## CI/CD
+
+GitHub Actions runs on every push and pull request: installs system dependencies (`libcurl`, `nlohmann-json`, `libsodium`), configures CMake, builds, and runs the test suite.
+
+---
+
 ## Example Workflow
 
 1. Start either server.
 2. Launch the client: `./build/cli_messanger`.
-3. On first launch, enter server host, port, and your nickname — saved to `save.json`.
+3. On first launch, enter server host, port, and your nickname — saved to `save.json` (encrypted).
 4. Register a new account, then login. Credentials are stored locally for auto-login.
 5. On subsequent launches the client pings the server and logs in automatically.
 6. In the Chats menu, add a peer by their ID and start messaging.
@@ -216,7 +233,7 @@ The server listens on `https://127.0.0.1:5000`.
 - Explore interface-based dependency injection and modular screen navigation.
 - Understand safe file handling and persistent configuration with JSON.
 - Learn Rust by implementing a feature-equivalent backend alongside the Python one.
-- Build a foundation for future improvements: token-based auth, libsodium-encrypted config, and machine-bound credential storage.
+- Integrate libsodium for machine-bound encrypted local storage.
 
 ---
 
