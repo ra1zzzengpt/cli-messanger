@@ -14,6 +14,7 @@ The project is split into strict layers. Violating these boundaries is the most 
 | AppController | `client/src/app/` | Coordinates screens ↔ API ↔ config. No UI logic here. |
 | API | `client/src/api/` | Always implement against `IMessageApi`. No screen dependencies. |
 | Models | `client/src/models/` | Plain data + JSON serialization only. No business logic. |
+| Crypto | `client/src/utils/crypto/` | libsodium wrappers and base64 helpers. No screen or API dependencies. |
 | Utils | `client/src/utils/` | Reusable helpers. No screen or API dependencies. |
 
 `AppController` is constructed in `main.cpp` with dependency injection — screens receive a reference, never construct the controller themselves.
@@ -45,6 +46,12 @@ The project is split into strict layers. Violating these boundaries is the most 
 - Use the existing `GET`, `POST`, `PATCH` helpers in `HttpMessageApi`. They handle SSL bypass, 5-second timeout, and response parsing uniformly.
 - Parse responses by checking `resp.is_ok() && resp.data.value("ok", false)` before accessing fields.
 
+### Crypto and local config
+
+- Never write raw plaintext to `save.json`. All config persistence goes through `ConfigStorage`, which transparently encrypts via `CryptoSodium`.
+- `CryptoInfo` carries `salt`, `nonce`, and `ciphertext` as `std::vector<unsigned char>`. Use `utils::crypto::to_base64` / `from_base64` when storing binary data in JSON.
+- Do not instantiate `CryptoSodium` outside of `ConfigStorage` without a clear reason — the key is machine-bound and derived per instance.
+
 ---
 
 ## How to Contribute
@@ -72,7 +79,7 @@ The project is split into strict layers. Violating these boundaries is the most 
 
 Tests live in `tests/` and are built as a separate `cli_tests` target. Add test files there; register them in `CMakeLists.txt` under the `cli_tests` executable. GoogleTest is fetched automatically.
 
-Test only pure logic (models, parsers, utilities). Do not test screens or `AppController` — they require I/O and network that the test build does not provide.
+Test only pure logic (models, parsers, utilities). Do not test screens or `AppController` — they require I/O and network that the test build does not provide. Crypto utilities (`CryptoSodium`, base64 helpers) are suitable for unit testing and do not require network or filesystem access.
 
 ---
 
