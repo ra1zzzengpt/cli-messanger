@@ -45,6 +45,12 @@ add_executable(cli_messanger
         client/src/utils/files/files.h
         client/src/utils/files/paths.h
         client/src/models/message.cpp
+        client/src/utils/crypto/crypto_sodium.cpp
+        client/src/utils/crypto/crypto_sodium.h
+        client/src/utils/crypto/helpers/base64.cpp
+        client/src/utils/crypto/helpers/base64.h
+        client/src/utils/crypto/helpers/crypto_info.cpp
+        client/src/utils/crypto/helpers/crypto_info.h
 )
 
 target_include_directories(cli_messanger PRIVATE
@@ -53,11 +59,15 @@ target_include_directories(cli_messanger PRIVATE
 
 find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBSODIUM REQUIRED libsodium)
 
+target_include_directories(cli_messanger PRIVATE ${LIBSODIUM_INCLUDE_DIRS})
 target_link_libraries(cli_messanger
         PRIVATE
         CURL::libcurl
         nlohmann_json::nlohmann_json
+        ${LIBSODIUM_LIBRARIES}
 )
 
 # --- Tests ---
@@ -85,11 +95,13 @@ add_executable(cli_tests
 target_include_directories(cli_tests PRIVATE
         ${PROJECT_SOURCE_DIR}/client/src
 )
+target_include_directories(cli_tests PRIVATE ${LIBSODIUM_INCLUDE_DIRS})
 
 target_link_libraries(cli_tests
         PRIVATE
         nlohmann_json::nlohmann_json
         GTest::gtest_main
+        ${LIBSODIUM_LIBRARIES}
 )
 
 include(GoogleTest)
