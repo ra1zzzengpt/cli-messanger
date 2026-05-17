@@ -4,6 +4,7 @@
 #include "utils/files/config_storage/config_storage.h"
 #include "api/message_api/httpsapi/https_message_api.h"
 #include <curl/curl.h>
+#include <sodium.h>
 
 #include "utils/console/console.h"
 
@@ -15,6 +16,11 @@ namespace
 
 int main()
 {
+    if (sodium_init() < 0)
+    {
+        io::print("[Fatal error]: sodium init failed", io::Color::Red);
+        return 1;
+    }
     if (const CURLcode init_code = curl_global_init(CURL_GLOBAL_ALL); init_code != CURLE_OK)
     {
         io::print("[Fatal error]: curl init failed: " + std::to_string(init_code));
