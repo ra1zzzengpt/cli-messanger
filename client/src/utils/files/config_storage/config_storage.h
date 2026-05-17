@@ -1,5 +1,6 @@
 #pragma once
 #include "models/app_config.h"
+#include "utils/crypto/crypto_sodium.h"
 
 namespace utils
 {
@@ -13,7 +14,7 @@ namespace utils
 
         void load();
 
-        [[nodiscard]] bool save() const;
+        [[nodiscard]] bool save();
 
         // - USER -
         void setByLogin(const UserInfo& user, const std::string& password);
@@ -31,5 +32,6 @@ namespace utils
     private:
         std::string filepath_;
         AppConfig config_;
+        CryptoSodium cryptoSodium_;
     };
 }

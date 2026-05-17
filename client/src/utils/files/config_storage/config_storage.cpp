@@ -55,7 +55,7 @@ namespace utils {
     ConfigStorage::ConfigStorage(std::string filepath) : filepath_(std::move(filepath))
     { }
 
-    bool ConfigStorage::save() const
+    bool ConfigStorage::save()
     {
 
         const std::filesystem::path path{filepath_};
@@ -75,7 +75,7 @@ namespace utils {
             return false;
         }
 
-        file << nlohmann::json(config_).dump(4);
+        file << nlohmann::json(cryptoSodium_.encode(nlohmann::json(config_).dump())).dump(4);
         return true;
     }
 
@@ -98,8 +98,13 @@ namespace utils {
         {
             try
             {
-                nlohmann::json json = nlohmann::json::parse(file);
-                config = json.get<AppConfig>();
+                nlohmann::json crypted_file = nlohmann::json::parse(file);
+                std::optional<std::string> decoded = cryptoSodium_.decode(crypted_file);
+                if (!decoded.has_value())
+                {
+                    throw std::runtime_error("Decode failed");
+                }
+                config = nlohmann::json::parse(*decoded).get<AppConfig>();
             }
             catch (const nlohmann::json::exception& ex)
             {
