@@ -129,17 +129,17 @@ namespace api {
         }
     }
 
-    HttpsError ErrorCodeToHttpsErrors(const long statusCode) {
-        switch (statusCode) {
-            case 400: return HttpsError::BadRequest;
-            case 401: return HttpsError::Unauthorized;
-            case 404: return HttpsError::NotFound;
-            case 409: return HttpsError::Conflict;
-            default:
-                if (statusCode >= 500) return HttpsError::ServerError;
-                return HttpsError::UnexpectedStatus;
-        }
-    }
+    // HttpsError ErrorCodeToHttpsErrors(const long statusCode) {
+    //     switch (statusCode) {
+    //         case 400: return HttpsError::BadRequest;
+    //         case 401: return HttpsError::Unauthorized;
+    //         case 404: return HttpsError::NotFound;
+    //         case 409: return HttpsError::Conflict;
+    //         default:
+    //             if (statusCode >= 500) return HttpsError::ServerError;
+    //             return HttpsError::UnexpectedStatus;
+    //     }
+    // }
 
     std::optional<std::string> HttpMessageApi::ping() // todo: to expected
     {
