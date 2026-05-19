@@ -53,6 +53,7 @@ namespace app
     void AppController::updateUrl(const std::string &new_url) const
     {
         messageApi_->setUrl(new_url);
+        configStorage_->updateUrl(new_url);
     }
 
     std::optional<std::string> AppController::ping() const
