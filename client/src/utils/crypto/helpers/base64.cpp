@@ -13,7 +13,7 @@ namespace utils::crypto
         return out;
     }
 
-    std::optional<std::vector<unsigned char>> from_base64(const std::string& s) { // todo: to expected
+    std::expected<std::vector<unsigned char>,errors::AppError> from_base64(const std::string& s) {
         std::vector<unsigned char> out(s.size());
         size_t bin_len = 0;
 
@@ -25,7 +25,7 @@ namespace utils::crypto
             /*end_pointer=*/nullptr,
             sodium_base64_VARIANT_ORIGINAL);
 
-        if (rc != 0) return std::nullopt;
+        if (rc != 0) return std::unexpected(errors::AppError{errors::Base64Error::SodiumBase64Error,"Base64 sodium error"});
 
         out.resize(bin_len);
         return out;

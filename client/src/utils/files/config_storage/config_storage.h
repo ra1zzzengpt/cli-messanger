@@ -1,6 +1,9 @@
 #pragma once
+#include <expected>
+
 #include "models/app_config.h"
 #include "utils/crypto/crypto_sodium.h"
+#include "utils/error/app_error.h"
 
 namespace utils
 {
@@ -12,20 +15,20 @@ namespace utils
 
         [[nodiscard]] const AppConfig& getConfig() const noexcept;
 
-        void load();
+        std::expected<void,errors::AppError> load();
 
-        [[nodiscard]] bool save(); // todo: to expected
+        std::expected<void,errors::AppError> save();
 
         // - USER -
-        void setByLogin(const UserInfo& user, const std::string& password); // todo: to expected
-        void updatePassword(const std::string& new_password); // todo: to expected
-        void updateNickname(const std::string& new_nickname); // todo: to expected
+        std::expected<void,errors::AppError> setByLogin(const UserInfo& user, const std::string& password);
+        std::expected<void,errors::AppError> updatePassword(const std::string& new_password);
+        std::expected<void,errors::AppError> updateNickname(const std::string& new_nickname);
 
         // - SERVER -
-        void updateUrl(const std::string& new_url); // todo: to expected
+        std::expected<void,errors::AppError> updateUrl(const std::string& new_url);
 
         // - CHATS -
-        void addChat(const ChatInfo& new_chat); // todo: to expected
+        std::expected<void,errors::AppError> addChat(const ChatInfo& new_chat);
 
     private:
         std::string filepath_;

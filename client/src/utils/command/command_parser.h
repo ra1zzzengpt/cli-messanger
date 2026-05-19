@@ -1,6 +1,8 @@
 #pragma once
-#include <optional>
+#include <expected>
 #include <string>
+
+#include "utils/error/app_error.h"
 
 namespace utils {
     enum class Command {
@@ -10,5 +12,5 @@ namespace utils {
         Dump
     };
 
-    std::optional<Command> parseCommand(const std::string& command); // todo: to expected
+    std::expected<Command,errors::AppError> parseCommand(const std::string& command);
 };

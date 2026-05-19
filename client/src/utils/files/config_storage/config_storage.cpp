@@ -1,5 +1,7 @@
 #include "config_storage.h"
 
+#include <expected>
+
 #include "utils/console/console.h"
 
 #include <fstream>
@@ -49,7 +51,7 @@ namespace utils {
     ConfigStorage::ConfigStorage(std::string filepath) : filepath_(std::move(filepath))
     { }
 
-    bool ConfigStorage::save()
+    std::expected<void,errors::AppError> ConfigStorage::save()
     {
 
         const std::filesystem::path path{filepath_};
@@ -58,22 +60,24 @@ namespace utils {
 
         if (error)
         {
-            io::print("[Error]: Cannot create config directory", io::Color::Red);
-            return false;
+            return std::unexpected(errors::AppError{errors::ConfigError::CreateDirectoryFailed,"can't create directory: " + std::string(path) + " (" + error.message() + ")"});
         }
 
         std::ofstream file(path);
         if (!file.is_open())
         {
-            io::print("[Error]: Cannot save config file", io::Color::Red);
-            return false;
+            return std::unexpected(errors::AppError{errors::ConfigError::OpenFileFailed});
         }
-
-        file << nlohmann::json(cryptoSodium_.encode(nlohmann::json(config_).dump())).dump(4);
-        return true;
+        std::expected<CryptoInfo,errors::AppError> encrypted_result = cryptoSodium_.encode(nlohmann::json(config_).dump());
+        if (!encrypted_result.has_value())
+        {
+            return std::unexpected(encrypted_result.error());
+        }
+        file << nlohmann::json(nlohmann::json(encrypted_result.value()).dump()).dump(4);
+        return {};
     }
 
-    void ConfigStorage::load()
+    std::expected<void,errors::AppError> ConfigStorage::load()
     {
         const std::filesystem::path path{filepath_};
         std::error_code error;
@@ -81,8 +85,8 @@ namespace utils {
 
         if (error)
         {
-            io::print("[FATAL ERROR]: Cannot create config directory", io::Color::Red);
-            std::terminate();
+            return std::unexpected(errors::AppError{errors::ConfigError::CreateDirectoryFailed,
+                "can't create directory: " + std::string(path) + " (" + error.message() + ")"});
         }
 
         std::ifstream file(path);
@@ -93,20 +97,21 @@ namespace utils {
             try
             {
                 nlohmann::json crypted_file = nlohmann::json::parse(file);
-                std::optional<std::string> decoded = cryptoSodium_.decode(crypted_file);
+                std::expected<std::string,errors::AppError> decoded = cryptoSodium_.decode(crypted_file);
                 if (!decoded.has_value())
                 {
-                    throw std::runtime_error("Decode failed");
+                    return std::unexpected(decoded.error());
                 }
                 config = nlohmann::json::parse(*decoded).get<AppConfig>();
             }
             catch (const nlohmann::json::exception& ex)
             {
-                io::print("[Error]: Cannot parse config file: " + std::string(ex.what()), io::Color::Red);
                 config = AppConfig{};
             }
         }
 
+        // TODO: WHAT'S WITH IT
+        // SRP PROBLEM
         if (hasDefaultValues(config))
         {
             io::print("Config is incomplete. Please enter missing values:", io::Color::Yellow);
@@ -114,10 +119,11 @@ namespace utils {
         }
 
         config_ = config;
-        if (!save())
+        if (std::expected<void,errors::AppError> save_result = save(); !save_result.has_value())
         {
-            io::print("[Error]: Failed to save updated config", io::Color::Red);
+            return std::unexpected(save_result.error());
         }
+        return {};
     }
 
     const AppConfig& ConfigStorage::getConfig() const noexcept
@@ -125,34 +131,54 @@ namespace utils {
         return config_;
     }
 
-    void ConfigStorage::setByLogin(const UserInfo& user, const std::string& password)
+    std::expected<void,errors::AppError> ConfigStorage::setByLogin(const UserInfo& user, const std::string& password)
     {
         config_.user = user;
         config_.user.password = password;
-        // todo: save check to expected
+        if (std::expected<void,errors::AppError> save_result = save(); !save_result.has_value())
+        {
+            return std::unexpected(save_result.error());
+        }
+        return {};
     }
 
-    void ConfigStorage::updatePassword(const std::string &new_password)
+    std::expected<void,errors::AppError> ConfigStorage::updatePassword(const std::string &new_password)
     {
         config_.user.password = new_password;
-        // todo: save check to expected
+        if (std::expected<void,errors::AppError> save_result = save(); !save_result.has_value())
+        {
+            return std::unexpected(save_result.error());
+        }
+        return {};
     }
 
-    void ConfigStorage::updateNickname(const std::string& new_nickname)
+    std::expected<void,errors::AppError> ConfigStorage::updateNickname(const std::string& new_nickname)
     {
         config_.user.nickname = new_nickname;
-        // todo: save check to expected
+        if (std::expected<void,errors::AppError> save_result = save(); !save_result.has_value())
+        {
+            return std::unexpected(save_result.error());
+        }
+        return {};
     }
 
-    void ConfigStorage::addChat(const ChatInfo &new_chat)
+    std::expected<void,errors::AppError> ConfigStorage::addChat(const ChatInfo &new_chat)
     {
         config_.chats.push_back(new_chat);
-        // todo: save check to expected
+        if (std::expected<void,errors::AppError> save_result = save(); !save_result.has_value())
+        {
+            return std::unexpected(save_result.error());
+        }
+        return {};
     }
 
-    void ConfigStorage::updateUrl(const std::string &new_url)
+    std::expected<void,errors::AppError> ConfigStorage::updateUrl(const std::string &new_url)
     {
         config_.server.url = new_url;
-        // todo: save check to expected
+        if (std::expected<void,errors::AppError> save_result = save(); !save_result.has_value())
+        {
+            return std::unexpected(save_result.error());
+        }
+        return {};
     }
 }

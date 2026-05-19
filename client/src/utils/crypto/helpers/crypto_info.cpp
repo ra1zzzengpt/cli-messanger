@@ -5,7 +5,7 @@ namespace
 {
     std::vector<unsigned char> read_base64_field(const nlohmann::json& json, const std::string& key)
     {
-        if (const std::optional<std::vector<unsigned char>> result = utils::crypto::from_base64(json[key]); result.has_value())
+        if (const std::expected<std::vector<unsigned char>,utils::errors::AppError> result = utils::crypto::from_base64(json[key]); result.has_value())
         {
             return std::vector{*result};
         }

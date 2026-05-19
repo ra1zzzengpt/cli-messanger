@@ -1,10 +1,12 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <optional>
+#include <expected>
+
+#include "utils/error/app_error.h"
 
 namespace utils::crypto
 {
     std::string to_base64(const std::vector<unsigned char>& bytes);
-    std::optional<std::vector<unsigned char>> from_base64(const std::string& s); // todo: to expected
+    std::expected<std::vector<unsigned char>,errors::AppError> from_base64(const std::string& s);
 }
