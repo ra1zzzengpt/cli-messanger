@@ -3,9 +3,11 @@
 #include <filesystem>
 #include "models/message.h"
 #include "models/chat_info.h"
+#include <expected>
+#include <utils/error/app_error.h>
 
 namespace utils {
-    void printFromFile(const std::filesystem::path& path); // todo: to expected
+    std::expected<void, errors::AppError> printFromFile(const std::filesystem::path& path);
 
-    void dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages,const ChatInfo& chat); // todo: to expected
+    std::expected<void, errors::AppError> dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages,const ChatInfo& chat);
 }

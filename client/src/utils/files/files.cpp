@@ -5,13 +5,12 @@
 
 namespace utils
 {
-    void printFromFile(const std::filesystem::path& path)
+    std::expected<void, errors::AppError> printFromFile(const std::filesystem::path& path)
     {
         std::ifstream ifs(path);
         if (!ifs.is_open())
         {
-            io::print("[Error]: can't open " + path.string(),io::Color::Red); // todo: REMOVE IO INCLUDE
-            return;
+            return std::unexpected(errors::AppError{errors::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
         }
         std::string line;
         while (std::getline(ifs, line))
@@ -19,15 +18,15 @@ namespace utils
             io::print(line);
         }
         ifs.close();
+        return {};
     }
 
-    void dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages, const ChatInfo& chat)
+    std::expected<void, errors::AppError> dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages, const ChatInfo& chat)
     {
         std::ofstream ofs(path);
         if (!ofs.is_open())
         {
-            io::print("[Error]: can't open " + path.string(),io::Color::Red); // todo: REMOVE IO INCLUDE
-            return;
+            return std::unexpected(errors::AppError{errors::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
         }
         for (const Message& message : messages)
         {
@@ -38,5 +37,6 @@ namespace utils
             ofs << message_line << std::endl;
         }
         ofs.close();
+        return {};
     }
 }
