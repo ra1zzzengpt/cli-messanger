@@ -1,7 +1,6 @@
 #include "auth_screen.h"
 #include "utils/console/console.h"
 #include "main_screen.h"
-#include <iostream>
 
 #include "server_screen.h"
 #include "utils/files/files.h"
@@ -66,7 +65,7 @@ namespace screen
             if (const std::optional<UserInfo> user_opt = controller_.getNicknameById(id))
             {
                 controller_.setLogin(*user_opt,password);
-                if (controller_.saveAppConfig())
+                if (controller_.saveAppConfig()) // todo: config save check rework
                 {
                     MainScreen main_screen(controller_);
                     main_screen.run();
@@ -104,9 +103,6 @@ namespace screen
             io::print("Registration failed.", io::Color::Red);
             io::waitForEnter();
         }
-        if (!controller_.saveAppConfig())
-        {
-            io::print("[Error]: Failed to save user in config.", io::Color::Red);
-        }
+        // todo: config save check
     }
 }

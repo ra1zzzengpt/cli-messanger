@@ -19,9 +19,8 @@ namespace screen
     enum class ServerMenu
     {
         MinChoice = 1,
-        MaxChoice = 3,
+        MaxChoice = 2,
         ChangeHost = 1,
-        ChangePort = 2,
-        Exit = 3
+        Exit = 2
     };
 }

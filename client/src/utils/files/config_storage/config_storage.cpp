@@ -22,22 +22,16 @@ namespace utils {
 
         bool hasDefaultValues(const AppConfig& config)
         {
-            return config.server.host.empty()
-                || config.server.port.empty()
+            return config.server.url.empty()
                 || config.user.id == 0
                 || config.user.nickname.empty();
         }
 
         void fillMissingConfigValues(AppConfig& config)
         {
-            if (config.server.host.empty())
+            if (config.server.url.empty())
             {
-                config.server.host = io::scanString("Server host: ");
-            }
-
-            if (config.server.port.empty())
-            {
-                config.server.port = io::scanString("Server port: ");
+                config.server.url = io::scanString("Server url: ");
             }
 
             if (config.user.id == 0)
@@ -135,30 +129,30 @@ namespace utils {
     {
         config_.user = user;
         config_.user.password = password;
+        // todo: save check to expected
     }
 
     void ConfigStorage::updatePassword(const std::string &new_password)
     {
         config_.user.password = new_password;
+        // todo: save check to expected
     }
 
     void ConfigStorage::updateNickname(const std::string& new_nickname)
     {
         config_.user.nickname = new_nickname;
+        // todo: save check to expected
     }
 
     void ConfigStorage::addChat(const ChatInfo &new_chat)
     {
         config_.chats.push_back(new_chat);
+        // todo: save check to expected
     }
 
-    void ConfigStorage::updateHost(const std::string &new_host)
+    void ConfigStorage::updateUrl(const std::string &new_url)
     {
-        config_.server.host = new_host;
-    }
-
-    void ConfigStorage::updatePort(const std::string &new_port)
-    {
-        config_.server.port = new_port;
+        config_.server.url = new_url;
+        // todo: save check to expected
     }
 }

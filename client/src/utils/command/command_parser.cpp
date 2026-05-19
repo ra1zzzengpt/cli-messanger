@@ -1,7 +1,7 @@
 #include "command_parser.h"
 
 namespace utils {
-    std::optional<Command> parseCommand(const std::string& command) {
+    std::optional<Command> parseCommand(const std::string& command) { // todo: to expected
         if (command == "/quit") {
             return Command::Quit;
         }

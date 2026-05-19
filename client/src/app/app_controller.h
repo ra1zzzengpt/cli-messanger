@@ -22,14 +22,12 @@ namespace app
         void setLogin(const UserInfo& user, const std::string& password);
         void updateConfigPassword(const std::string &new_password);
         void updateConfigNickname(const std::string& new_nickname);
-        void updateConfigHost(const std::string& new_host);
-        void updateConfigPort(const std::string& new_port);
+        void updateConfigUrl(const std::string& new_url);
         [[nodiscard]] const std::vector<ChatInfo>& getChats() const;
         void addChat(const ChatInfo& new_chat);
 
         // - NET -
-        void updateHost(const std::string& new_host) const;
-        void updatePort(const std::string& new_port) const;
+        void updateUrl(const std::string& new_url) const;
         [[nodiscard]] std::optional<std::string> ping() const;
         [[nodiscard]] std::vector<Message> getMessages(const UserInfo& other_user) const;
         [[nodiscard]] bool sendMessage(const UserInfo& other_user, const std::string &text) const;

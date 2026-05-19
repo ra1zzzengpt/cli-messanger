@@ -21,30 +21,8 @@ namespace screen
             {
                 case static_cast<uint32_t>(ServerMenu::ChangeHost):
                 {
-                    std::string new_host = io::scanString("Enter new host: ");
-                    controller_.updateConfigHost(new_host);
-                    controller_.updateHost(new_host);
-                    if (controller_.saveAppConfig())
-                    {
-                        io::print("[Success]: new host changed",io::Color::Green);
-                    } else
-                    {
-                        io::print("[Error]: can't save new host", io::Color::Red);
-                    }
-                    break;
-                }
-                case static_cast<uint32_t>(ServerMenu::ChangePort):
-                {
-                    std::string new_port = io::scanString("Enter new port: ");
-                    controller_.updateConfigPort(new_port);
-                    controller_.updatePort(new_port);
-                    if (controller_.saveAppConfig())
-                    {
-                        io::print("[Success]: new port changed.",io::Color::Green);
-                    } else
-                    {
-                        io::print("[Error]: can't save new port.", io::Color::Red);
-                    }
+                    std::string new_url = io::scanString("Enter new url: ");
+                    controller_.updateUrl(new_url); // todo: need to check by nodiscard
                     break;
                 }
                 case static_cast<uint32_t>(ServerMenu::Exit):
@@ -64,8 +42,7 @@ namespace screen
     void ServerScreen::printScreen()
     {
         utils::printFromFile(paths::server);
-        io::print("Host: " + controller_.getAppConfig().server.host);
-        io::print("Port: " + controller_.getAppConfig().server.port);
+        io::print("Url: " + controller_.getAppConfig().server.url);
         io::print("Checking server status...");
         if (const std::optional<std::string> host = controller_.ping(); host.has_value())
         {

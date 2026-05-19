@@ -10,7 +10,7 @@ namespace utils
         std::ifstream ifs(path);
         if (!ifs.is_open())
         {
-            io::print("[Error]: can't open " + path.string(),io::Color::Red);
+            io::print("[Error]: can't open " + path.string(),io::Color::Red); // todo: REMOVE IO INCLUDE
             return;
         }
         std::string line;
@@ -26,7 +26,7 @@ namespace utils
         std::ofstream ofs(path);
         if (!ofs.is_open())
         {
-            io::print("[Error]: can't open " + path.string(),io::Color::Red);
+            io::print("[Error]: can't open " + path.string(),io::Color::Red); // todo: REMOVE IO INCLUDE
             return;
         }
         for (const Message& message : messages)

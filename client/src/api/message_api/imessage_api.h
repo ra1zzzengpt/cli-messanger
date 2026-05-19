@@ -27,7 +27,8 @@ namespace api
         ) = 0;
 
         virtual std::optional<UserInfo> getUsernameById(
-            std::uint64_t id
+            std::uint64_t id,
+            const std::string& password
         ) = 0;
         
         virtual bool updatePassword(
@@ -51,10 +52,10 @@ namespace api
         
         virtual std::vector<Message> dumpMessages(
             std::uint64_t myId,
-            std::uint64_t peerId
+            std::uint64_t peerId,
+            const std::string& password
         ) = 0;
 
-        virtual void setHost(const std::string& host) = 0;
-        virtual void setPort(const std::string& port) = 0;
+        virtual void setUrl(const std::string& url) = 0;
     };
 }

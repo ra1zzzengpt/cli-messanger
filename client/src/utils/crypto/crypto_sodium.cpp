@@ -4,7 +4,7 @@
 #include <string>
 #include <sodium.h>
 #include <sodium/crypto_secretbox.h>
-
+// todo: to expected
 #if defined(__linux__)
 
 #include <fstream>
@@ -102,7 +102,7 @@ CryptoSodium::~CryptoSodium()
     }
 }
 
-void CryptoSodium::sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt)
+void CryptoSodium::sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt) // todo: to expected
 {
     if (!salt_.empty() && salt_ == salt)
     {
@@ -121,7 +121,7 @@ void CryptoSodium::sodiumKeyGenerateBySalt(const std::vector<unsigned char>& sal
 
     if (rc != 0)
     {
-        throw std::runtime_error("Argon2id failed (out of memory?)");
+        throw std::runtime_error("Argon2id failed (out of memory?)"); // todo: to expected error
     }
     salt_ = salt;
 }
@@ -154,7 +154,7 @@ CryptoInfo CryptoSodium::encode(const std::string &plaintext)
     return crypto_info;
 }
 
-std::optional<std::string> CryptoSodium::decode(const CryptoInfo& crypto_info)
+std::optional<std::string> CryptoSodium::decode(const CryptoInfo& crypto_info) // todo: to expected
 {
     if (crypto_info.salt.size() != crypto_pwhash_SALTBYTES || crypto_info.nonce.size() != crypto_secretbox_NONCEBYTES
         || crypto_info.ciphertext.size() < crypto_secretbox_MACBYTES)

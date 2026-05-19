@@ -5,8 +5,7 @@
 #include <string>
 
 struct ServerInfo {
-    std::string host;
-    std::string port;
+    std::string url;
 };
 
 void to_json(nlohmann::json& json, const ServerInfo& server);

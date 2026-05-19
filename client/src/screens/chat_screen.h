@@ -16,6 +16,7 @@ namespace screen
     private:
         void displayMessages() const;
         void sendMessage(const std::string& text) const;
+        [[nodiscard]] UserInfo makePeerInfo() const;
 
         app::AppController& controller_;
         const ChatInfo& chat_;

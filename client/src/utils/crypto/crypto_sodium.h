@@ -18,11 +18,11 @@ public:
 
     // - CODEC -
     CryptoInfo encode(const std::string& plaintext);
-    std::optional<std::string> decode(const CryptoInfo& crypto_info);
+    std::optional<std::string> decode(const CryptoInfo& crypto_info); // todo: to expected
 private:
-    void sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt);
+    void sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt); // todo: to expected
 
-    static std::string machine_binding();
+    static std::string machine_binding(); // todo: to expected
 
     std::vector<unsigned char> salt_;
     std::vector<unsigned char> key_;

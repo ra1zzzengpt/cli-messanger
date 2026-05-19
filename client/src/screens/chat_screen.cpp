@@ -27,10 +27,7 @@ namespace screen
                 } else if (command == utils::Command::Update) {
                     continue;
                 } else if (command == utils::Command::Dump) {
-                    UserInfo other_user;
-                    other_user.id = chat_.peer_id;
-                    other_user.nickname = chat_.peer_nick;
-                    utils::dumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"),controller_.getMessages(other_user),chat_);
+                    utils::dumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"),controller_.getMessages(makePeerInfo()),chat_);
                 } else {
                     io::print("[Error]: unknown command.", io::Color::Red);
                 }
@@ -46,11 +43,7 @@ namespace screen
     }
 
     void ChatScreen::displayMessages() const {
-        UserInfo other_user;
-        other_user.id = chat_.peer_id;
-        other_user.nickname = chat_.peer_nick;
-
-        if (const auto messages = controller_.getMessages(other_user); messages.empty())
+        if (const auto messages = controller_.getMessages(makePeerInfo()); messages.empty())
         {
             io::print("(No messages yet)", io::Color::Yellow);
         }
@@ -66,12 +59,7 @@ namespace screen
     }
 
     void ChatScreen::sendMessage(const std::string& text) const {
-        
-        UserInfo other_user;
-        other_user.id = chat_.peer_id;
-        other_user.nickname = chat_.peer_nick;
-
-        if (controller_.sendMessage(other_user, text))
+        if (controller_.sendMessage(makePeerInfo(), text))
         {
             io::print("Message sent!", io::Color::Green);
         }
@@ -79,5 +67,9 @@ namespace screen
         {
             io::print("Failed to send message", io::Color::Red);
         }
+    }
+
+    UserInfo ChatScreen::makePeerInfo() const {
+        return UserInfo {chat_.peer_id, chat_.peer_nick};
     }
 }

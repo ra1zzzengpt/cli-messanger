@@ -211,10 +211,16 @@ def get_user(user_id: str):
     if parsed_user_id is None:
         return error_response("invalid user id", 400)
 
+    password = request.args.get("password")
+    if not isinstance(password, str):
+        return error_response("password required", 401)
+
     with state_lock:
         user = get_user_by_id_unlocked(parsed_user_id)
         if user is None:
             return error_response("user not found", 404)
+        if not verify_password_unlocked(user, password):
+            return error_response("invalid password", 401)
         return ok_response({"user": public_user(user)})
 
 
@@ -355,18 +361,24 @@ def send_message():
 def dump_messages():
     me = parse_uint64(request.args.get("me"))
     peer = parse_uint64(request.args.get("peer"))
+    password = request.args.get("password")
 
     if me is None:
         return error_response("invalid me", 400)
     if peer is None:
         return error_response("invalid peer", 400)
+    if not isinstance(password, str):
+        return error_response("password required", 401)
 
     with state_lock:
         me_user = get_user_by_id_unlocked(me)
-        peer_user = get_user_by_id_unlocked(peer)
 
         if me_user is None:
             return error_response("current user not found", 404)
+        if not verify_password_unlocked(me_user, password):
+            return error_response("invalid password", 401)
+
+        peer_user = get_user_by_id_unlocked(peer)
         if peer_user is None:
             return error_response("peer user not found", 404)
 

@@ -72,9 +72,15 @@ pub struct SendMessageBody {
 }
 
 #[derive(Deserialize)]
+pub struct UserQuery {
+    pub password: Option<String>,
+}
+
+#[derive(Deserialize)]
 pub struct MessagesQuery {
     pub me: Option<String>,
     pub peer: Option<String>,
+    pub password: Option<String>,
 }
 
 // ── Handlers ──────────────────────────────────────────────────────────────────
@@ -187,15 +193,32 @@ pub async fn login_user(
 pub async fn get_user(
     State(state): State<SharedState>,
     Path(user_id): Path<String>,
+    Query(query): Query<UserQuery>,
 ) -> Result<impl IntoResponse> {
     let id = parse_id_str(&user_id)
         .ok_or_else(|| AppError::bad_request("invalid user id"))?;
+
+    let password = query
+        .password
+        .ok_or_else(|| AppError::unauthorized("password required"))?;
 
     let data = state.data.lock().await;
     let user = data
         .users
         .get(&id.to_string())
+        .cloned()
         .ok_or_else(|| AppError::not_found("user not found"))?;
+    drop(data);
+
+    let stored = user.password.clone();
+    let valid = tokio::task::spawn_blocking(move || bcrypt::verify(password, &stored))
+        .await
+        .unwrap()
+        .unwrap_or(false);
+
+    if !valid {
+        return Err(AppError::unauthorized("invalid password"));
+    }
 
     Ok(Json(json!({"ok": true, "user": user.to_public()})))
 }
@@ -402,12 +425,30 @@ pub async fn dump_messages(
         .as_deref()
         .and_then(parse_id_str)
         .ok_or_else(|| AppError::bad_request("invalid peer"))?;
+    let password = params
+        .password
+        .ok_or_else(|| AppError::unauthorized("password required"))?;
+
+    let data = state.data.lock().await;
+    let me_user = data
+        .users
+        .get(&me.to_string())
+        .cloned()
+        .ok_or_else(|| AppError::not_found("current user not found"))?;
+    drop(data);
+
+    let stored = me_user.password.clone();
+    let valid = tokio::task::spawn_blocking(move || bcrypt::verify(password, &stored))
+        .await
+        .unwrap()
+        .unwrap_or(false);
+
+    if !valid {
+        return Err(AppError::unauthorized("invalid password"));
+    }
 
     let data = state.data.lock().await;
 
-    if !data.users.contains_key(&me.to_string()) {
-        return Err(AppError::not_found("current user not found"));
-    }
     if !data.users.contains_key(&peer.to_string()) {
         return Err(AppError::not_found("peer user not found"));
     }

@@ -109,18 +109,6 @@ namespace screen
             return;
         }
 
-        ChatInfo new_chat;
-        new_chat.peer_id = peer_id;
-        new_chat.peer_nick = user_info->nickname;
-
-        controller_.addChat(new_chat);
-        if (controller_.saveAppConfig())
-        {
-            io::print("[Success]: Added chat with " + new_chat.peer_nick, io::Color::Green);
-        }
-        else
-        {
-            io::print("[Error]: Failed to save chat to configuration", io::Color::Red);
-        }
+        controller_.addChat(ChatInfo{peer_id,user_info->nickname}); // todo: need to check by nodiscard
     }
 }

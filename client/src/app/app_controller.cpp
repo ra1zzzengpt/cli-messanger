@@ -16,8 +16,7 @@ namespace app
     void AppController::loadAppConfig()
     {
         configStorage_->load();
-        messageApi_->setHost(configStorage_->getConfig().server.host);
-        messageApi_->setPort(configStorage_->getConfig().server.port);
+        messageApi_->setUrl(configStorage_->getConfig().server.url);
     }
 
     bool AppController::saveAppConfig()
@@ -45,25 +44,15 @@ namespace app
         configStorage_->addChat(new_chat);
     }
 
-    void AppController::updateConfigHost(const std::string &new_host)
+    void AppController::updateConfigUrl(const std::string &new_url)
     {
-        configStorage_->updateHost(new_host);
-    }
-
-    void AppController::updateConfigPort(const std::string& new_port)
-    {
-        configStorage_->updatePort(new_port);
+        configStorage_->updateUrl(new_url);
     }
 
     // --- SHELLS FOR NETWORK ---
-    void AppController::updateHost(const std::string &new_host) const
+    void AppController::updateUrl(const std::string &new_url) const
     {
-        messageApi_->setHost(new_host);
-    }
-
-    void AppController::updatePort(const std::string &new_port) const
-    {
-        messageApi_->setPort(new_port);
+        messageApi_->setUrl(new_url);
     }
 
     std::optional<std::string> AppController::ping() const
@@ -78,7 +67,7 @@ namespace app
 
     std::vector<Message> AppController::getMessages(const UserInfo& other_user) const
     {
-        return messageApi_->dumpMessages(configStorage_->getConfig().user.id, other_user.id);
+        return messageApi_->dumpMessages(configStorage_->getConfig().user.id, other_user.id,configStorage_->getConfig().user.password);
     }
 
     bool AppController::sendMessage(const UserInfo& other_user, const std::string& text) const
@@ -98,7 +87,7 @@ namespace app
 
     std::optional<UserInfo> AppController::getNicknameById(const uint64_t id) const
     {
-        return messageApi_->getUsernameById(id);
+        return messageApi_->getUsernameById(id,configStorage_->getConfig().user.password);
     }
 
     bool AppController::registerUser(const UserInfo &user) const

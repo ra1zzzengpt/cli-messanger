@@ -14,20 +14,18 @@ namespace utils
 
         void load();
 
-        [[nodiscard]] bool save();
+        [[nodiscard]] bool save(); // todo: to expected
 
         // - USER -
-        void setByLogin(const UserInfo& user, const std::string& password);
-        void updatePassword(const std::string& new_password);
-        void updateNickname(const std::string& new_nickname);
+        void setByLogin(const UserInfo& user, const std::string& password); // todo: to expected
+        void updatePassword(const std::string& new_password); // todo: to expected
+        void updateNickname(const std::string& new_nickname); // todo: to expected
 
         // - SERVER -
-
-        void updateHost(const std::string& new_host);
-        void updatePort(const std::string& new_port);
+        void updateUrl(const std::string& new_url); // todo: to expected
 
         // - CHATS -
-        void addChat(const ChatInfo& new_chat);
+        void addChat(const ChatInfo& new_chat); // todo: to expected
 
     private:
         std::string filepath_;
