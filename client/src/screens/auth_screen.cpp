@@ -11,7 +11,7 @@ namespace screen
     AuthScreen::AuthScreen(app::AppController& controller) : controller_(controller) {}
 
     void AuthScreen::run()
-    {
+    { // todo: load fill missing
         bool running = true;
         while (running)
         {
