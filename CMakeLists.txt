@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(cli_messanger)
 cmake_policy(SET CMP0135 NEW)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 add_executable(cli_messanger
         client/src/main.cpp
@@ -51,6 +51,8 @@ add_executable(cli_messanger
         client/src/utils/crypto/helpers/base64.h
         client/src/utils/crypto/helpers/crypto_info.cpp
         client/src/utils/crypto/helpers/crypto_info.h
+        client/src/utils/error/error_types.h
+        client/src/utils/error/app_error.h
 )
 
 target_include_directories(cli_messanger PRIVATE
