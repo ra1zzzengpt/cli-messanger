@@ -1,5 +1,6 @@
 #pragma once
 
+#include <expected>
 #include <iostream>
 #include <cstdint>
 
@@ -40,4 +41,14 @@ namespace io
     std::string scanString(std::string_view prompt);
     void waitForEnter();
     void clearConsole();
+
+    // Prints error.message in red and returns false if result has no value.
+    // Works with any std::expected<T, E> where E has a .message field.
+    template<typename T, typename E>
+    bool check(const std::expected<T, E>& result, const std::string_view prefix = "[Error]")
+    {
+        if (result.has_value()) return true;
+        print(std::string(prefix) + ": " + result.error().message, Color::Red);
+        return false;
+    }
 }
