@@ -1,10 +1,11 @@
 #pragma once
-#include <optional>
 #include <cstdint>
+#include <expected>
 #include <string>
 #include <vector>
 #include "models/user_info.h"
 #include "models/message.h"
+#include "utils/error/app_error.h"
 
 namespace api
 {
@@ -13,44 +14,44 @@ namespace api
     public:
         virtual ~IMessageApi() = default;
 
-        virtual std::optional<std::string> ping() = 0;
+        virtual std::expected<std::string,utils::errors::AppError> ping() = 0;
 
-        virtual bool registerUser(
+        virtual std::expected<void,utils::errors::AppError> registerUser(
             std::uint64_t id,
             const std::string& nick,
             const std::string& password
         ) = 0;
 
-        virtual bool loginUser(
+        virtual std::expected<void,utils::errors::AppError> loginUser(
             std::uint64_t id,
             const std::string& password
         ) = 0;
 
-        virtual std::optional<UserInfo> getUsernameById(
+        virtual std::expected<UserInfo,utils::errors::AppError> getUsernameById(
             std::uint64_t id,
             const std::string& password
         ) = 0;
         
-        virtual bool updatePassword(
+        virtual std::expected<void,utils::errors::AppError> updatePassword(
             std::uint64_t id,
             const std::string& currentPassword,
             const std::string& newPassword
         ) = 0;
 
-        virtual bool updateNickname(
+        virtual std::expected<void,utils::errors::AppError> updateNickname(
             std::uint64_t id,
             const std::string& password,
             const std::string& newNick
         ) = 0;
 
-        virtual bool sendMessage(
+        virtual std::expected<void,utils::errors::AppError> sendMessage(
             std::uint64_t fromId,
             std::uint64_t toId,
             const std::string& password,
             const std::string& text
         ) = 0;
         
-        virtual std::vector<Message> dumpMessages(
+        virtual std::expected<std::vector<Message>,utils::errors::AppError> dumpMessages(
             std::uint64_t myId,
             std::uint64_t peerId,
             const std::string& password
