@@ -4,18 +4,6 @@
 #include "utils/files/paths.h"
 
 namespace screen {
-    namespace
-    {
-        std::string multiplyStr(const std::string& str,const std::size_t size)
-        {
-            std::string result;
-            for (std::size_t i = 0; i < size; i++)
-            {
-                result += str;
-            }
-            return result;
-        }
-    }
     ProfileScreen::ProfileScreen(app::AppController& controller) : controller_(controller)
     { }
 
@@ -29,25 +17,15 @@ namespace screen {
             {
                 case static_cast<uint32_t>(ProfileMenu::ChangeNickname):
                 {
-                    if (std::string new_nickname = io::scanString("Enter new nickname: "); controller_.updateNickname(new_nickname))
-                    {
-                        controller_.updateConfigNickname(new_nickname); // todo: need to check by nodiscard
-                    } else
-                    {
-                        io::print("[Error]: the server did not confirm the request", io::Color::Red);
-                    }
+                    if (const std::string new_nickname = io::scanString("Enter new nickname: "); io::check(controller_.updateNickname(new_nickname), "[Error]: Failed to update nickname on server"))
+                        io::check(controller_.updateConfigNickname(new_nickname), "[Error]: Failed to save nickname to config");
                     break;
                 }
-                
+
                 case static_cast<uint32_t>(ProfileMenu::ChangePassword):
                 {
-                    if (std::string new_password = io::scanString("Enter new password: "); controller_.updatePassword(new_password))
-                    {
-                        controller_.updateConfigPassword(new_password); // todo: need to check by nodiscard
-                    } else
-                    {
-                        io::print("[Error]: the server did not confirm the password update", io::Color::Red);
-                    }
+                    if (const std::string new_password = io::scanString("Enter new password: "); io::check(controller_.updatePassword(new_password), "[Error]: Failed to update password on server"))
+                        io::check(controller_.updateConfigPassword(new_password), "[Error]: Failed to save password to config");
                     break;
                 }
                 case static_cast<uint32_t>(ProfileMenu::Exit):
@@ -66,9 +44,9 @@ namespace screen {
 
     void ProfileScreen::printScreen()
     {
-        utils::printFromFile(paths::profile);
+        io::check(stx::printFromFile(paths::profile), "[Error]: Failed to load profile screen");
         io::print("Nickname: " + controller_.getAppConfig().user.nickname);
-        io::print("Password: " + multiplyStr("*",controller_.getAppConfig().user.password.length()));
+        io::print("Password: " + std::string(controller_.getAppConfig().user.password.length(),'*'));
         io::print("ID: " + std::to_string(controller_.getAppConfig().user.id));
     }
 }
