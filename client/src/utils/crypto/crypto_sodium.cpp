@@ -132,7 +132,7 @@ namespace utils
 
         if (rc != 0)
         {
-            return std::unexpected(errors::AppError{errors::CryptoError::OutOfMemory,"Algon can't generate your key (out of memory)"});
+            return std::unexpected(errors::AppError{errors::CryptoError::OutOfMemory,"Argon can't generate your key (out of memory)"});
         }
         salt_ = salt;
         return {};
