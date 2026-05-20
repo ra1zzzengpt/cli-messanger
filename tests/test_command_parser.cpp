@@ -11,10 +11,11 @@ TEST(CommandParser, KnownCommands) {
     EXPECT_EQ(parseCommand("/dump"),   Command::Dump);
 }
 
-TEST(CommandParser, UnknownCommandReturnsNullopt) {
-    EXPECT_EQ(parseCommand("/unknown"), stx::err::CommandError::UnknownCommand);
-    EXPECT_EQ(parseCommand("/QUIT"),    stx::err::CommandError::UnknownCommand);
-    EXPECT_EQ(parseCommand("quit"),     stx::err::CommandError::UnknownCommand);
-    EXPECT_EQ(parseCommand(""),         stx::err::CommandError::UnknownCommand);
-    EXPECT_EQ(parseCommand("hello"),    stx::err::CommandError::UnknownCommand);
+TEST(CommandParser, UnknownCommandReturnsError) {
+    const auto unknown = std::unexpected(stx::err::CommandError::UnknownCommand);
+    EXPECT_EQ(parseCommand("/unknown"), unknown);
+    EXPECT_EQ(parseCommand("/QUIT"),    unknown);
+    EXPECT_EQ(parseCommand("quit"),     unknown);
+    EXPECT_EQ(parseCommand(""),         unknown);
+    EXPECT_EQ(parseCommand("hello"),    unknown);
 }

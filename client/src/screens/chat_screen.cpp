@@ -19,7 +19,7 @@ namespace screen
             displayMessages();
 
             if (const std::string text = io::scanString("> "); text.starts_with("/")) {
-                if (std::expected<stx::Command,stx::err::AppError> command = stx::parseCommand(text); command == stx::Command::Quit) {
+                if (std::expected<stx::Command,stx::err::CommandError> command = stx::parseCommand(text); command == stx::Command::Quit) {
                     in_chat = false;
                 } else if (command == stx::Command::Help) {
                     io::check(stx::printFromFile(paths::help), "[Error]: Failed to load help");

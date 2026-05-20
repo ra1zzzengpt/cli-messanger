@@ -2,7 +2,7 @@
 #include <expected>
 #include <string>
 
-#include "utils/error/app_error.h"
+#include "utils/error/error_types.h"
 
 namespace stx {
     enum class Command {
@@ -12,5 +12,5 @@ namespace stx {
         Dump
     };
 
-    std::expected<Command,err::AppError> parseCommand(const std::string& command);
+    std::expected<Command,err::CommandError> parseCommand(const std::string& command);
 };
