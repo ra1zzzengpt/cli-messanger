@@ -17,7 +17,7 @@ namespace paths
                 }
                 current = current.parent_path();
             }
-            throw std::runtime_error("Не найдена папка assets! Текущая директория: " + std::filesystem::current_path().string());
+            throw std::runtime_error("can't find assets directory! current directory: " + std::filesystem::current_path().string());
         }();
         return base;
     }
