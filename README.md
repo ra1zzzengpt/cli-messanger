@@ -2,7 +2,7 @@
 
 # CLI Messenger
 
-![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=c%2B%2B)
+![C++](https://img.shields.io/badge/C++-23-blue?style=for-the-badge&logo=c%2B%2B)
 ![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python)
 ![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge&logo=rust)
 ![CMake](https://img.shields.io/badge/CMake-3.14%2B-darkblue?style=for-the-badge&logo=cmake)
@@ -20,13 +20,13 @@ A minimalist console messenger built to practice decoupled client-server archite
 
 ## Overview
 
-**CLI Messenger** is a console application written in C++20. The client connects to one of two interchangeable backends over HTTPS via `libcurl`. The project demonstrates layered architecture, interface-based dependency injection, modular screen navigation, and machine-bound encrypted local storage powered by libsodium.
+**CLI Messenger** is a console application written in C++23. The client connects to one of two interchangeable backends over HTTPS via `libcurl`. The project demonstrates layered architecture, interface-based dependency injection, modular screen navigation, and machine-bound encrypted local storage powered by libsodium.
 
 Two server implementations are provided and are functionally equivalent:
 
 | Server | Stack | TLS |
 |---|---|---|
-| Python | Flask + bcrypt | optional |
+| Python | Flask + bcrypt | required (self-signed) |
 | Rust | axum 0.7 + bcrypt + rustls | required (self-signed) |
 
 ---
@@ -78,6 +78,7 @@ cli-messanger/
 │           ├── command/   # command parser (/quit, /help, /dump, /update)
 │           ├── console/   # ANSI output, safe input
 │           ├── crypto/    # CryptoSodium, CryptoInfo, base64 helpers
+│           ├── error/     # AppError, error type enums
 │           └── files/     # ConfigStorage, chat export, path resolution
 ├── server/
 │   ├── python-server/
@@ -93,6 +94,7 @@ cli-messanger/
 │   ├── test_command_parser.cpp
 │   └── test_json_models.cpp
 ├── CMakeLists.txt
+├── vcpkg.json
 ├── README.md
 ├── CONTRIBUTING.md
 └── LICENCE.md
@@ -111,16 +113,17 @@ Abstracts the network layer behind `IMessageApi`. The rest of the application ha
 `AppController` is the central coordinator. It owns the API and config storage via `unique_ptr` and exposes a clean interface to the screen layer. Screens never talk to the network or filesystem directly.
 
 #### `models`
-Plain data structures serialized with `nlohmann/json`. IDs are transmitted as strings to avoid precision loss across language boundaries; `from_json` handles both string and numeric forms transparently.
+Plain data structures serialized with `nlohmann/json`. IDs are transmitted as strings to avoid precision loss across language boundaries; `from_json` handles both string and numeric forms transparently. `ServerInfo` holds a single `url` string (e.g. `https://127.0.0.1:5000`).
 
 #### `screens`
 Each screen inherits from `IScreen` and manages one UI state. Screens read config and send requests only through `AppController`.
 
 #### `utils`
 `ConfigStorage` — loads and persists `AppConfig` to JSON. Encryption and decryption are handled transparently via the embedded `CryptoSodium` instance.  
-`crypto` — `CryptoSodium` wraps libsodium's secretstream; `CryptoInfo` carries salt, nonce, and ciphertext; base64 helpers bridge binary data and JSON.  
+`crypto` — `CryptoSodium` wraps libsodium's secretbox; `CryptoInfo` carries salt, nonce, and ciphertext; base64 helpers bridge binary data and JSON.  
+`error` — `AppError` is a discriminated union (`std::variant`) over typed error enums (`NetworkError`, `CommandError`, `CryptoError`, etc.). Functions that can fail return `std::expected<T, E>`.  
 `console` — safe typed input, ANSI color output.  
-`command` — parses `/`-prefixed chat commands.  
+`command` — parses `/`-prefixed chat commands, returns `std::expected<Command, err::CommandError>`.  
 `files` — chat history export, asset path resolution.
 
 ### Server API
@@ -133,15 +136,15 @@ Both servers expose the same REST endpoints:
 | `GET` | `/health` | service check |
 | `POST` | `/users/register` | register a new user |
 | `POST` | `/users/login` | verify credentials |
-| `GET` | `/users/:id` | get public user info |
+| `POST` | `/users/get` | get user info (authenticated) |
 | `PATCH` | `/users/:id/nick` | update nickname |
 | `PATCH` | `/users/:id/password` | update password |
 | `POST` | `/messages/send` | send a message |
-| `GET` | `/messages/dump` | fetch full conversation history |
+| `POST` | `/messages/dump` | fetch full conversation history |
 
 State is persisted to `server_state.json` on every write operation.
 
-The Rust server additionally exposes debug endpoints when `DEBUG_MODE=1`:
+Both servers expose debug endpoints when `DEBUG_MODE=1`:
 
 | Method | Path | Description |
 |---|---|---|
@@ -156,19 +159,20 @@ The Rust server additionally exposes debug endpoints when `DEBUG_MODE=1`:
 
 **Client:**
 - CMake 3.14+
-- C++20 compiler (GCC 12+ / Clang 15+)
+- C++23 compiler (GCC 13+ / Clang 17+)
 - libcurl development headers
-- nlohmann/json (resolved via CMake)
+- nlohmann/json (system package or via vcpkg)
 - libsodium development headers
 - GoogleTest (fetched automatically for tests)
 
 **Python server:**
 - Python 3.10+
 - `pip install flask bcrypt`
+- Self-signed TLS certificate (see below)
 
 **Rust server:**
 - Rust 1.75+
-- Self-signed TLS certificate (required — see below)
+- Self-signed TLS certificate (see below)
 
 ### Client
 
@@ -182,8 +186,16 @@ cmake --build build
 
 ```bash
 cmake -S . -B build
-cmake --build build --target cli_tests
-cd build && ctest --output-on-failure
+cmake --build build --parallel $(nproc)
+ctest --test-dir build --output-on-failure
+```
+
+### Generate a self-signed certificate
+
+Both servers require `cert.pem` and `key.pem` in their working directory:
+
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 ```
 
 ### Python server
@@ -196,15 +208,12 @@ python server.py
 
 ### Rust server
 
-Generate a self-signed certificate first:
-
 ```bash
 cd server/rust-server
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 cargo run --release
 ```
 
-The server listens on `https://127.0.0.1:5000`.
+Both servers listen on `https://127.0.0.1:5000`.
 
 ---
 
@@ -216,9 +225,9 @@ GitHub Actions runs on every push and pull request: installs system dependencies
 
 ## Example Workflow
 
-1. Start either server.
+1. Start either server (after generating a certificate).
 2. Launch the client: `./build/cli_messanger`.
-3. On first launch, enter server host, port, and your nickname — saved to `save.json` (encrypted).
+3. On first launch, enter the server URL (e.g. `https://127.0.0.1:5000`) and your nickname — saved to `save.json` (encrypted).
 4. Register a new account, then login. Credentials are stored locally for auto-login.
 5. On subsequent launches the client pings the server and logs in automatically.
 6. In the Chats menu, add a peer by their ID and start messaging.
@@ -229,7 +238,7 @@ GitHub Actions runs on every push and pull request: installs system dependencies
 
 ## Why I Built This
 
-- Practice building decoupled client-server applications in C++20.
+- Practice building decoupled client-server applications in C++23.
 - Explore interface-based dependency injection and modular screen navigation.
 - Understand safe file handling and persistent configuration with JSON.
 - Learn Rust by implementing a feature-equivalent backend alongside the Python one.
