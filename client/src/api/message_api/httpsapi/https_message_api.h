@@ -8,37 +8,37 @@ namespace api {
     public:
         HttpMessageApi() = default;
 
-        std::optional<std::string> ping() override;  // todo: to request body
+        std::expected<std::string,utils::errors::AppError> ping() override;
 
-        bool registerUser(  // todo: to request body
+        std::expected<void,utils::errors::AppError> registerUser(
             std::uint64_t id,
             const std::string& nick,
             const std::string& password
         ) override;
 
-        bool loginUser(  // todo: to request body
+        std::expected<void,utils::errors::AppError> loginUser(
             std::uint64_t id,
             const std::string& password
         ) override;
 
-        std::optional<UserInfo> getUsernameById(  // todo: to request body
+        std::expected<UserInfo,utils::errors::AppError> getUsernameById(
             std::uint64_t id,
             const std::string& password
         ) override;
         
-        bool updatePassword(  // todo: to request body
+        std::expected<void,utils::errors::AppError> updatePassword(
             std::uint64_t id,
             const std::string& currentPassword,
             const std::string& newPassword
         ) override;
 
-        bool updateNickname(  // todo: to request body
+        std::expected<void,utils::errors::AppError> updateNickname(
             std::uint64_t id,
             const std::string& password,
             const std::string& newNick
         ) override;
 
-        bool sendMessage(  // todo: to request body
+        std::expected<void,utils::errors::AppError> sendMessage(
             std::uint64_t fromId,
             std::uint64_t toId,
             const std::string& password,
@@ -46,7 +46,7 @@ namespace api {
         ) override;
 
         
-        std::vector<Message> dumpMessages(
+        std::expected<std::vector<Message>,utils::errors::AppError> dumpMessages(
             std::uint64_t myId,
             std::uint64_t peerId,
             const std::string& password

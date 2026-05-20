@@ -3,10 +3,11 @@
 #include <curl/curl.h>
 
 #include "https_response.h"
+#include "utils/error/app_error.h"
+#include <expected>
 
 namespace api {
-    namespace
-    {
+    namespace {
         size_t WriteCallback (const char* ptr, const size_t size, const size_t nmemb, void* userdata) {
             const size_t real_size = size * nmemb;
             if (auto* buffer = static_cast<std::string*>(userdata)) {
@@ -16,14 +17,15 @@ namespace api {
             return 0;
         }
 
-        void ParseResponse (const std::string& buffer, HttpResponse& response) {
+        std::expected<void,utils::errors::AppError> ParseResponse (const std::string& buffer, HttpResponse& response) {
             try {
                 if (!buffer.empty()) {
                     response.data = nlohmann::json::parse(buffer);
                 }
             } catch (const nlohmann::json::parse_error& e) {
-                response.error_details = "JSON parse error: " + std::string(e.what());
+                return std::unexpected(utils::errors::AppError{utils::errors::JsonError::ParsingFailed,"JSON parse error: " + std::string(e.what())});
             }
+            return {};
         }
 
         std::string urlEncode(const std::string& value) {
@@ -36,215 +38,125 @@ namespace api {
             return result;
         }
 
-        void curlEasySetoptPrepare(CURL* handle,const std::string& url,std::string& buffer)
-        {
+        enum class RequestMethod {
+            GET,
+            POST,
+            PATCH
+        };
+
+        std::expected<HttpResponse,utils::errors::AppError> request (const RequestMethod& method,const std::string& url,const std::string& json_body="") {
+            HttpResponse response;
+            CURL* handle = curl_easy_init();
+            if (!handle)
+            {
+                return std::unexpected(utils::errors::AppError{utils::errors::NetworkError::CurlInitFailed,"curl_easy_init failed"});
+            }
+            std::string buffer;
+            curl_slist* headers = nullptr;
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
             curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER,0L);
             curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST,0L);
             curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, WriteCallback);
             curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(handle, CURLOPT_TIMEOUT, 5L);
-        }
-
-        HttpResponse GET (const std::string& url) {
-            HttpResponse response;
-            CURL* handle = curl_easy_init();
-            if (!handle)
+            if (method == RequestMethod::PATCH || method == RequestMethod::POST)
             {
-                response.error_details = "curl_easy_init failed";
-                return response;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                curl_easy_setopt(handle, CURLOPT_POSTFIELDS, json_body.c_str());
+                curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
+                if (method == RequestMethod::PATCH)
+                {
+                    curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+                }
             }
-
-            std::string buffer;
-            curlEasySetoptPrepare(handle,url,buffer);
-
-            if (const CURLcode res = curl_easy_perform(handle); res != CURLE_OK) {
-                response.error_details = curl_easy_strerror(res);
-            } else {
-                curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response.status_code);
-                ParseResponse(buffer, response);
-            }
-
-            curl_easy_cleanup(handle);
-            return response;
-        }
-
-        HttpResponse POST (const std::string& url, const std::string& json_body) {
-            HttpResponse response;
-            CURL* handle = curl_easy_init();
-            if (!handle)
+            if (const CURLcode res = curl_easy_perform(handle); res != CURLE_OK)
             {
-                response.error_details = "curl_easy_init failed";
-                return response;
+                curl_easy_cleanup(handle);
+                curl_slist_free_all(headers);
+                if (res == CURLE_OPERATION_TIMEDOUT)
+                {
+                    return std::unexpected(utils::errors::AppError{utils::errors::NetworkError::Timeout,"timed out"});
+                }
+                return std::unexpected(utils::errors::AppError{utils::errors::NetworkError::ConnectionFailed,"connection failed"});
             }
-
-            std::string buffer;
-            curl_slist* headers = nullptr;
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-
-            curlEasySetoptPrepare(handle,url,buffer);
-            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, json_body.c_str());
-            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
-
-            if (const CURLcode res = curl_easy_perform(handle); res != CURLE_OK) {
-                response.error_details = curl_easy_strerror(res);
-            } else {
-                curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response.status_code);
-                ParseResponse(buffer, response);
-            }
-
-            curl_slist_free_all(headers);
-            curl_easy_cleanup(handle);
-            return response;
-        }
-
-        HttpResponse PATCH(const std::string& url, const std::string& json_body) {
-            HttpResponse response;
-            CURL* handle = curl_easy_init();
-            if (!handle)
+            curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response.status_code);
+            if (std::expected<void,utils::errors::AppError> parsed_response = ParseResponse(buffer, response); !parsed_response.has_value())
             {
-                response.error_details = "curl_easy_init failed";
-                return response;
+                curl_easy_cleanup(handle);
+                curl_slist_free_all(headers);
+                return std::unexpected(parsed_response.error());
             }
-
-            std::string buffer;
-            curl_slist* headers = nullptr;
-            headers = curl_slist_append(headers, "Content-Type: application/json");
-
-            curlEasySetoptPrepare(handle,url,buffer);
-            curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "PATCH");
-            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, json_body.c_str());
-            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
-
-            if (const CURLcode res = curl_easy_perform(handle); res != CURLE_OK) {
-                response.error_details = curl_easy_strerror(res);
-            } else {
-                curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response.status_code);
-                ParseResponse(buffer, response);
-            }
-
             curl_slist_free_all(headers);
             curl_easy_cleanup(handle);
             return response;
         }
     }
 
-    // HttpsError ErrorCodeToHttpsErrors(const long statusCode) {
-    //     switch (statusCode) {
-    //         case 400: return HttpsError::BadRequest;
-    //         case 401: return HttpsError::Unauthorized;
-    //         case 404: return HttpsError::NotFound;
-    //         case 409: return HttpsError::Conflict;
-    //         default:
-    //             if (statusCode >= 500) return HttpsError::ServerError;
-    //             return HttpsError::UnexpectedStatus;
-    //     }
-    // }
+    utils::errors::NetworkError ErrorCodeToNetworkError(const long statusCode) {
+        switch (statusCode) {
+            case 400: return utils::errors::NetworkError::BadRequest;
+            case 401: return utils::errors::NetworkError::Unauthorized;
+            case 404: return utils::errors::NetworkError::NotFound;
+            case 409: return utils::errors::NetworkError::Conflict;
+            default:
+                if (statusCode >= 500) return utils::errors::NetworkError::ServerError;
+                return utils::errors::NetworkError::UnexpectedStatus;
+        }
+    }
 
-    std::optional<std::string> HttpMessageApi::ping() // todo: to expected
+    std::string NetworkErrorCodeToString(const long statusCode) {
+        switch (statusCode) {
+            case 400: return "bad request";
+            case 401: return "unauthorized";
+            case 404: return "not found";
+            case 409: return "conflict";
+            default:
+                if (statusCode >= 500) return "server error";
+                return "unknown status";
+        }
+    }
+
+    std::expected<std::string,utils::errors::AppError> HttpMessageApi::ping()
     {
-        if (const HttpResponse resp = GET(url_ + "/ping"); resp.is_ok() && resp.data.value("ok", false))
-        {
-            std::string result;
-            result += "status: " + resp.data["status"].get<std::string>();
-            result += " uptime: " + resp.data["uptime"].get<std::string>();
-            return result;
+        const std::expected<HttpResponse,utils::errors::AppError> response = request(RequestMethod::GET,url_ + "/ping");
+        if (response.has_value()) {
+            if (response.value().is_ok() && response.value().data.value("ok", false))
+            {
+                std::string result;
+                result += "status: " + response.value().data["status"].get<std::string>();
+                result += " uptime: " + response.value().data["uptime"].get<std::string>();
+                return result;
+            }
+            return std::unexpected(utils::errors::AppError{ErrorCodeToNetworkError(response.value().status_code),
+                NetworkErrorCodeToString(response.value().status_code)});
         }
-        // TODO: (1) CurlInitFailed   — curl handle не создался
-        // TODO: (2) ConnectionFailed — сервер недоступен или нет сети
-        // TODO: (3) Timeout          — ответ не пришёл за 5 секунд
-        // TODO: (4) JsonParseError   — тело ответа не является JSON
-        // TODO: (5) InvalidResponse  — нет полей "status" или "uptime"
-        // TODO: (10) ServerError     — сервер вернул 5xx
-        return std::nullopt;
+        return std::unexpected(response.error());
     }
 
-    bool HttpMessageApi::registerUser(const std::uint64_t id, const std::string& nick, const std::string& password) { // todo: to expected
-        const std::string url = url_ + "/users/register";
-
+    std::expected<void,utils::errors::AppError> HttpMessageApi::registerUser(const std::uint64_t id, const std::string& nick, const std::string& password) {
         nlohmann::json body;
         body["id"] = std::to_string(id);
         body["nick"] = nick;
         body["password"] = password;
-
-        const HttpResponse resp = POST(url, body.dump());
-
-        // TODO: (1) CurlInitFailed   — curl handle не создался
-        // TODO: (2) ConnectionFailed — сервер недоступен
-        // TODO: (3) Timeout          — ответ не пришёл за 5 секунд
-        // TODO: (4) JsonParseError   — тело ответа не является JSON
-        // TODO: (5) InvalidResponse  — нет поля "ok" в ответе
-        // TODO: (6) BadRequest       — невалидный id, пустой nick, или пароль короче 4 символов
-        // TODO: (9) Conflict         — пользователь с таким id уже зарегистрирован
-        // TODO: (10) ServerError     — сервер вернул 5xx
-        //
-        // ── Как будет выглядеть с std::expected ──────────────────────────────────
-        //
-        // Сигнатура:
-        //   std::expected<void, HttpsError> registerUser(uint64_t, const string&, const string&)
-        //
-        // Внутри функции, вместо последней строки:
-        //
-        //   // 1. curl не дошёл до HTTP (status_code == 0, error_details непустой)
-        //   if (resp.status_code == 0) {
-        //       if (resp.error_details == "curl_easy_init failed")
-        //           return std::unexpected(HttpsError::CurlInitFailed);          // (1)
-        //       if (resp.error_details.find("timed out") != std::string::npos)
-        //           return std::unexpected(HttpsError::Timeout);                 // (3)
-        //       return std::unexpected(HttpsError::ConnectionFailed);            // (2)
-        //   }
-        //   // 2. HTTP-ответ пришёл, но JSON не распарсился (error_details непустой, status_code есть)
-        //   if (!resp.error_details.empty())
-        //       return std::unexpected(HttpsError::JsonParseError);              // (4)
-        //   // 3. HTTP-ошибка (4xx / 5xx) — ErrorCodeToHttpsErrors даёт конкретный код
-        //   if (!resp.is_ok())
-        //       return std::unexpected(ErrorCodeToHttpsErrors(resp.status_code)); // (6)(9)(10)(11)
-        //   // 4. Статус 2xx, но сервер вернул "ok": false или поля нет вовсе
-        //   if (!resp.data.value("ok", false))
-        //       return std::unexpected(HttpsError::InvalidResponse);             // (5)
-        //   // 5. Всё хорошо
-        //   return {};
-        //
-        // ── Как ловить на стороне вызывающего (app_controller): ─────────────────
-        //
-        //   auto result = api_->registerUser(id, nick, password);
-        //   if (!result) {
-        //       switch (result.error()) {
-        //           case HttpsError::CurlInitFailed:
-        //           case HttpsError::ConnectionFailed: // "Нет соединения с сервером"
-        //           case HttpsError::Timeout:          // "Сервер не отвечает"
-        //           case HttpsError::BadRequest:       // "Неверные данные (nick/пароль)"
-        //           case HttpsError::Conflict:         // "Этот ID уже занят"
-        //           case HttpsError::JsonParseError:
-        //           case HttpsError::InvalidResponse:  // "Некорректный ответ сервера"
-        //           case HttpsError::ServerError:      // "Ошибка на сервере"
-        //           default: break;
-        //       }
-        //       return;
-        //   }
-        //   // result.value() — void, регистрация прошла успешно
-        // ─────────────────────────────────────────────────────────────────────────
-        return resp.is_ok() && resp.data.value("ok", false);
+        const std::expected<HttpResponse,utils::errors::AppError> response = request(RequestMethod::POST,url_ + "/users/register", body.dump());
+        if (response.has_value()) {
+            return {};
+        }
+        return std::unexpected(response.error());
     }
 
-    bool HttpMessageApi::loginUser(const std::uint64_t id, const std::string& password) { // todo: to expected
+    std::expected<void,utils::errors::AppError> HttpMessageApi::loginUser(const std::uint64_t id, const std::string& password) { // todo: to expected
         const std::string url = url_ + "/users/login";
 
         nlohmann::json body;
         body["id"] = std::to_string(id);
         body["password"] = password;
 
-        const HttpResponse resp = POST(url, body.dump());
-
-        // TODO: (1) CurlInitFailed   — curl handle не создался
-        // TODO: (2) ConnectionFailed — сервер недоступен
-        // TODO: (3) Timeout          — ответ не пришёл за 5 секунд
-        // TODO: (4) JsonParseError   — тело ответа не является JSON
-        // TODO: (5) InvalidResponse  — нет поля "ok" в ответе
-        // TODO: (6) BadRequest       — невалидный id или отсутствует пароль
-        // TODO: (7) Unauthorized     — неверный пароль
-        // TODO: (8) NotFound         — пользователь с таким id не найден
-        return resp.is_ok() && resp.data.value("ok", false);
+        const std::expected<HttpResponse,utils::errors::AppError> response = request(RequestMethod::POST,url_ + "/users/login", body.dump());
+        if (response.has_value()) {
+            return {};
+        }
+        return std::unexpected(response.error());
     }
 
     std::optional<UserInfo> HttpMessageApi::getUsernameById(const std::uint64_t id, const std::string& password) { // todo: to expected
@@ -271,7 +183,7 @@ namespace api {
         nlohmann::json body;
         body["old_password"] = currentPassword;
         body["password"] = newPassword;
-        const HttpResponse resp = PATCH(url_ + "/users/" + std::to_string(id) + "/password", body.dump());
+        const HttpResponse resp = request(RequestMethod::PATCH,url_ + "/users/" + std::to_string(id) + "/password", body.dump());
         // TODO: (1) CurlInitFailed   — curl handle не создался
         // TODO: (2) ConnectionFailed — сервер недоступен
         // TODO: (3) Timeout          — ответ не пришёл за 5 секунд
