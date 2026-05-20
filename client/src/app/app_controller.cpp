@@ -4,61 +4,14 @@ namespace app
 {
     AppController::AppController(
         std::unique_ptr<api::IMessageApi> api,
-        std::unique_ptr<utils::ConfigStorage> storage
-        ) : messageApi_(std::move(api)), configStorage_(std::move(storage))
-    { }
+        std::unique_ptr<stx::ConfigStorage> storage
+    ) : messageApi_(std::move(api)), configStorage_(std::move(storage)) {}
+
+    // ── Config ────────────────────────────────────────────────────────────────
 
     const AppConfig& AppController::getAppConfig() const noexcept
     {
         return configStorage_->getConfig();
-    }
-
-    void AppController::loadAppConfig()
-    {
-        configStorage_->load();
-        messageApi_->setUrl(configStorage_->getConfig().server.url);
-    }
-
-    bool AppController::saveAppConfig()
-    {
-        return configStorage_->save();
-    }
-
-    void AppController::setLogin(const UserInfo &user, const std::string &password)
-    {
-        configStorage_->setByLogin(user, password);
-    }
-
-    void AppController::updateConfigPassword(const std::string &new_password)
-    {
-        configStorage_->updatePassword(new_password);
-    }
-
-    void AppController::updateConfigNickname(const std::string &new_nickname)
-    {
-        configStorage_->updateNickname(new_nickname);
-    }
-
-    void AppController::addChat(const ChatInfo &new_chat)
-    {
-        configStorage_->addChat(new_chat);
-    }
-
-    void AppController::updateConfigUrl(const std::string &new_url)
-    {
-        configStorage_->updateUrl(new_url);
-    }
-
-    // --- SHELLS FOR NETWORK ---
-    void AppController::updateUrl(const std::string &new_url) const
-    {
-        messageApi_->setUrl(new_url);
-        configStorage_->updateUrl(new_url);
-    }
-
-    std::optional<std::string> AppController::ping() const
-    {
-        return messageApi_->ping();
     }
 
     const std::vector<ChatInfo>& AppController::getChats() const
@@ -66,37 +19,93 @@ namespace app
         return configStorage_->getConfig().chats;
     }
 
-    std::vector<Message> AppController::getMessages(const UserInfo& other_user) const
+    std::expected<void,stx::err::AppError> AppController::loadAppConfig()
     {
-        return messageApi_->dumpMessages(configStorage_->getConfig().user.id, other_user.id,configStorage_->getConfig().user.password);
+        if (const std::expected<void,stx::err::AppError> result = configStorage_->load(); !result.has_value())
+            return std::unexpected(result.error());
+        messageApi_->setUrl(configStorage_->getConfig().server.url);
+        return {};
     }
 
-    bool AppController::sendMessage(const UserInfo& other_user, const std::string& text) const
+    std::expected<void,stx::err::AppError> AppController::saveAppConfig()
     {
-        return messageApi_->sendMessage(configStorage_->getConfig().user.id, other_user.id, configStorage_->getConfig().user.password, text);
+        return configStorage_->save();
     }
 
-    bool AppController::updatePassword(const std::string& new_password) const
+    std::expected<void,stx::err::AppError> AppController::setLogin(const UserInfo& user, const std::string& password)
     {
-        return messageApi_->updatePassword(configStorage_->getConfig().user.id, configStorage_->getConfig().user.password, new_password);
+        return configStorage_->setByLogin(user, password);
     }
 
-    bool AppController::updateNickname(const std::string& new_nickname) const
+    std::expected<void,stx::err::AppError> AppController::updateConfigPassword(const std::string& new_password)
     {
-        return messageApi_->updateNickname(configStorage_->getConfig().user.id, configStorage_->getConfig().user.password, new_nickname);
+        return configStorage_->updatePassword(new_password);
     }
 
-    std::optional<UserInfo> AppController::getNicknameById(const uint64_t id) const
+    std::expected<void,stx::err::AppError> AppController::updateConfigNickname(const std::string& new_nickname)
     {
-        return messageApi_->getUsernameById(id,configStorage_->getConfig().user.password);
+        return configStorage_->updateNickname(new_nickname);
     }
 
-    bool AppController::registerUser(const UserInfo &user) const
+    std::expected<void,stx::err::AppError> AppController::updateConfigUrl(const std::string& new_url)
     {
-        return messageApi_->registerUser(user.id,user.nickname,user.password);
+        return configStorage_->updateUrl(new_url);
     }
 
-    bool AppController::loginUser(const uint64_t id, const std::string& password) const
+    std::expected<void,stx::err::AppError> AppController::addChat(const ChatInfo& new_chat)
+    {
+        return configStorage_->addChat(new_chat);
+    }
+
+    // ── Net ───────────────────────────────────────────────────────────────────
+
+    // Updates both the live API handle and the persisted config
+    std::expected<void,stx::err::AppError> AppController::updateUrl(const std::string& new_url)
+    {
+        messageApi_->setUrl(new_url);
+        return configStorage_->updateUrl(new_url);
+    }
+
+    std::expected<std::string,stx::err::AppError> AppController::ping() const
+    {
+        return messageApi_->ping();
+    }
+
+    std::expected<std::vector<Message>,stx::err::AppError> AppController::getMessages(const UserInfo& other_user) const
+    {
+        const auto& cfg = configStorage_->getConfig().user;
+        return messageApi_->dumpMessages(cfg.id, other_user.id, cfg.password);
+    }
+
+    std::expected<void,stx::err::AppError> AppController::sendMessage(const UserInfo& other_user, const std::string& text) const
+    {
+        const auto& cfg = configStorage_->getConfig().user;
+        return messageApi_->sendMessage(cfg.id, other_user.id, cfg.password, text);
+    }
+
+    std::expected<void,stx::err::AppError> AppController::updatePassword(const std::string& new_password) const
+    {
+        const auto& cfg = configStorage_->getConfig().user;
+        return messageApi_->updatePassword(cfg.id, cfg.password, new_password);
+    }
+
+    std::expected<void,stx::err::AppError> AppController::updateNickname(const std::string& new_nickname) const
+    {
+        const auto& cfg = configStorage_->getConfig().user;
+        return messageApi_->updateNickname(cfg.id, cfg.password, new_nickname);
+    }
+
+    std::expected<UserInfo,stx::err::AppError> AppController::getNicknameById(const std::uint64_t id) const
+    {
+        return messageApi_->getUsernameById(id, configStorage_->getConfig().user.password);
+    }
+
+    std::expected<void,stx::err::AppError> AppController::registerUser(const UserInfo& user) const
+    {
+        return messageApi_->registerUser(user.id, user.nickname, user.password);
+    }
+
+    std::expected<void,stx::err::AppError> AppController::loginUser(const std::uint64_t id, const std::string& password) const
     {
         return messageApi_->loginUser(id, password);
     }
