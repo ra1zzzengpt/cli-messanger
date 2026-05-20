@@ -205,18 +205,22 @@ def login_user():
         return ok_response({"user": public_user(user)})
 
 
-@app.get("/users/<user_id>")
-def get_user(user_id: str):
-    parsed_user_id = parse_uint64(user_id)
-    if parsed_user_id is None:
+@app.post("/users/get")
+def get_user():
+    data = get_json_body()
+    if data is None:
+        return error_response("expected JSON object", 400)
+
+    user_id = parse_uint64(data.get("id"))
+    if user_id is None:
         return error_response("invalid user id", 400)
 
-    password = request.args.get("password")
+    password = data.get("password")
     if not isinstance(password, str):
         return error_response("password required", 401)
 
     with state_lock:
-        user = get_user_by_id_unlocked(parsed_user_id)
+        user = get_user_by_id_unlocked(user_id)
         if user is None:
             return error_response("user not found", 404)
         if not verify_password_unlocked(user, password):
@@ -357,11 +361,15 @@ def send_message():
         }, 201)
 
 
-@app.get("/messages/dump")
+@app.post("/messages/dump")
 def dump_messages():
-    me = parse_uint64(request.args.get("me"))
-    peer = parse_uint64(request.args.get("peer"))
-    password = request.args.get("password")
+    data = get_json_body()
+    if data is None:
+        return error_response("expected JSON object", 400)
+
+    me = parse_uint64(data.get("me"))
+    peer = parse_uint64(data.get("peer"))
+    password = data.get("password")
 
     if me is None:
         return error_response("invalid me", 400)
