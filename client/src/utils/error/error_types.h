@@ -25,7 +25,7 @@ namespace utils::errors
         SecretboxOpenFailed,
     };
 
-    enum class NetError
+    enum class NetworkError
     {
         CurlInitFailed   = 1,  // curl_easy_init() вернул nullptr — редкая системная ошибка
         ConnectionFailed = 2,  // соединение не установлено: сервер недоступен, нет сети
@@ -48,5 +48,9 @@ namespace utils::errors
     enum class Base64Error
     {
         SodiumBase64Error,
+    };
+
+    enum class JsonError {
+        ParsingFailed,
     };
 }
