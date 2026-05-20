@@ -76,11 +76,11 @@ async fn main() {
         .route("/health", get(health))
         .route("/users/register", post(register_user))
         .route("/users/login", post(login_user))
-        .route("/users/:user_id", get(get_user))
+        .route("/users/get", post(get_user))
         .route("/users/:user_id/nick", patch(update_nick))
         .route("/users/:user_id/password", patch(update_password))
         .route("/messages/send", post(send_message))
-        .route("/messages/dump", get(dump_messages));
+        .route("/messages/dump", post(dump_messages));
 
     if debug_mode {
         router = router

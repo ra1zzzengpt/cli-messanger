@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
@@ -71,15 +71,18 @@ pub struct SendMessageBody {
     pub text: Option<String>,
 }
 
+// POST /users/get
 #[derive(Deserialize)]
-pub struct UserQuery {
+pub struct GetUserBody {
+    pub id: Option<Value>,
     pub password: Option<String>,
 }
 
+// POST /messages/dump
 #[derive(Deserialize)]
-pub struct MessagesQuery {
-    pub me: Option<String>,
-    pub peer: Option<String>,
+pub struct DumpMessagesBody {
+    pub me: Option<Value>,
+    pub peer: Option<Value>,
     pub password: Option<String>,
 }
 
@@ -189,16 +192,15 @@ pub async fn login_user(
     Ok(Json(json!({"ok": true, "user": user.to_public()})))
 }
 
-// GET /users/:user_id
+// POST /users/get
 pub async fn get_user(
     State(state): State<SharedState>,
-    Path(user_id): Path<String>,
-    Query(query): Query<UserQuery>,
+    Json(body): Json<GetUserBody>,
 ) -> Result<impl IntoResponse> {
-    let id = parse_id_str(&user_id)
+    let id = parse_id(body.id.as_ref())
         .ok_or_else(|| AppError::bad_request("invalid user id"))?;
 
-    let password = query
+    let password = body
         .password
         .ok_or_else(|| AppError::unauthorized("password required"))?;
 
@@ -222,6 +224,8 @@ pub async fn get_user(
 
     Ok(Json(json!({"ok": true, "user": user.to_public()})))
 }
+
+
 
 // PATCH /users/:user_id/nick
 pub async fn update_nick(
@@ -410,22 +414,16 @@ pub async fn send_message(
     ))
 }
 
-// GET /messages/dump
+// POST /messages/dump
 pub async fn dump_messages(
     State(state): State<SharedState>,
-    Query(params): Query<MessagesQuery>,
+    Json(body): Json<DumpMessagesBody>,
 ) -> Result<impl IntoResponse> {
-    let me = params
-        .me
-        .as_deref()
-        .and_then(parse_id_str)
+    let me = parse_id(body.me.as_ref())
         .ok_or_else(|| AppError::bad_request("invalid me"))?;
-    let peer = params
-        .peer
-        .as_deref()
-        .and_then(parse_id_str)
+    let peer = parse_id(body.peer.as_ref())
         .ok_or_else(|| AppError::bad_request("invalid peer"))?;
-    let password = params
+    let password = body
         .password
         .ok_or_else(|| AppError::unauthorized("password required"))?;
 
