@@ -50,7 +50,7 @@ namespace screen
 
     void AuthScreen::printScreen()
     {
-        utils::printFromFile(paths::auth);
+        io::check(stx::printFromFile(paths::auth), "[Error]: Failed to load auth screen");
         io::print("Your ID from save.json: " + std::to_string(controller_.getAppConfig().user.id));
     }
 
@@ -59,50 +59,47 @@ namespace screen
         const uint64_t id = io::scanUint64("Enter ID: ");
         const std::string password = io::scanString("Enter password: ");
 
-        if (controller_.loginUser(id, password))
+        if (!io::check(controller_.loginUser(id, password), "[Error]: Login failed"))
         {
-            io::print("Login successful!",io::Color::Green);
-            if (const std::optional<UserInfo> user_opt = controller_.getNicknameById(id))
-            {
-                controller_.setLogin(*user_opt,password);
-                if (controller_.saveAppConfig()) // todo: config save check rework
-                {
-                    MainScreen main_screen(controller_);
-                    main_screen.run();
-                } else
-                {
-                    io::print("[Error]: Failed to save user in config.",io::Color::Red);
-                    io::waitForEnter();
-                }
-            }
-        }
-        else
-        {
-            io::print("[Error]: Server is offline or unreachable. Please check settings.",io::Color::Red);
             io::waitForEnter();
+            return;
         }
+        io::print("Login successful!", io::Color::Green);
+
+        const auto user_opt = controller_.getNicknameById(id);
+        if (!io::check(user_opt, "[Error]: Failed to fetch user info"))
+        {
+            io::waitForEnter();
+            return;
+        }
+
+        // setLogin saves config internally, no need for a separate saveAppConfig()
+        if (!io::check(controller_.setLogin(user_opt.value(), password), "[Error]: Failed to save login"))
+        {
+            io::waitForEnter();
+            return;
+        }
+
+        MainScreen main_screen(controller_);
+        main_screen.run();
     }
 
     void AuthScreen::handleRegister() const
     {
-        const std::string password = io::scanString("Enter password: ");;
+        const std::string password = io::scanString("Enter password: ");
 
         UserInfo user;
-        user.id = controller_.getAppConfig().user.id;
+        user.id       = controller_.getAppConfig().user.id;
         user.nickname = controller_.getAppConfig().user.nickname;
         user.password = password;
 
-        if (controller_.registerUser(user))
+        if (!io::check(controller_.registerUser(user), "[Error]: Registration failed"))
         {
-            io::print("Registration successful! You can now login.",io::Color::Green);
-            controller_.updateConfigPassword(password);
             io::waitForEnter();
+            return;
         }
-        else
-        {
-            io::print("Registration failed.", io::Color::Red);
-            io::waitForEnter();
-        }
-        // todo: config save check
+        io::print("Registration successful! You can now login.", io::Color::Green);
+        io::check(controller_.updateConfigPassword(password), "[Error]: Failed to save password to config");
+        io::waitForEnter();
     }
 }
