@@ -1,6 +1,7 @@
 #include "console.h"
 
 #include <algorithm>
+#include <limits>
 
 std::string io::ansiColor(const RGB &color)
 {
@@ -10,89 +11,49 @@ std::string io::ansiColor(const RGB &color)
                std::to_string(color.blue) + "m";
 }
 
-uint32_t io::scanUint32(const std::string_view prompt) {
-    std::string input;
-    uint32_t result{};
-
-    bool success = false;
-    while (!success)
+namespace
+{
+    template<typename T>
+    T scanUnsignedInt(const std::string_view prompt)
     {
-        print(prompt,Color::White,"");
-        std::getline(std::cin, input);
-
-        if (input.empty())
+        std::string input;
+        while (true)
         {
-            continue;
-        }
+            io::print(prompt, io::Color::White, "");
+            std::getline(std::cin, input);
 
-        if (const bool valid = std::ranges::all_of(input.begin(), input.end(),
-            [](const unsigned char c) {return std::isdigit(c);}); !valid)
-        {
-            print("[Error]: Invalid input",Color::Red);
-            continue;
-        }
+            if (input.empty()) continue;
 
-        try
-        {
-            const unsigned long temp = std::stoul(input);
-            if (temp > UINT32_MAX)
+            if (!std::ranges::all_of(input, [](const unsigned char c) { return std::isdigit(c); }))
             {
-                print("[Error]: Value exceeds maximum uint32_t (4294967295)",Color::Red);
+                io::print("[Error]: Invalid input", io::Color::Red);
                 continue;
             }
-            result = static_cast<uint32_t>(temp);
-            success = true;
-        }
-        catch (const std::out_of_range&)
-        {
-            print("[Error]: Value out of range for uint32_t",Color::Red);
-        }
-        catch (const std::invalid_argument&)
-        {
-            print("[Error]: Invalid number format",Color::Red);
+
+            try
+            {
+                const uint64_t temp = std::stoull(input);
+                if (temp > std::numeric_limits<T>::max())
+                {
+                    io::print("[Error]: Value out of range", io::Color::Red);
+                    continue;
+                }
+                return static_cast<T>(temp);
+            }
+            catch (const std::out_of_range&)
+            {
+                io::print("[Error]: Value out of range", io::Color::Red);
+            }
+            catch (const std::invalid_argument&)
+            {
+                io::print("[Error]: Invalid number format", io::Color::Red);
+            }
         }
     }
-    return result;
 }
 
-uint64_t io::scanUint64(const std::string_view prompt) {
-    std::string input;
-    uint64_t result{};
-
-    bool success = false;
-    while (!success)
-    {
-        print(prompt, Color::White, "");
-        std::getline(std::cin, input);
-
-        if (input.empty())
-        {
-            continue;
-        }
-
-        if (const bool valid = std::ranges::all_of(input.begin(), input.end(),
-            [](const unsigned char c) {return std::isdigit(c);}); !valid)
-        {
-            print("[Error]: Invalid input", Color::Red);
-            continue;
-        }
-
-        try
-        {
-            result = std::stoull(input);
-            success = true;
-        }
-        catch (const std::out_of_range&)
-        {
-            print("[Error]: Value out of range for uint64_t", Color::Red);
-        }
-        catch (const std::invalid_argument&)
-        {
-            print("[Error]: Invalid number format", Color::Red);
-        }
-    }
-    return result;
-}
+uint32_t io::scanUint32(const std::string_view prompt) { return scanUnsignedInt<uint32_t>(prompt); }
+uint64_t io::scanUint64(const std::string_view prompt) { return scanUnsignedInt<uint64_t>(prompt); }
 
 std::string io::scanString(const std::string_view prompt) {
     std::string value;
