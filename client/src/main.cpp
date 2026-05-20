@@ -26,27 +26,35 @@ int main()
         io::print("[Fatal error]: curl init failed: " + std::to_string(init_code));
         return 1;
     }
-    app::AppController controller(std::make_unique<api::HttpMessageApi>(),std::make_unique<utils::ConfigStorage>(kConfigPath));
+    app::AppController controller(
+        std::make_unique<api::HttpMessageApi>(),
+        std::make_unique<stx::ConfigStorage>(kConfigPath)
+    );
 
-    controller.loadAppConfig();
-        if (const auto& user = controller.getAppConfig().user; user.id != 0 && !user.password.empty())
+    io::check(controller.loadAppConfig(), "[Error]: Failed to load config");
+
+    if (const auto& user = controller.getAppConfig().user; user.id != 0 && !user.password.empty())
+    {
+        io::print("Checking server status...");
+
+        if (controller.ping().has_value())
         {
-            io::print("Checking server status...");
-
-            if (controller.ping().has_value())
+            io::print("Attempting auto-login...");
+            // silent fail — fall through to auth screen if credentials are stale
+            if (controller.loginUser(user.id, user.password).has_value())
             {
-                io::print("Attempting auto-login...");
-                if (controller.loginUser(user.id, user.password))
-                {
-                    screen::MainScreen mainMenu(controller);
-                    mainMenu.run();
-                    return 0;
-                }
-            } else {
-                io::print("[Warning]: Server is offline or unreachable. Please check settings.", io::Color::Yellow);
-                io::waitForEnter();
+                screen::MainScreen mainMenu(controller);
+                mainMenu.run();
+                return 0;
             }
         }
+        else
+        {
+            io::print("[Warning]: Server is offline or unreachable. Please check settings.", io::Color::Yellow);
+            io::waitForEnter();
+        }
+    }
+
     screen::AuthScreen authScreen(controller);
     authScreen.run();
 
