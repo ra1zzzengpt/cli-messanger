@@ -19,15 +19,16 @@ namespace screen
             displayMessages();
 
             if (const std::string text = io::scanString("> "); text.starts_with("/")) {
-                if (std::optional<utils::Command> command = utils::parseCommand(text); command == utils::Command::Quit) {
+                if (std::expected<stx::Command,stx::err::AppError> command = stx::parseCommand(text); command == stx::Command::Quit) {
                     in_chat = false;
-                } else if (command == utils::Command::Help) {
-                    utils::printFromFile(paths::help);
+                } else if (command == stx::Command::Help) {
+                    io::check(stx::printFromFile(paths::help), "[Error]: Failed to load help");
                     io::waitForEnter();
-                } else if (command == utils::Command::Update) {
+                } else if (command == stx::Command::Update) {
                     continue;
-                } else if (command == utils::Command::Dump) {
-                    utils::dumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"),controller_.getMessages(makePeerInfo()),chat_);
+                } else if (command == stx::Command::Dump) {
+                    if (const auto msgs = controller_.getMessages(makePeerInfo()); io::check(msgs, "[Error]: Failed to load messages"))
+                        io::check(stx::dumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"), msgs.value(), chat_), "[Error]: Failed to dump messages to file");
                 } else {
                     io::print("[Error]: unknown command.", io::Color::Red);
                 }
@@ -43,30 +44,26 @@ namespace screen
     }
 
     void ChatScreen::displayMessages() const {
-        if (const auto messages = controller_.getMessages(makePeerInfo()); messages.empty())
+        const auto result = controller_.getMessages(makePeerInfo());
+        if (!io::check(result, "[Error]: Failed to load messages"))
+            return;
+        const auto& messages = result.value();
+        if (messages.empty())
         {
             io::print("(No messages yet)", io::Color::Yellow);
+            return;
         }
-        else
+        for (const auto& msg : messages)
         {
-            for (const auto& msg : messages)
-            {
-                std::string time_str = msg.created_at.empty() ? "" : "[" + msg.created_at + "] ";
-                std::string prefix = (msg.from_id == controller_.getAppConfig().user.id) ? "[You]: " : "[" + chat_.peer_nick + "]: ";
-                io::print(time_str + prefix + msg.text);
-            }
+            std::string time_str = msg.created_at.empty() ? "" : "[" + msg.created_at + "] ";
+            std::string prefix = (msg.from_id == controller_.getAppConfig().user.id) ? "[You]: " : "[" + chat_.peer_nick + "]: ";
+            io::print(time_str + prefix + msg.text);
         }
     }
 
     void ChatScreen::sendMessage(const std::string& text) const {
-        if (controller_.sendMessage(makePeerInfo(), text))
-        {
+        if (io::check(controller_.sendMessage(makePeerInfo(), text), "[Error]: Failed to send message"))
             io::print("Message sent!", io::Color::Green);
-        }
-        else
-        {
-            io::print("Failed to send message", io::Color::Red);
-        }
     }
 
     UserInfo ChatScreen::makePeerInfo() const {
