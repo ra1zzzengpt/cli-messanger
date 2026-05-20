@@ -12,7 +12,13 @@ struct UserInfo
     std::string password;
 
     UserInfo() = default;
+    UserInfo(const uint64_t num_id, const std::string & str_nick)
+    {
+        id = num_id;
+        nickname = str_nick;
+    };
     UserInfo(const UserInfo&) = default;
+
     UserInfo& operator=(const UserInfo&) = default;
     UserInfo(UserInfo&&) = default;
     UserInfo& operator=(UserInfo&&) = default;
