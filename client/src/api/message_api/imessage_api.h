@@ -14,44 +14,44 @@ namespace api
     public:
         virtual ~IMessageApi() = default;
 
-        virtual std::expected<std::string,utils::errors::AppError> ping() = 0;
+        virtual std::expected<std::string,stx::err::AppError> ping() = 0;
 
-        virtual std::expected<void,utils::errors::AppError> registerUser(
+        virtual std::expected<void,stx::err::AppError> registerUser(
             std::uint64_t id,
             const std::string& nick,
             const std::string& password
         ) = 0;
 
-        virtual std::expected<void,utils::errors::AppError> loginUser(
+        virtual std::expected<void,stx::err::AppError> loginUser(
             std::uint64_t id,
             const std::string& password
         ) = 0;
 
-        virtual std::expected<UserInfo,utils::errors::AppError> getUsernameById(
+        virtual std::expected<UserInfo,stx::err::AppError> getUsernameById(
             std::uint64_t id,
             const std::string& password
         ) = 0;
         
-        virtual std::expected<void,utils::errors::AppError> updatePassword(
+        virtual std::expected<void,stx::err::AppError> updatePassword(
             std::uint64_t id,
             const std::string& currentPassword,
             const std::string& newPassword
         ) = 0;
 
-        virtual std::expected<void,utils::errors::AppError> updateNickname(
+        virtual std::expected<void,stx::err::AppError> updateNickname(
             std::uint64_t id,
             const std::string& password,
             const std::string& newNick
         ) = 0;
 
-        virtual std::expected<void,utils::errors::AppError> sendMessage(
+        virtual std::expected<void,stx::err::AppError> sendMessage(
             std::uint64_t fromId,
             std::uint64_t toId,
             const std::string& password,
             const std::string& text
         ) = 0;
         
-        virtual std::expected<std::vector<Message>,utils::errors::AppError> dumpMessages(
+        virtual std::expected<std::vector<Message>,stx::err::AppError> dumpMessages(
             std::uint64_t myId,
             std::uint64_t peerId,
             const std::string& password
