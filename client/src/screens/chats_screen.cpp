@@ -80,7 +80,7 @@ namespace screen
 
     void ChatsScreen::printScreen()
     {
-        utils::printFromFile(paths::chats);
+        io::check(stx::printFromFile(paths::chats), "[Error]: Failed to load chats screen");
     }
 
     void ChatsScreen::addChat() const {
@@ -102,13 +102,10 @@ namespace screen
             return;
         }
 
-        const std::optional<UserInfo> user_info = controller_.getNicknameById(peer_id);
-        if (!user_info.has_value())
-        {
-            io::print("[Error]: User with ID " + std::to_string(peer_id) + " not found on server", io::Color::Red);
+        const auto user_info = controller_.getNicknameById(peer_id);
+        if (!io::check(user_info, "[Error]: User not found on server"))
             return;
-        }
 
-        controller_.addChat(ChatInfo{peer_id,user_info->nickname}); // todo: need to check by nodiscard
+        io::check(controller_.addChat(ChatInfo{peer_id, user_info->nickname}), "[Error]: Failed to save chat");
     }
 }

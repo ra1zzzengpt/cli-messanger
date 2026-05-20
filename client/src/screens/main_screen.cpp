@@ -54,6 +54,6 @@ namespace screen
 
     void MainScreen::printScreen()
     {
-        utils::printFromFile(paths::main_menu);
+        io::check(stx::printFromFile(paths::main_menu));
     }
 }
