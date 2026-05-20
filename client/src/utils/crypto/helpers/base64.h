@@ -5,8 +5,8 @@
 
 #include "utils/error/app_error.h"
 
-namespace utils::crypto
+namespace stx::crypto
 {
     std::string to_base64(const std::vector<unsigned char>& bytes);
-    std::expected<std::vector<unsigned char>,errors::AppError> from_base64(const std::string& s);
+    std::expected<std::vector<unsigned char>,err::AppError> from_base64(const std::string& s);
 }

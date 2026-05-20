@@ -1,7 +1,7 @@
 #include "command_parser.h"
 
-namespace utils {
-    std::expected<Command,errors::AppError> parseCommand(const std::string& command) { // todo: to expected
+namespace stx {
+    std::expected<Command,err::AppError> parseCommand(const std::string& command) {
         if (command == "/quit") {
             return Command::Quit;
         }
@@ -16,6 +16,6 @@ namespace utils {
         {
             return Command::Dump;
         }
-        return std::unexpected(errors::AppError{errors::CommandError::UnknownCommand, "unknown command"});
+        return std::unexpected(err::AppError{err::CommandError::UnknownCommand, "unknown command"});
     }
 }

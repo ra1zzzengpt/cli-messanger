@@ -4,7 +4,7 @@
 
 #include "utils/error/app_error.h"
 
-namespace utils {
+namespace stx {
     enum class Command {
         Quit,
         Help,
@@ -12,5 +12,5 @@ namespace utils {
         Dump
     };
 
-    std::expected<Command,errors::AppError> parseCommand(const std::string& command);
+    std::expected<Command,err::AppError> parseCommand(const std::string& command);
 };

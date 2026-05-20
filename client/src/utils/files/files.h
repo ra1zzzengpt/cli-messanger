@@ -6,8 +6,8 @@
 #include <expected>
 #include <utils/error/app_error.h>
 
-namespace utils {
-    std::expected<void, errors::AppError> printFromFile(const std::filesystem::path& path);
+namespace stx {
+    std::expected<void, err::AppError> printFromFile(const std::filesystem::path& path);
 
-    std::expected<void, errors::AppError> dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages,const ChatInfo& chat);
+    std::expected<void, err::AppError> dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages,const ChatInfo& chat);
 }

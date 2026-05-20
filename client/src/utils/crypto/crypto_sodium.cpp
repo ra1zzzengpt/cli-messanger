@@ -4,12 +4,12 @@
 #include <string>
 #include <sodium.h>
 #include <sodium/crypto_secretbox.h>
-// todo: to expected
+
 #if defined(__linux__)
 
 #include <fstream>
 
-namespace utils
+namespace stx
 {
     std::string CryptoSodium::machine_binding()
     {
@@ -113,7 +113,7 @@ namespace utils
         }
     }
 
-    std::expected<void,errors::AppError> CryptoSodium::sodiumKeyGenerateBySalt(const std::vector<unsigned char> &salt)
+    std::expected<void,err::AppError> CryptoSodium::sodiumKeyGenerateBySalt(const std::vector<unsigned char> &salt)
     {
         if (!salt_.empty() && salt_ == salt)
         {
@@ -132,19 +132,19 @@ namespace utils
 
         if (rc != 0)
         {
-            return std::unexpected(errors::AppError{errors::CryptoError::OutOfMemory,"Argon can't generate your key (out of memory)"});
+            return std::unexpected(err::AppError{err::CryptoError::OutOfMemory,"Argon can't generate your key (out of memory)"});
         }
         salt_ = salt;
         return {};
     }
 
-    std::expected<CryptoInfo,errors::AppError> CryptoSodium::encode(const std::string &plaintext)
+    std::expected<CryptoInfo,err::AppError> CryptoSodium::encode(const std::string &plaintext)
     {
         if (salt_.empty())
         {
             std::vector<unsigned char> fresh_salt(crypto_pwhash_SALTBYTES);
             randombytes_buf(fresh_salt.data(), fresh_salt.size());
-            if (const std::expected<void,errors::AppError> generating_result = sodiumKeyGenerateBySalt(fresh_salt); !generating_result.has_value())
+            if (const std::expected<void,err::AppError> generating_result = sodiumKeyGenerateBySalt(fresh_salt); !generating_result.has_value())
             {
                 return std::unexpected(generating_result.error());
             }
@@ -169,15 +169,15 @@ namespace utils
         return crypto_info;
     }
 
-    std::expected<std::string,errors::AppError> CryptoSodium::decode(const CryptoInfo &crypto_info)
+    std::expected<std::string,err::AppError> CryptoSodium::decode(const CryptoInfo &crypto_info)
     {
         if (crypto_info.salt.size() != crypto_pwhash_SALTBYTES || crypto_info.nonce.size() !=
             crypto_secretbox_NONCEBYTES
             || crypto_info.ciphertext.size() < crypto_secretbox_MACBYTES)
         {
-            return std::unexpected(errors::AppError{errors::CryptoError::BrokenFile,"the file is broken"});
+            return std::unexpected(err::AppError{err::CryptoError::BrokenFile,"the file is broken"});
         }
-        if (const std::expected<void,errors::AppError> generating_result = sodiumKeyGenerateBySalt(crypto_info.salt); !generating_result.has_value())
+        if (const std::expected<void,err::AppError> generating_result = sodiumKeyGenerateBySalt(crypto_info.salt); !generating_result.has_value())
         {
             return std::unexpected(generating_result.error());
         }
@@ -192,7 +192,7 @@ namespace utils
 
         if (rc != 0)
         {
-            return std::unexpected(errors::AppError{errors::CryptoError::SecretboxOpenFailed,"secretbox open error"});
+            return std::unexpected(err::AppError{err::CryptoError::SecretboxOpenFailed,"secretbox open error"});
         }
 
         return std::string(reinterpret_cast<char *>(plaintext.data()), plaintext.size());

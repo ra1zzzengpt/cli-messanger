@@ -3,14 +3,14 @@
 
 #include <fstream>
 
-namespace utils
+namespace stx
 {
-    std::expected<void, errors::AppError> printFromFile(const std::filesystem::path& path)
+    std::expected<void, err::AppError> printFromFile(const std::filesystem::path& path)
     {
         std::ifstream ifs(path);
         if (!ifs.is_open())
         {
-            return std::unexpected(errors::AppError{errors::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
+            return std::unexpected(err::AppError{err::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
         }
         std::string line;
         while (std::getline(ifs, line))
@@ -21,12 +21,12 @@ namespace utils
         return {};
     }
 
-    std::expected<void, errors::AppError> dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages, const ChatInfo& chat)
+    std::expected<void, err::AppError> dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages, const ChatInfo& chat)
     {
         std::ofstream ofs(path);
         if (!ofs.is_open())
         {
-            return std::unexpected(errors::AppError{errors::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
+            return std::unexpected(err::AppError{err::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
         }
         for (const Message& message : messages)
         {

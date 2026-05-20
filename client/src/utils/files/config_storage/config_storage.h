@@ -5,7 +5,7 @@
 #include "utils/crypto/crypto_sodium.h"
 #include "utils/error/app_error.h"
 
-namespace utils
+namespace stx
 {
     class ConfigStorage final
     {
@@ -15,20 +15,20 @@ namespace utils
 
         [[nodiscard]] const AppConfig& getConfig() const noexcept;
 
-        std::expected<void,errors::AppError> load();
+        std::expected<void,err::AppError> load();
 
-        std::expected<void,errors::AppError> save();
+        std::expected<void,err::AppError> save();
 
         // - USER -
-        std::expected<void,errors::AppError> setByLogin(const UserInfo& user, const std::string& password);
-        std::expected<void,errors::AppError> updatePassword(const std::string& new_password);
-        std::expected<void,errors::AppError> updateNickname(const std::string& new_nickname);
+        std::expected<void,err::AppError> setByLogin(const UserInfo& user, const std::string& password);
+        std::expected<void,err::AppError> updatePassword(const std::string& new_password);
+        std::expected<void,err::AppError> updateNickname(const std::string& new_nickname);
 
         // - SERVER -
-        std::expected<void,errors::AppError> updateUrl(const std::string& new_url);
+        std::expected<void,err::AppError> updateUrl(const std::string& new_url);
 
         // - CHATS -
-        std::expected<void,errors::AppError> addChat(const ChatInfo& new_chat);
+        std::expected<void,err::AppError> addChat(const ChatInfo& new_chat);
 
     private:
         std::string filepath_;

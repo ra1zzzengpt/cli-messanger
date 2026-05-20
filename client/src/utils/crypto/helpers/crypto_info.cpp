@@ -5,7 +5,7 @@ namespace
 {
     std::vector<unsigned char> read_base64_field(const nlohmann::json& json, const std::string& key)
     {
-        if (const std::expected<std::vector<unsigned char>,utils::errors::AppError> result = utils::crypto::from_base64(json[key]); result.has_value())
+        if (const std::expected<std::vector<unsigned char>,stx::err::AppError> result = stx::crypto::from_base64(json[key]); result.has_value())
         {
             return std::vector{*result};
         }
@@ -16,9 +16,9 @@ namespace
 void to_json(nlohmann::json &json, const CryptoInfo &crypto_info)
 {
     json = nlohmann::json {
-        {"salt", utils::crypto::to_base64(crypto_info.salt)},
-        {"nonce", utils::crypto::to_base64(crypto_info.nonce)},
-        {"ciphertext", utils::crypto::to_base64(crypto_info.ciphertext)}
+        {"salt", stx::crypto::to_base64(crypto_info.salt)},
+        {"nonce", stx::crypto::to_base64(crypto_info.nonce)},
+        {"ciphertext", stx::crypto::to_base64(crypto_info.ciphertext)}
     };
 }
 

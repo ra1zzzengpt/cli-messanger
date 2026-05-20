@@ -6,7 +6,7 @@
 #include "helpers/crypto_info.h"
 #include "utils/error/app_error.h"
 
-namespace utils
+namespace stx
 {
     class CryptoSodium
     {
@@ -20,10 +20,10 @@ namespace utils
         CryptoSodium& operator=(CryptoSodium&&) = delete;
 
         // - CODEC -
-        std::expected<CryptoInfo,errors::AppError> encode(const std::string& plaintext);
-        std::expected<std::string,errors::AppError> decode(const CryptoInfo& crypto_info);
+        std::expected<CryptoInfo,err::AppError> encode(const std::string& plaintext);
+        std::expected<std::string,err::AppError> decode(const CryptoInfo& crypto_info);
     private:
-        std::expected<void,errors::AppError> sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt);
+        std::expected<void,err::AppError> sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt);
 
         // machine binding can terminate: the encryption principle won't work without it.
         static std::string machine_binding();
