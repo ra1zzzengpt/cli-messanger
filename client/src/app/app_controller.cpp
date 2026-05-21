@@ -37,6 +37,11 @@ namespace app
         return configStorage_->setByLogin(user, password);
     }
 
+    std::expected<void,stx::err::AppError> AppController::setupInitialUser(const std::uint64_t id, const std::string& nickname)
+    {
+        return configStorage_->setInitialUser(id, nickname);
+    }
+
     std::expected<void,stx::err::AppError> AppController::updateConfigPassword(const std::string& new_password)
     {
         return configStorage_->updatePassword(new_password);

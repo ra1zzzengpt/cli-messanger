@@ -23,6 +23,7 @@ namespace app
         std::expected<void,stx::err::AppError> loadAppConfig();
         std::expected<void,stx::err::AppError> saveAppConfig();
         std::expected<void,stx::err::AppError> setLogin(const UserInfo& user, const std::string& password);
+        std::expected<void,stx::err::AppError> setupInitialUser(std::uint64_t id, const std::string& nickname);
         std::expected<void,stx::err::AppError> updateConfigPassword(const std::string& new_password);
         std::expected<void,stx::err::AppError> updateConfigNickname(const std::string& new_nickname);
         std::expected<void,stx::err::AppError> updateConfigUrl(const std::string& new_url);
