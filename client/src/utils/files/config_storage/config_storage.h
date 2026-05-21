@@ -24,6 +24,8 @@ namespace stx
         std::expected<void,err::AppError> updatePassword(const std::string& new_password);
         std::expected<void,err::AppError> updateNickname(const std::string& new_nickname);
 
+        std::expected<void,err::AppError> setInitialUser(uint64_t id, const std::string& nickname);
+
         // - SERVER -
         std::expected<void,err::AppError> updateUrl(const std::string& new_url);
 
