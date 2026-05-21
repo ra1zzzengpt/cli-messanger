@@ -14,7 +14,8 @@ namespace stx::err
         OpenFileFailed,
         EncryptionFailed,
         DecryptionFailed,
-        ParseFailed
+        ParseFailed,
+        IncorrectConfiguration,
     };
 
     enum class CryptoError
