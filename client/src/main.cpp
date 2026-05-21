@@ -5,6 +5,7 @@
 #include "api/message_api/httpsapi/https_message_api.h"
 #include <curl/curl.h>
 #include <sodium.h>
+#include <random>
 
 #include "utils/console/console.h"
 
@@ -31,7 +32,22 @@ int main()
         std::make_unique<stx::ConfigStorage>(kConfigPath)
     );
 
-    io::check(controller.loadAppConfig(), "[Error]: Failed to load config");
+    if (const auto result = controller.loadAppConfig(); !result.has_value())
+    {
+        const auto& err = result.error();
+        if (!std::holds_alternative<stx::err::ConfigError>(err.type) ||
+            std::get<stx::err::ConfigError>(err.type) != stx::err::ConfigError::IncorrectConfiguration)
+        {
+            io::print("[Error]: Failed to load config: " + err.message, io::Color::Red);
+            return 1;
+        }
+        const std::string url = io::scanString("Server URL: ");
+        const std::string nickname = io::scanString("Your nickname: ");
+        std::mt19937_64 gen(std::random_device{}());
+        const uint64_t id = std::uniform_int_distribution<uint64_t>{}(gen);
+        io::check(controller.updateUrl(url),"[Error]: Failed to save server URL");
+        io::check(controller.setupInitialUser(id, nickname),"[Error]: Failed to save user info");
+    }
 
     if (const auto& user = controller.getAppConfig().user; user.id != 0 && !user.password.empty())
     {
