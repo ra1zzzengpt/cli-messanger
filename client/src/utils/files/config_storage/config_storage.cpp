@@ -2,52 +2,18 @@
 
 #include <expected>
 
-#include "utils/console/console.h"
-
 #include <fstream>
 #include <filesystem>
-#include <random>
 #include <utility>
 
 namespace stx {
     namespace {
-        uint64_t randomUint64()
-        {
-            static std::random_device rd;
-            static std::mt19937 gen(rd());
-            std::uniform_int_distribution dist(
-                std::numeric_limits<uint64_t>::min(),
-                std::numeric_limits<uint64_t>::max()
-                );
-            return dist(gen);
-        };
-
         bool hasDefaultValues(const AppConfig& config)
         {
             return config.server.url.empty()
                 || config.user.id == 0
                 || config.user.nickname.empty();
         }
-
-        void fillMissingConfigValues(AppConfig& config)
-        {
-            if (config.server.url.empty())
-            {
-                config.server.url = io::scanString("Server url: ");
-            }
-
-            if (config.user.id == 0)
-            {
-                config.user.id = randomUint64();
-            }
-
-            if (config.user.nickname.empty())
-            {
-                config.user.nickname = io::scanString("User nick: ");
-            }
-        }
-
-
     }
 
     ConfigStorage::ConfigStorage(std::string filepath) : filepath_(std::move(filepath))
@@ -75,7 +41,7 @@ namespace stx {
         {
             return std::unexpected(encrypted_result.error());
         }
-        file << nlohmann::json(nlohmann::json(encrypted_result.value()).dump()).dump(4);
+        file << nlohmann::json(encrypted_result.value()).dump(4);
         return {};
     }
 
@@ -108,16 +74,13 @@ namespace stx {
             }
             catch (const nlohmann::json::exception&)
             {
-                config = AppConfig{};
+                return std::unexpected(err::AppError{err::JsonError::ParsingFailed,"can't parse config"});
             }
         }
 
-        // TODO: WHAT'S WITH IT
-        // SRP PROBLEM
         if (hasDefaultValues(config))
         {
-            io::print("Config is incomplete. Please enter missing values:", io::Color::Yellow);
-            fillMissingConfigValues(config);
+            return std::unexpected(err::AppError{err::ConfigError::IncorrectConfiguration,"not complete"});
         }
 
         config_ = config;
@@ -157,6 +120,13 @@ namespace stx {
     std::expected<void,err::AppError> ConfigStorage::updateUrl(const std::string &new_url)
     {
         config_.server.url = new_url;
+        return save();
+    }
+
+    std::expected<void,err::AppError> ConfigStorage::setInitialUser(uint64_t id, const std::string& nickname)
+    {
+        config_.user.id = id;
+        config_.user.nickname = nickname;
         return save();
     }
 }
