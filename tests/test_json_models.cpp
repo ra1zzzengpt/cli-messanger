@@ -79,7 +79,7 @@ TEST(ChatInfo, SerializeRoundTrip) {
 
 TEST(AppConfig, SerializeRoundTrip) {
     AppConfig cfg;
-    cfg.server.url    = "http://localhost:5000";
+    cfg.server.url    = "https://localhost:5000";
     cfg.user.id       = 42;
     cfg.user.nickname = "alice";
     cfg.user.password = "pass";
@@ -87,7 +87,7 @@ TEST(AppConfig, SerializeRoundTrip) {
     nlohmann::json j = cfg;
     AppConfig restored = j.get<AppConfig>();
 
-    EXPECT_EQ(restored.server.url,     "http://localhost:5000");
+    EXPECT_EQ(restored.server.url,     "https://localhost:5000");
     EXPECT_EQ(restored.user.id,        42u);
     EXPECT_EQ(restored.user.nickname,  "alice");
     EXPECT_EQ(restored.user.password,  "pass");
