@@ -4,7 +4,8 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-struct Message {
+struct Message
+{
     std::uint64_t id = 0;
 
     std::uint64_t from_id = 0;

@@ -4,7 +4,8 @@
 
 #include <string>
 
-struct ServerInfo {
+struct ServerInfo
+{
     std::string url;
 };
 

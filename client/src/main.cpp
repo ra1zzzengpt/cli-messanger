@@ -24,7 +24,7 @@ int main()
     }
     if (const CURLcode init_code = curl_global_init(CURL_GLOBAL_ALL); init_code != CURLE_OK)
     {
-        io::print("[Fatal error]: curl init failed: " + std::to_string(init_code));
+        io::print("[Fatal error]: curl init failed: " + std::to_string(init_code),io::Color::Red);
         return 1;
     }
     app::AppController controller(
@@ -43,19 +43,21 @@ int main()
         }
         const std::string url = io::scanString("Server URL: ");
         const std::string nickname = io::scanString("Your nickname: ");
+        // WARNING: THIS WILL BE MOVED ON SERVER IN USER REGISTER TODO: 0.7/0.8?
         std::mt19937_64 gen(std::random_device{}());
         const uint64_t id = std::uniform_int_distribution<uint64_t>{}(gen);
+        // ----------------------------------------------------
         io::check(controller.updateUrl(url),"[Error]: Failed to save server URL");
         io::check(controller.setupInitialUser(id, nickname),"[Error]: Failed to save user info");
     }
 
     if (const auto& user = controller.getAppConfig().user; user.id != 0 && !user.password.empty())
     {
-        io::print("Checking server status...");
+        io::print("Checking server status...",io::Color::Yellow);
 
         if (controller.ping().has_value())
         {
-            io::print("Attempting auto-login...");
+            io::print("Attempting auto-login...",io::Color::Yellow);
             // silent fail — fall through to auth screen if credentials are stale
             if (controller.loginUser(user.id, user.password).has_value())
             {

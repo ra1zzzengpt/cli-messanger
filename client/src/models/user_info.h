@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <string>
 #include <nlohmann/json.hpp>
 #include <sodium/utils.h>
@@ -11,6 +10,7 @@ struct UserInfo
     std::string nickname;
     std::string password;
 
+    // Rule of 5
     UserInfo() = default;
     UserInfo(const uint64_t num_id, const std::string & str_nick)
     {

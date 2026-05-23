@@ -4,8 +4,10 @@
 
 #include "utils/error/error_types.h"
 
-namespace stx {
-    enum class Command {
+namespace stx
+{
+    enum class Command
+    {
         Quit,
         Help,
         Update,
