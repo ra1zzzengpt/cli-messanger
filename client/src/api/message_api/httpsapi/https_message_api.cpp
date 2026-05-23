@@ -160,13 +160,12 @@ namespace api {
         return {};
     }
 
-    // POST /users/get  — пароль в теле, не в URL
+    // POST /users/get  — публичный, пароль не нужен
     std::expected<UserInfo, stx::err::AppError> HttpMessageApi::getUsernameById(
-        const std::uint64_t id, const std::string& password
+        const std::uint64_t id
     ) {
         nlohmann::json body;
         body["id"] = std::to_string(id);
-        body["password"] = password;
         const std::expected<HttpResponse,stx::err::AppError> resp = request(RequestMethod::POST, url_ + "/users/get", body.dump());
         if (!resp.has_value())
             return std::unexpected(resp.error());

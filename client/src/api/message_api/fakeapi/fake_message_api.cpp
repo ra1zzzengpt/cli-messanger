@@ -32,7 +32,7 @@ namespace api {
     }
 
     std::expected<UserInfo,stx::err::AppError> FakeMessageApi::getUsernameById(
-        const std::uint64_t id, const std::string&)
+        const std::uint64_t id)
     {
         return UserInfo{id, "FakeUser"};
     }
@@ -64,7 +64,7 @@ namespace api {
         msg.to_id      = myId;
         msg.text       = "Hello! I am a fake user.";
         msg.created_at = now();
-        return std::vector<Message>{msg};
+        return std::vector{msg};
     }
 
     void FakeMessageApi::setUrl(const std::string&) {}

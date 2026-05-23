@@ -1,14 +1,15 @@
 #pragma once
-#include <optional>
-#include <cstdint>
 #include <string>
 
 #include "api/message_api/imessage_api.h"
 #include "models/user_info.h"
 #include "models/message.h"
 
-namespace api {
-    class FakeMessageApi final : public IMessageApi{
+namespace api
+{
+    // Fake api for testing
+    class FakeMessageApi final : public IMessageApi
+    {
     public:
         FakeMessageApi() = default;
 
@@ -26,8 +27,7 @@ namespace api {
         ) override;
 
         std::expected<UserInfo,stx::err::AppError> getUsernameById(
-            std::uint64_t id,
-            const std::string& password
+            std::uint64_t id
         ) override;
 
         std::expected<void,stx::err::AppError> updatePassword(

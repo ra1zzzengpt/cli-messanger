@@ -7,7 +7,7 @@ namespace app
         std::unique_ptr<stx::ConfigStorage> storage
     ) : messageApi_(std::move(api)), configStorage_(std::move(storage)) {}
 
-    // ── Config ────────────────────────────────────────────────────────────────
+    // - - - C O N F I G - - -
 
     const AppConfig& AppController::getAppConfig() const noexcept
     {
@@ -19,6 +19,7 @@ namespace app
         return configStorage_->getConfig().chats;
     }
 
+    // non const method (the body of the internal function changes the application parameters in memory)
     std::expected<void,stx::err::AppError> AppController::loadAppConfig()
     {
         if (const std::expected<void,stx::err::AppError> result = configStorage_->load(); !result.has_value())
@@ -27,42 +28,49 @@ namespace app
         return {};
     }
 
+    // non const also
     std::expected<void,stx::err::AppError> AppController::saveAppConfig()
     {
         return configStorage_->save();
     }
 
+    // non const also
     std::expected<void,stx::err::AppError> AppController::setLogin(const UserInfo& user, const std::string& password)
     {
         return configStorage_->setByLogin(user, password);
     }
 
+    // non const also
     std::expected<void,stx::err::AppError> AppController::setupInitialUser(const std::uint64_t id, const std::string& nickname)
     {
         return configStorage_->setInitialUser(id, nickname);
     }
 
+    // non const also
     std::expected<void,stx::err::AppError> AppController::updateConfigPassword(const std::string& new_password)
     {
         return configStorage_->updatePassword(new_password);
     }
 
+    // non const also
     std::expected<void,stx::err::AppError> AppController::updateConfigNickname(const std::string& new_nickname)
     {
         return configStorage_->updateNickname(new_nickname);
     }
 
+    // non const also
     std::expected<void,stx::err::AppError> AppController::updateConfigUrl(const std::string& new_url)
     {
         return configStorage_->updateUrl(new_url);
     }
 
+    // non const also
     std::expected<void,stx::err::AppError> AppController::addChat(const ChatInfo& new_chat)
     {
         return configStorage_->addChat(new_chat);
     }
 
-    // ── Net ───────────────────────────────────────────────────────────────────
+    // - - - N E T W O R K - - -
 
     // Updates both the live API handle and the persisted config
     std::expected<void,stx::err::AppError> AppController::updateUrl(const std::string& new_url)
@@ -102,7 +110,7 @@ namespace app
 
     std::expected<UserInfo,stx::err::AppError> AppController::getNicknameById(const std::uint64_t id) const
     {
-        return messageApi_->getUsernameById(id, configStorage_->getConfig().user.password);
+        return messageApi_->getUsernameById(id);
     }
 
     std::expected<void,stx::err::AppError> AppController::registerUser(const UserInfo& user) const

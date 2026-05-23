@@ -1,11 +1,14 @@
 #pragma once
-#include <cstdint>
 #include <expected>
 #include <string>
 #include <vector>
 #include "models/user_info.h"
 #include "models/message.h"
 #include "utils/error/app_error.h"
+
+// ABOUT USING PASSWORD IN REQUESTS:
+// At the moment, we are just checking the user's ability to use this or that function.
+// In future updates, we will try to SWITCH TO TOKENS (WEBSOCKET/TCP).
 
 namespace api
 {
@@ -28,8 +31,7 @@ namespace api
         ) = 0;
 
         virtual std::expected<UserInfo,stx::err::AppError> getUsernameById(
-            std::uint64_t id,
-            const std::string& password
+            std::uint64_t id
         ) = 0;
         
         virtual std::expected<void,stx::err::AppError> updatePassword(

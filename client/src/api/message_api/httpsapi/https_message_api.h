@@ -1,10 +1,10 @@
 #pragma once
 #include "api/message_api/imessage_api.h"
 
-namespace api {
-    // HttpsError ErrorCodeToHttpsErrors(long statusCode);
-
-    class HttpMessageApi : public IMessageApi {
+namespace api
+{
+    class HttpMessageApi : public IMessageApi
+    {
     public:
         HttpMessageApi() = default;
 
@@ -22,8 +22,7 @@ namespace api {
         ) override;
 
         std::expected<UserInfo,stx::err::AppError> getUsernameById(
-            std::uint64_t id,
-            const std::string& password
+            std::uint64_t id
         ) override;
         
         std::expected<void,stx::err::AppError> updatePassword(
