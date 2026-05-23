@@ -40,6 +40,7 @@ namespace screen
 
     void ChatScreen::printScreen()
     {
+        io::clearConsole();
         io::print("\n--- Chat with " + chat_.peer_nick + " (ID: " + std::to_string(chat_.peer_id) + ") ---");
     }
 

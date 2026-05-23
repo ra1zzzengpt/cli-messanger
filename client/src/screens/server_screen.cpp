@@ -22,7 +22,11 @@ namespace screen
                 case static_cast<uint32_t>(ServerMenu::ChangeHost):
                 {
                     std::string new_url = io::scanString("Enter new url: ");
-                    io::check(controller_.updateUrl(new_url), "[Error]: Failed to update server URL");
+                    if (!io::check(controller_.updateUrl(new_url), "[Error]: Failed to update server URL"))
+                    {
+                        io::waitForEnter();
+                        io::clearConsole();
+                    }
                     break;
                 }
                 case static_cast<uint32_t>(ServerMenu::Exit):
@@ -34,6 +38,8 @@ namespace screen
                 {
                     io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(ServerMenu::MinChoice)) +
                         " to " + std::to_string(static_cast<int>(ServerMenu::MaxChoice)), io::Color::Red);
+                    io::waitForEnter();
+                    io::clearConsole();
                 }
             }
         }
@@ -41,6 +47,7 @@ namespace screen
 
     void ServerScreen::printScreen()
     {
+        io::clearConsole();
         io::check(stx::printFromFile(paths::server), "[Error]: Failed to load server screen");
         io::print("Url: " + controller_.getAppConfig().server.url);
         io::print("Checking server status...");

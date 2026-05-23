@@ -11,7 +11,7 @@ namespace screen
     AuthScreen::AuthScreen(app::AppController& controller) : controller_(controller) {}
 
     void AuthScreen::run()
-    { // todo: load fill missing
+    {
         bool running = true;
         while (running)
         {
@@ -50,6 +50,7 @@ namespace screen
 
     void AuthScreen::printScreen()
     {
+        io::clearConsole();
         io::check(stx::printFromFile(paths::auth), "[Error]: Failed to load auth screen");
         io::print("Your ID from save.json: " + std::to_string(controller_.getAppConfig().user.id));
     }
@@ -73,10 +74,10 @@ namespace screen
             return;
         }
 
-        // setLogin saves config internally, no need for a separate saveAppConfig()
         if (!io::check(controller_.setLogin(user_opt.value(), password), "[Error]: Failed to save login"))
         {
             io::waitForEnter();
+            io::clearConsole();
             return;
         }
 
@@ -101,5 +102,6 @@ namespace screen
         io::print("Registration successful! You can now login.", io::Color::Green);
         io::check(controller_.updateConfigPassword(password), "[Error]: Failed to save password to config");
         io::waitForEnter();
+        io::clearConsole();
     }
 }

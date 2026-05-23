@@ -47,6 +47,8 @@ namespace screen
                 {
                     io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(MainMenu::MinChoice)) +
                         " to " + std::to_string(static_cast<int>(MainMenu::MaxChoice)), io::Color::Red);
+                    io::waitForEnter();
+                    io::clearConsole();
                 }
             }
         }
@@ -54,6 +56,7 @@ namespace screen
 
     void MainScreen::printScreen()
     {
+        io::clearConsole();
         io::check(stx::printFromFile(paths::main_menu));
     }
 }

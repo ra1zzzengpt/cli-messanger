@@ -45,6 +45,8 @@ namespace screen
                     if (chats.empty())
                     {
                         io::print("[Error]: No chats to select", io::Color::Red);
+                        io::waitForEnter();
+                        io::clearConsole();
                         break;
                     }
 
@@ -56,6 +58,8 @@ namespace screen
                     else
                     {
                         io::print("[Error]: Invalid chat number", io::Color::Red);
+                        io::waitForEnter();
+                        io::clearConsole();
                     }
                     break;
                 }
@@ -73,6 +77,8 @@ namespace screen
                 {
                     io::print("[Error]: Enter value from " + std::to_string(static_cast<int>(ChatsMenu::MinChoice)) +
                         " to " + std::to_string(static_cast<int>(ChatsMenu::MaxChoice)), io::Color::Red);
+                    io::waitForEnter();
+                    io::clearConsole();
                 }
             }
         }
@@ -80,6 +86,7 @@ namespace screen
 
     void ChatsScreen::printScreen()
     {
+        io::clearConsole();
         io::check(stx::printFromFile(paths::chats), "[Error]: Failed to load chats screen");
     }
 
@@ -94,17 +101,25 @@ namespace screen
         if (peer_id == controller_.getAppConfig().user.id)
         {
             io::print("[Error]: you can't add chat with you", io::Color::Red);
+            io::waitForEnter();
+            io::clearConsole();
             return;
         }
         if (it != chats.end())
         {
             io::print("[Error]: Chat with ID " + std::to_string(peer_id) + " already exists", io::Color::Red);
+            io::waitForEnter();
+            io::clearConsole();
             return;
         }
 
         const auto user_info = controller_.getNicknameById(peer_id);
         if (!io::check(user_info, "[Error]: User not found on server"))
+        {
+            io::waitForEnter();
+            io::clearConsole();
             return;
+        }
 
         io::check(controller_.addChat(ChatInfo{peer_id, user_info->nickname}), "[Error]: Failed to save chat");
     }
