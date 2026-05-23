@@ -215,16 +215,10 @@ def get_user():
     if user_id is None:
         return error_response("invalid user id", 400)
 
-    password = data.get("password")
-    if not isinstance(password, str):
-        return error_response("password required", 401)
-
     with state_lock:
         user = get_user_by_id_unlocked(user_id)
         if user is None:
             return error_response("user not found", 404)
-        if not verify_password_unlocked(user, password):
-            return error_response("invalid password", 401)
         return ok_response({"user": public_user(user)})
 
 
@@ -395,7 +389,7 @@ def dump_messages():
             if (m["from_id"] == me and m["to_id"] == peer)
             or (m["from_id"] == peer and m["to_id"] == me)
         ]
-        result.sort(key=lambda item: item["id"])
+        result.sort(key=lambda item: int(item["id"]))
 
         return ok_response({"messages": result, "total_count": len(result)})
 
