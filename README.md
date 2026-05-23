@@ -4,7 +4,6 @@
 
 ![C++](https://img.shields.io/badge/C++-23-blue?style=for-the-badge&logo=c%2B%2B)
 ![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python)
-![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge&logo=rust)
 ![CMake](https://img.shields.io/badge/CMake-3.14%2B-darkblue?style=for-the-badge&logo=cmake)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-AGPL_3.0-orange?style=for-the-badge)
@@ -20,21 +19,16 @@ A minimalist console messenger built to practice decoupled client-server archite
 
 ## Overview
 
-**CLI Messenger** is a console application written in C++23. The client connects to one of two interchangeable backends over HTTPS via `libcurl`. The project demonstrates layered architecture, interface-based dependency injection, modular screen navigation, and machine-bound encrypted local storage powered by libsodium.
+**CLI Messenger** is a console application written in C++23. The client connects to the backend over HTTPS via `libcurl`. The project demonstrates layered architecture, interface-based dependency injection, modular screen navigation, and machine-bound encrypted local storage powered by libsodium.
 
-Two server implementations are provided and are functionally equivalent:
-
-| Server | Stack | TLS |
-|---|---|---|
-| Python | Flask + bcrypt | required (self-signed) |
-| Rust | axum 0.7 + bcrypt + rustls | required (self-signed) |
+The server is implemented in Python (Flask + bcrypt) and runs on HTTPS using a self-signed certificate.
 
 ---
 
 ## Features
 
 ### Authentication & Profiles
-- Password-based registration and login.
+- Password-based registration and login. The user chooses their own numeric ID at registration.
 - Auto-login on startup using locally stored credentials (`save.json`).
 - Profile management — update nickname and password from the CLI.
 - Built-in server health check (`/ping`) on every launch.
@@ -43,6 +37,7 @@ Two server implementations are provided and are functionally equivalent:
 - Full conversation history fetched on every request — no stale state.
 - **Chat dump** — export an entire conversation to a local text file via `/dump`.
 - Chat list stored locally; peers are resolved by ID from the server.
+- Password is sent with each mutating request — no session tokens.
 
 ### Security
 - Local config is encrypted with **libsodium** (XSalsa20-Poly1305) and persisted as Base64-encoded ciphertext with a random salt and nonce.
@@ -81,15 +76,8 @@ cli-messanger/
 │           ├── error/     # AppError, error type enums
 │           └── files/     # ConfigStorage, chat export, path resolution
 ├── server/
-│   ├── python-server/
-│   │   └── server.py
-│   └── rust-server/
-│       └── src/
-│           ├── main.rs
-│           ├── handlers.rs
-│           ├── models.rs
-│           ├── state.rs
-│           └── error.rs
+│   └── python-server/
+│       └── server.py
 ├── tests/
 │   ├── test_command_parser.cpp
 │   └── test_json_models.cpp
@@ -128,23 +116,21 @@ Each screen inherits from `IScreen` and manages one UI state. Screens read confi
 
 ### Server API
 
-Both servers expose the same REST endpoints:
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/ping` | uptime check |
-| `GET` | `/health` | service check |
-| `POST` | `/users/register` | register a new user |
-| `POST` | `/users/login` | verify credentials |
-| `POST` | `/users/get` | get user info (authenticated) |
-| `PATCH` | `/users/:id/nick` | update nickname |
-| `PATCH` | `/users/:id/password` | update password |
-| `POST` | `/messages/send` | send a message |
-| `POST` | `/messages/dump` | fetch full conversation history |
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `GET` | `/ping` | — | uptime check |
+| `GET` | `/health` | — | service check |
+| `POST` | `/users/register` | — | register (id, nick, password) |
+| `POST` | `/users/login` | password | verify credentials |
+| `POST` | `/users/get` | — | get public user info by id |
+| `PATCH` | `/users/:id/nick` | password | update nickname |
+| `PATCH` | `/users/:id/password` | old + new password | update password |
+| `POST` | `/messages/send` | password | send a message |
+| `POST` | `/messages/dump` | password | fetch full conversation history |
 
 State is persisted to `server_state.json` on every write operation.
 
-Both servers expose debug endpoints when `DEBUG_MODE=1`:
+Debug endpoints are available when `DEBUG_MODE=1`:
 
 | Method | Path | Description |
 |---|---|---|
@@ -170,10 +156,6 @@ Both servers expose debug endpoints when `DEBUG_MODE=1`:
 - `pip install flask bcrypt`
 - Self-signed TLS certificate (see below)
 
-**Rust server:**
-- Rust 1.75+
-- Self-signed TLS certificate (see below)
-
 ### Client
 
 ```bash
@@ -192,7 +174,7 @@ ctest --test-dir build --output-on-failure
 
 ### Generate a self-signed certificate
 
-Both servers require `cert.pem` and `key.pem` in their working directory:
+The server requires `cert.pem` and `key.pem` in its working directory:
 
 ```bash
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
@@ -206,14 +188,7 @@ pip install flask bcrypt
 python server.py
 ```
 
-### Rust server
-
-```bash
-cd server/rust-server
-cargo run --release
-```
-
-Both servers listen on `https://127.0.0.1:5000`.
+The server listens on `https://0.0.0.0:5000` (connect via `https://127.0.0.1:5000`).
 
 ---
 
@@ -225,10 +200,10 @@ GitHub Actions runs on every push and pull request: installs system dependencies
 
 ## Example Workflow
 
-1. Start either server (after generating a certificate).
+1. Generate a self-signed certificate and start the server.
 2. Launch the client: `./build/cli_messanger`.
 3. On first launch, enter the server URL (e.g. `https://127.0.0.1:5000`) and your nickname — saved to `save.json` (encrypted).
-4. Register a new account, then login. Credentials are stored locally for auto-login.
+4. Register a new account by choosing a numeric ID and a password. Credentials are stored locally for auto-login.
 5. On subsequent launches the client pings the server and logs in automatically.
 6. In the Chats menu, add a peer by their ID and start messaging.
 7. Use `/dump` inside a chat to export the full conversation to a local file.
@@ -241,7 +216,6 @@ GitHub Actions runs on every push and pull request: installs system dependencies
 - Practice building decoupled client-server applications in C++23.
 - Explore interface-based dependency injection and modular screen navigation.
 - Understand safe file handling and persistent configuration with JSON.
-- Learn Rust by implementing a feature-equivalent backend alongside the Python one.
 - Integrate libsodium for machine-bound encrypted local storage.
 
 ---
