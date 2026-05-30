@@ -47,8 +47,8 @@ namespace api {
             std::string buffer;
             curl_slist* headers = nullptr;
             curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L); // ONLY FOR TESTS ON LOCAL
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L); // ONLY FOR TESTS ON LOCAL
             curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, WriteCallback);
             curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(handle, CURLOPT_TIMEOUT, 5L);
@@ -160,7 +160,7 @@ namespace api {
         return {};
     }
 
-    // POST /users/get  — публичный, пароль не нужен
+    // POST /users/get
     std::expected<UserInfo, stx::err::AppError> HttpMessageApi::getUsernameById(
         const std::uint64_t id
     ) {
@@ -177,10 +177,7 @@ namespace api {
             return std::unexpected(stx::err::AppError{
                 stx::err::NetworkError::InvalidResponse, "missing user fields"
             });
-        UserInfo info;
-        info.id       = std::stoull(resp->data["user"]["id"].get<std::string>());
-        info.nickname = resp->data["user"]["nick"].get<std::string>();
-        return info;
+        return resp->data["user"].get<UserInfo>();
     }
 
     // PATCH /users/:id/password
@@ -239,7 +236,7 @@ namespace api {
         return {};
     }
 
-    // POST /messages/dump  — me, peer, пароль в теле, не в URL
+    // POST /messages/dump
     std::expected<std::vector<Message>, stx::err::AppError> HttpMessageApi::dumpMessages(
         const std::uint64_t myId, const std::uint64_t peerId, const std::string& password
     ) {
@@ -258,13 +255,7 @@ namespace api {
             });
         std::vector<Message> messages;
         for (const auto& item : resp->data["messages"]) {
-            Message msg;
-            msg.id         = std::stoull(item["id"].get<std::string>());
-            msg.from_id    = std::stoull(item["from_id"].get<std::string>());
-            msg.to_id      = std::stoull(item["to_id"].get<std::string>());
-            msg.text       = item["text"].get<std::string>();
-            msg.created_at = item["created_at"].get<std::string>();
-            messages.push_back(std::move(msg));
+            messages.push_back(std::move(item.get<Message>()));
         }
         return messages;
     }
