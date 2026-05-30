@@ -13,6 +13,7 @@ namespace app
         AppController(std::unique_ptr<api::IMessageApi> api,
             std::unique_ptr<stx::ConfigStorage> storage);
         ~AppController() = default;
+        AppController(AppController&) = delete;
         AppController(AppController&&) = delete;
         AppController& operator=(const AppController&) = delete;
         AppController& operator=(AppController&&) = delete;
