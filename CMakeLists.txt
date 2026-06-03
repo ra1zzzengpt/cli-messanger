@@ -47,10 +47,8 @@ add_executable(cli_messanger
         client/src/models/message.cpp
         client/src/utils/crypto/crypto_sodium.cpp
         client/src/utils/crypto/crypto_sodium.h
-        client/src/utils/crypto/helpers/base64.cpp
-        client/src/utils/crypto/helpers/base64.h
-        client/src/utils/crypto/helpers/crypto_info.cpp
-        client/src/utils/crypto/helpers/crypto_info.h
+        client/src/utils/crypto/info/crypto_info.cpp
+        client/src/utils/crypto/info/crypto_info.h
         client/src/utils/error/error_types.h
         client/src/utils/error/app_error.h
 )
