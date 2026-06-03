@@ -52,7 +52,7 @@ namespace screen
     {
         io::clearConsole();
         io::check(stx::printFromFile(paths::auth), "[Error]: Failed to load auth screen");
-        io::print("Your ID from save.json: " + std::to_string(controller_.getAppConfig().user.id));
+        io::print("Your ID from save file: " + std::to_string(controller_.getAppConfig().user.id));
     }
 
     void AuthScreen::handleLogin() const
