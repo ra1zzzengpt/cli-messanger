@@ -12,7 +12,7 @@
 namespace
 {
     // YOU CAN CHANGE IT ON YOUR CONFIG FILEPATH
-    constexpr auto kConfigPath = "../client/assets/save/save.json";
+    constexpr auto kConfigPath = "../client/assets/save/save.bin";
 }
 
 int main()
