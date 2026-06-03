@@ -1,6 +1,5 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
 #include <vector>
 
 struct CryptoInfo
@@ -10,5 +9,5 @@ struct CryptoInfo
     std::vector<unsigned char> ciphertext;
 };
 
-void to_json(nlohmann::json& json, const CryptoInfo& crypto_info);
-void from_json(const nlohmann::json& json, CryptoInfo& crypto_info);
+std::vector<unsigned char> to_export(const CryptoInfo& crypto_info);
+CryptoInfo import(const std::vector<unsigned char>& raw_bytes);
