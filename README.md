@@ -29,7 +29,7 @@ The server is implemented in Python (Flask + bcrypt) and runs on HTTPS using a s
 
 ### Authentication & Profiles
 - Password-based registration and login. The user chooses their own numeric ID at registration.
-- Auto-login on startup using locally stored credentials (`save.json`).
+- Auto-login on startup using locally stored credentials (`save.bin`).
 - Profile management — update nickname and password from the CLI.
 - Built-in server health check (`/ping`) on every launch.
 
@@ -40,14 +40,14 @@ The server is implemented in Python (Flask + bcrypt) and runs on HTTPS using a s
 - Password is sent with each mutating request — no session tokens.
 
 ### Security
-- Local config is encrypted with **libsodium** (XSalsa20-Poly1305) and persisted as Base64-encoded ciphertext with a random salt and nonce.
+- Local config is encrypted with **libsodium** (XSalsa20-Poly1305) and persisted as a raw binary blob (`save.bin`) — a flat concatenation of `nonce ‖ salt ‖ ciphertext`, with no JSON wrapper or Base64 encoding.
 - The encryption key is derived from the salt and is **machine-bound** — the config cannot be decrypted on a different machine.
 
 ### UI & I/O
 - Screen-based navigation: `AuthScreen`, `MainScreen`, `ChatsScreen`, `ChatScreen`, `ProfileScreen`, `ServerScreen`.
 - ASCII art menus loaded from asset files.
 - Safe user input with validation and ANSI color output.
-- Configuration persisted in a local JSON file.
+- Configuration persisted as an encrypted local binary file.
 
 ---
 
@@ -59,7 +59,7 @@ cli-messanger/
 │   ├── assets/
 │   │   ├── menu/          # ASCII art menus
 │   │   └── save/
-│   │       └── save.json  # encrypted local config and chat list
+│   │       └── save.bin   # encrypted local config and chat list (raw binary)
 │   └── src/
 │       ├── api/
 │       │   └── message_api/
@@ -72,7 +72,7 @@ cli-messanger/
 │       └── utils/
 │           ├── command/   # command parser (/quit, /help, /dump, /update)
 │           ├── console/   # ANSI output, safe input
-│           ├── crypto/    # CryptoSodium, CryptoInfo, base64 helpers
+│           ├── crypto/    # CryptoSodium, CryptoInfo
 │           ├── error/     # AppError, error type enums
 │           └── files/     # ConfigStorage, chat export, path resolution
 ├── server/
@@ -107,8 +107,8 @@ Plain data structures serialized with `nlohmann/json`. IDs are transmitted as st
 Each screen inherits from `IScreen` and manages one UI state. Screens read config and send requests only through `AppController`.
 
 #### `utils`
-`ConfigStorage` — loads and persists `AppConfig` to JSON. Encryption and decryption are handled transparently via the embedded `CryptoSodium` instance.  
-`crypto` — `CryptoSodium` wraps libsodium's secretbox; `CryptoInfo` carries salt, nonce, and ciphertext; base64 helpers bridge binary data and JSON.  
+`ConfigStorage` — serializes `AppConfig` to JSON, encrypts it, and persists the result as a raw binary file (`save.bin`); load reverses the pipeline. Encryption and decryption are handled transparently via the embedded `CryptoSodium` instance.  
+`crypto` — `CryptoSodium` wraps libsodium's secretbox; `CryptoInfo` carries salt, nonce, and ciphertext, with `to_export`/`import` flattening it to and from a contiguous byte buffer for on-disk storage.  
 `error` — `AppError` is a discriminated union (`std::variant`) over typed error enums (`NetworkError`, `CommandError`, `CryptoError`, etc.). Functions that can fail return `std::expected<T, E>`.  
 `console` — safe typed input, ANSI color output.  
 `command` — parses `/`-prefixed chat commands, returns `std::expected<Command, err::CommandError>`.  
@@ -202,7 +202,7 @@ GitHub Actions runs on every push and pull request: installs system dependencies
 
 1. Generate a self-signed certificate and start the server.
 2. Launch the client: `./build/cli_messanger`.
-3. On first launch, enter the server URL (e.g. `https://127.0.0.1:5000`) and your nickname — saved to `save.json` (encrypted).
+3. On first launch, enter the server URL (e.g. `https://127.0.0.1:5000`) and your nickname — saved to `save.bin` (encrypted).
 4. Register a new account by choosing a numeric ID and a password. Credentials are stored locally for auto-login.
 5. On subsequent launches the client pings the server and logs in automatically.
 6. In the Chats menu, add a peer by their ID and start messaging.
@@ -215,7 +215,7 @@ GitHub Actions runs on every push and pull request: installs system dependencies
 
 - Practice building decoupled client-server applications in C++23.
 - Explore interface-based dependency injection and modular screen navigation.
-- Understand safe file handling and persistent configuration with JSON.
+- Understand safe file handling, JSON serialization, and persisting it as a raw encrypted binary format.
 - Integrate libsodium for machine-bound encrypted local storage.
 
 ---
