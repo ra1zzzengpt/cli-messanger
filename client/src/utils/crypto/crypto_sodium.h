@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "helpers/crypto_info.h"
+#include "info/crypto_info.h"
 #include "utils/error/app_error.h"
 
 namespace stx
