@@ -31,7 +31,7 @@ namespace stx {
             return std::unexpected(err::AppError{err::ConfigError::CreateDirectoryFailed,"can't create directory: " + std::string(path) + " (" + error.message() + ")"});
         }
 
-        std::ofstream file(path);
+        std::ofstream file(path,std::ios::binary);
         if (!file.is_open())
         {
             return std::unexpected(err::AppError{err::ConfigError::OpenFileFailed});
@@ -41,7 +41,8 @@ namespace stx {
         {
             return std::unexpected(encrypted_result.error());
         }
-        file << nlohmann::json(encrypted_result.value()).dump(4);
+        std::vector<unsigned char> export_ready = to_export(encrypted_result.value());
+        file.write(reinterpret_cast<const std::ostream::char_type *>(export_ready.data()), static_cast<long>(export_ready.size()));
         return {};
     }
 
@@ -57,24 +58,28 @@ namespace stx {
                 "can't create directory: " + std::string(path) + " (" + error.message() + ")"});
         }
 
-        std::ifstream file(path);
+        std::ifstream file(path,std::ios::binary);
         AppConfig config;
 
         if (file.is_open() && file.peek() != std::ifstream::traits_type::eof())
         {
             try
             {
-                nlohmann::json crypted_file = nlohmann::json::parse(file);
-                std::expected<std::string,err::AppError> decoded = cryptoSodium_.decode(crypted_file);
+                file.seekg(0, std::ios::end);
+                std::streamsize size = file.tellg();
+                file.seekg(0, std::ios::beg);
+                std::vector<unsigned char> crypted_file(size);
+                file.read(reinterpret_cast<std::istream::char_type *>(crypted_file.data()),static_cast<long>(crypted_file.size()));
+                std::expected<std::string,err::AppError> decoded = cryptoSodium_.decode(import(crypted_file));
                 if (!decoded.has_value())
                 {
                     return std::unexpected(decoded.error());
                 }
                 config = nlohmann::json::parse(*decoded).get<AppConfig>();
             }
-            catch (const nlohmann::json::exception&)
+            catch (...)
             {
-                return std::unexpected(err::AppError{err::JsonError::ParsingFailed,"can't parse config"});
+                return std::unexpected(err::AppError{err::JsonError::ParsingFailed,"can't parse save file"});
             }
         }
 
