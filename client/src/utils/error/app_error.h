@@ -6,7 +6,7 @@
 
 namespace stx::err
 {
-    struct AppError
+    struct Error
     {
         std::variant<std::monostate,FileError,CryptoError,ConfigError,NetworkError,CommandError,JsonError,Base64Error> type;
         std::string message;

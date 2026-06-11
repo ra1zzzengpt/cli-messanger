@@ -17,12 +17,12 @@ namespace api {
             return 0;
         }
 
-        std::expected<void, stx::err::AppError> ParseResponse(const std::string& buffer, HttpResponse& response) {
+        std::expected<void, stx::err::Error> ParseResponse(const std::string& buffer, HttpResponse& response) {
             try {
                 if (!buffer.empty())
                     response.data = nlohmann::json::parse(buffer);
             } catch (const nlohmann::json::parse_error& e) {
-                return std::unexpected(stx::err::AppError{
+                return std::unexpected(stx::err::Error{
                     stx::err::JsonError::ParsingFailed,
                     "JSON parse error: " + std::string(e.what())
                 });
@@ -32,7 +32,7 @@ namespace api {
 
         enum class RequestMethod { GET, POST, PATCH };
 
-        std::expected<HttpResponse, stx::err::AppError> request(
+        std::expected<HttpResponse, stx::err::Error> request(
             const RequestMethod& method,
             const std::string& url,
             const std::string& json_body = ""
@@ -40,7 +40,7 @@ namespace api {
             HttpResponse response;
             CURL* handle = curl_easy_init();
             if (!handle)
-                return std::unexpected(stx::err::AppError{
+                return std::unexpected(stx::err::Error{
                     stx::err::NetworkError::CurlInitFailed, "curl_easy_init failed"
                 });
 
@@ -65,10 +65,10 @@ namespace api {
                 curl_easy_cleanup(handle);
                 curl_slist_free_all(headers);
                 if (res == CURLE_OPERATION_TIMEDOUT)
-                    return std::unexpected(stx::err::AppError{
+                    return std::unexpected(stx::err::Error{
                         stx::err::NetworkError::Timeout, "timed out"
                     });
-                return std::unexpected(stx::err::AppError{
+                return std::unexpected(stx::err::Error{
                     stx::err::NetworkError::ConnectionFailed, "connection failed"
                 });
             }
@@ -111,16 +111,16 @@ namespace api {
         }
 
         // Shortcut: convert non-2xx HttpResponse into std::unexpected
-        std::unexpected<stx::err::AppError> httpErr(const HttpResponse& response) {
-            return std::unexpected(stx::err::AppError{
+        std::unexpected<stx::err::Error> httpErr(const HttpResponse& response) {
+            return std::unexpected(stx::err::Error{
                 statusToNetworkError(response.status_code), statusToString(response.status_code)
             });
         }
     }
 
     // GET /ping
-    std::expected<std::string, stx::err::AppError> HttpMessageApi::ping() {
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(RequestMethod::GET, url_ + "/ping");
+    std::expected<std::string, stx::err::Error> HttpMessageApi::ping() {
+        const std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::GET, url_ + "/ping");
         if (!resp.has_value())
             return std::unexpected(resp.error());
         if (!resp->is_ok() || !resp->data.value("ok", false))
@@ -130,14 +130,14 @@ namespace api {
     }
 
     // POST /users/register
-    std::expected<void, stx::err::AppError> HttpMessageApi::registerUser(
+    std::expected<void, stx::err::Error> HttpMessageApi::registerUser(
         const std::uint64_t id, const std::string& nick, const std::string& password
     ) {
         nlohmann::json body;
         body["id"] = std::to_string(id);
         body["nick"] = nick;
         body["password"] = password;
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(RequestMethod::POST, url_ + "/users/register", body.dump());
+        const std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::POST, url_ + "/users/register", body.dump());
         if (!resp.has_value())
             return std::unexpected(resp.error());
         if (!resp->is_ok())
@@ -146,13 +146,13 @@ namespace api {
     }
 
     // POST /users/login
-    std::expected<void, stx::err::AppError> HttpMessageApi::loginUser(
+    std::expected<void, stx::err::Error> HttpMessageApi::loginUser(
         const std::uint64_t id, const std::string& password
     ) {
         nlohmann::json body;
         body["id"] = std::to_string(id);
         body["password"] = password;
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(RequestMethod::POST, url_ + "/users/login", body.dump());
+        const std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::POST, url_ + "/users/login", body.dump());
         if (!resp.has_value())
             return std::unexpected(resp.error());
         if (!resp->is_ok())
@@ -161,12 +161,12 @@ namespace api {
     }
 
     // POST /users/get
-    std::expected<UserInfo, stx::err::AppError> HttpMessageApi::getUsernameById(
+    std::expected<UserInfo, stx::err::Error> HttpMessageApi::getUsernameById(
         const std::uint64_t id
     ) {
         nlohmann::json body;
         body["id"] = std::to_string(id);
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(RequestMethod::POST, url_ + "/users/get", body.dump());
+        const std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::POST, url_ + "/users/get", body.dump());
         if (!resp.has_value())
             return std::unexpected(resp.error());
         if (!resp->is_ok())
@@ -174,20 +174,20 @@ namespace api {
         if (!resp->data.contains("user")
             || !resp->data["user"].contains("id")
             || !resp->data["user"].contains("nick"))
-            return std::unexpected(stx::err::AppError{
+            return std::unexpected(stx::err::Error{
                 stx::err::NetworkError::InvalidResponse, "missing user fields"
             });
         return resp->data["user"].get<UserInfo>();
     }
 
     // PATCH /users/:id/password
-    std::expected<void, stx::err::AppError> HttpMessageApi::updatePassword(
+    std::expected<void, stx::err::Error> HttpMessageApi::updatePassword(
         const std::uint64_t id, const std::string& currentPassword, const std::string& newPassword
     ) {
         nlohmann::json body;
         body["old_password"] = currentPassword;
         body["password"]     = newPassword;
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(
+        const std::expected<HttpResponse,stx::err::Error> resp = request(
             RequestMethod::PATCH,
             url_ + "/users/" + std::to_string(id) + "/password",
             body.dump()
@@ -200,13 +200,13 @@ namespace api {
     }
 
     // PATCH /users/:id/nick
-    std::expected<void, stx::err::AppError> HttpMessageApi::updateNickname(
+    std::expected<void, stx::err::Error> HttpMessageApi::updateNickname(
         const std::uint64_t id, const std::string& password, const std::string& newNick
     ) {
         nlohmann::json body;
         body["password"] = password;
         body["nick"]     = newNick;
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(
+        const std::expected<HttpResponse,stx::err::Error> resp = request(
             RequestMethod::PATCH,
             url_ + "/users/" + std::to_string(id) + "/nick",
             body.dump()
@@ -219,7 +219,7 @@ namespace api {
     }
 
     // POST /messages/send
-    std::expected<void, stx::err::AppError> HttpMessageApi::sendMessage(
+    std::expected<void, stx::err::Error> HttpMessageApi::sendMessage(
         const std::uint64_t fromId, const std::uint64_t toId,
         const std::string& password, const std::string& text
     ) {
@@ -228,7 +228,7 @@ namespace api {
         body["to_id"]    = std::to_string(toId);
         body["password"] = password;
         body["text"]     = text;
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(RequestMethod::POST, url_ + "/messages/send", body.dump());
+        const std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::POST, url_ + "/messages/send", body.dump());
         if (!resp.has_value())
             return std::unexpected(resp.error());
         if (!resp->is_ok())
@@ -237,20 +237,20 @@ namespace api {
     }
 
     // POST /messages/dump
-    std::expected<std::vector<Message>, stx::err::AppError> HttpMessageApi::dumpMessages(
+    std::expected<std::vector<Message>, stx::err::Error> HttpMessageApi::dumpMessages(
         const std::uint64_t myId, const std::uint64_t peerId, const std::string& password
     ) {
         nlohmann::json body;
         body["me"]       = std::to_string(myId);
         body["peer"]     = std::to_string(peerId);
         body["password"] = password;
-        const std::expected<HttpResponse,stx::err::AppError> resp = request(RequestMethod::POST, url_ + "/messages/dump", body.dump());
+        const std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::POST, url_ + "/messages/dump", body.dump());
         if (!resp.has_value())
             return std::unexpected(resp.error());
         if (!resp->is_ok())
             return httpErr(*resp);
         if (!resp->data.contains("messages"))
-            return std::unexpected(stx::err::AppError{
+            return std::unexpected(stx::err::Error{
                 stx::err::NetworkError::InvalidResponse, "missing messages field"
             });
         std::vector<Message> messages;

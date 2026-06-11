@@ -19,7 +19,7 @@ namespace stx {
     ConfigStorage::ConfigStorage(std::string filepath) : filepath_(std::move(filepath))
     { }
 
-    std::expected<void,err::AppError> ConfigStorage::save()
+    std::expected<void,err::Error> ConfigStorage::save()
     {
 
         const std::filesystem::path path{filepath_};
@@ -28,15 +28,15 @@ namespace stx {
 
         if (error)
         {
-            return std::unexpected(err::AppError{err::ConfigError::CreateDirectoryFailed,"can't create directory: " + std::string(path) + " (" + error.message() + ")"});
+            return std::unexpected(err::Error{err::ConfigError::CreateDirectoryFailed,"can't create directory: " + std::string(path) + " (" + error.message() + ")"});
         }
 
         std::ofstream file(path,std::ios::binary);
         if (!file.is_open())
         {
-            return std::unexpected(err::AppError{err::ConfigError::OpenFileFailed});
+            return std::unexpected(err::Error{err::ConfigError::OpenFileFailed});
         }
-        std::expected<CryptoInfo,err::AppError> encrypted_result = cryptoSodium_.encode(nlohmann::json(config_).dump());
+        std::expected<CryptoInfo,err::Error> encrypted_result = cryptoSodium_.encode(nlohmann::json(config_).dump());
         if (!encrypted_result.has_value())
         {
             return std::unexpected(encrypted_result.error());
@@ -46,7 +46,7 @@ namespace stx {
         return {};
     }
 
-    std::expected<void,err::AppError> ConfigStorage::load()
+    std::expected<void,err::Error> ConfigStorage::load()
     {
         const std::filesystem::path path{filepath_};
         std::error_code error;
@@ -54,7 +54,7 @@ namespace stx {
 
         if (error)
         {
-            return std::unexpected(err::AppError{err::ConfigError::CreateDirectoryFailed,
+            return std::unexpected(err::Error{err::ConfigError::CreateDirectoryFailed,
                 "can't create directory: " + std::string(path) + " (" + error.message() + ")"});
         }
 
@@ -70,7 +70,7 @@ namespace stx {
                 file.seekg(0, std::ios::beg);
                 std::vector<unsigned char> crypted_file(size);
                 file.read(reinterpret_cast<std::istream::char_type *>(crypted_file.data()),static_cast<long>(crypted_file.size()));
-                std::expected<std::string,err::AppError> decoded = cryptoSodium_.decode(import(crypted_file));
+                std::expected<std::string,err::Error> decoded = cryptoSodium_.decode(import(crypted_file));
                 if (!decoded.has_value())
                 {
                     return std::unexpected(decoded.error());
@@ -79,13 +79,13 @@ namespace stx {
             }
             catch (...)
             {
-                return std::unexpected(err::AppError{err::JsonError::ParsingFailed,"can't parse save file"});
+                return std::unexpected(err::Error{err::JsonError::ParsingFailed,"can't parse save file"});
             }
         }
 
         if (hasDefaultValues(config))
         {
-            return std::unexpected(err::AppError{err::ConfigError::IncorrectConfiguration,"not complete"});
+            return std::unexpected(err::Error{err::ConfigError::IncorrectConfiguration,"not complete"});
         }
 
         config_ = config;
@@ -97,38 +97,38 @@ namespace stx {
         return config_;
     }
 
-    std::expected<void,err::AppError> ConfigStorage::setByLogin(const UserInfo& user, const std::string& password)
+    std::expected<void,err::Error> ConfigStorage::setByLogin(const UserInfo& user, const std::string& password)
     {
         config_.user = user;
         config_.user.password = password;
         return save();
     }
 
-    std::expected<void,err::AppError> ConfigStorage::updatePassword(const std::string &new_password)
+    std::expected<void,err::Error> ConfigStorage::updatePassword(const std::string &new_password)
     {
         config_.user.password = new_password;
         return save();
     }
 
-    std::expected<void,err::AppError> ConfigStorage::updateNickname(const std::string& new_nickname)
+    std::expected<void,err::Error> ConfigStorage::updateNickname(const std::string& new_nickname)
     {
         config_.user.nickname = new_nickname;
         return save();
     }
 
-    std::expected<void,err::AppError> ConfigStorage::addChat(const ChatInfo &new_chat)
+    std::expected<void,err::Error> ConfigStorage::addChat(const ChatInfo &new_chat)
     {
         config_.chats.push_back(new_chat);
         return save();
     }
 
-    std::expected<void,err::AppError> ConfigStorage::updateUrl(const std::string &new_url)
+    std::expected<void,err::Error> ConfigStorage::updateUrl(const std::string &new_url)
     {
         config_.server.url = new_url;
         return save();
     }
 
-    std::expected<void,err::AppError> ConfigStorage::setInitialUser(uint64_t id, const std::string& nickname)
+    std::expected<void,err::Error> ConfigStorage::setInitialUser(uint64_t id, const std::string& nickname)
     {
         config_.user.id = id;
         config_.user.nickname = nickname;

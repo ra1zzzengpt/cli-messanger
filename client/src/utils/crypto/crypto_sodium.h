@@ -20,10 +20,10 @@ namespace stx
         CryptoSodium& operator=(CryptoSodium&&) = delete;
 
         // - CODEC -
-        std::expected<CryptoInfo,err::AppError> encode(const std::string& plaintext);
-        std::expected<std::string,err::AppError> decode(const CryptoInfo& crypto_info);
+        std::expected<CryptoInfo,err::Error> encode(const std::string& plaintext);
+        std::expected<std::string,err::Error> decode(const CryptoInfo& crypto_info);
     private:
-        std::expected<void,err::AppError> sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt);
+        std::expected<void,err::Error> sodiumKeyGenerateBySalt(const std::vector<unsigned char>& salt);
 
         // machine binding can terminate: the encryption principle won't work without it.
         static std::string machine_binding();

@@ -51,7 +51,7 @@ namespace screen
         io::check(stx::printFromFile(paths::server), "[Error]: Failed to load server screen");
         io::print("Url: " + controller_.getAppConfig().server.url);
         io::print("Checking server status...");
-        if (const std::expected<std::string,stx::err::AppError> ping_result = controller_.ping(); io::check(ping_result))
+        if (const std::expected<std::string,stx::err::Error> ping_result = controller_.ping(); io::check(ping_result))
         {
             io::print(ping_result.value(), io::Color::Green);
         }
