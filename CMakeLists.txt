@@ -51,6 +51,8 @@ add_executable(cli_messanger
         client/src/utils/crypto/info/crypto_info.h
         client/src/utils/error/error_types.h
         client/src/utils/error/app_error.h
+        client/src/utils/logger/logs.cpp
+        client/src/utils/logger/logs.h
 )
 
 target_include_directories(cli_messanger PRIVATE
