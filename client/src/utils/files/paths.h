@@ -28,4 +28,5 @@ namespace paths
     inline std::filesystem::path profile   = getAssetsBase() / "menu" / "profile.txt";
     inline std::filesystem::path server    = getAssetsBase() / "menu" / "server.txt";
     inline std::filesystem::path auth      = getAssetsBase() / "menu" / "auth.txt";
+    inline std::filesystem::path logs      = getAssetsBase() / "logs" / "cli-messanger-session.log";
 }
