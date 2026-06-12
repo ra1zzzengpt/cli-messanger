@@ -4,6 +4,7 @@
 
 #include "https_response.h"
 #include "utils/error/app_error.h"
+#include "utils/logger/logs.h"
 #include <expected>
 
 namespace api {
@@ -22,6 +23,7 @@ namespace api {
                 if (!buffer.empty())
                     response.data = nlohmann::json::parse(buffer);
             } catch (const nlohmann::json::parse_error& e) {
+                stx::log::error("JSON parse error: " + std::string(e.what()));
                 return std::unexpected(stx::err::Error{
                     stx::err::JsonError::ParsingFailed,
                     "JSON parse error: " + std::string(e.what())
@@ -32,6 +34,15 @@ namespace api {
 
         enum class RequestMethod { GET, POST, PATCH };
 
+        std::string methodToString(const RequestMethod method) {
+            switch (method) {
+                case RequestMethod::GET:   return "GET";
+                case RequestMethod::POST:  return "POST";
+                case RequestMethod::PATCH: return "PATCH";
+            }
+            return "UNKNOWN";
+        }
+
         std::expected<HttpResponse, stx::err::Error> request(
             const RequestMethod& method,
             const std::string& url,
@@ -39,10 +50,14 @@ namespace api {
         ) {
             HttpResponse response;
             CURL* handle = curl_easy_init();
-            if (!handle)
+            if (!handle) {
+                stx::log::error("curl_easy_init failed for " + url);
                 return std::unexpected(stx::err::Error{
                     stx::err::NetworkError::CurlInitFailed, "curl_easy_init failed"
                 });
+            }
+
+            stx::log::info("sending HTTP " + methodToString(method) + " " + url);
 
             std::string buffer;
             curl_slist* headers = nullptr;
@@ -64,16 +79,22 @@ namespace api {
             if (const CURLcode res = curl_easy_perform(handle); res != CURLE_OK) {
                 curl_easy_cleanup(handle);
                 curl_slist_free_all(headers);
-                if (res == CURLE_OPERATION_TIMEDOUT)
+                if (res == CURLE_OPERATION_TIMEDOUT) {
+                    stx::log::warn("request " + methodToString(method) + " " + url + " timed out");
                     return std::unexpected(stx::err::Error{
                         stx::err::NetworkError::Timeout, "timed out"
                     });
+                }
+                stx::log::error("connection failed for " + methodToString(method) + " " + url +
+                    " (curl: " + std::string(curl_easy_strerror(res)) + ")");
                 return std::unexpected(stx::err::Error{
                     stx::err::NetworkError::ConnectionFailed, "connection failed"
                 });
             }
 
             curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response.status_code);
+            stx::log::info("HTTP " + methodToString(method) + " " + url + " -> " +
+                std::to_string(response.status_code));
 
             if (const auto parsed = ParseResponse(buffer, response); !parsed.has_value()) {
                 curl_easy_cleanup(handle);
@@ -112,6 +133,8 @@ namespace api {
 
         // Shortcut: convert non-2xx HttpResponse into std::unexpected
         std::unexpected<stx::err::Error> httpErr(const HttpResponse& response) {
+            stx::log::warn("server returned non-OK status " + std::to_string(response.status_code) +
+                " (" + statusToString(response.status_code) + ")");
             return std::unexpected(stx::err::Error{
                 statusToNetworkError(response.status_code), statusToString(response.status_code)
             });
@@ -173,10 +196,12 @@ namespace api {
             return httpErr(*resp);
         if (!resp->data.contains("user")
             || !resp->data["user"].contains("id")
-            || !resp->data["user"].contains("nick"))
+            || !resp->data["user"].contains("nick")) {
+            stx::log::error("getUsernameById: response is missing user fields");
             return std::unexpected(stx::err::Error{
                 stx::err::NetworkError::InvalidResponse, "missing user fields"
             });
+        }
         return resp->data["user"].get<UserInfo>();
     }
 
@@ -249,10 +274,12 @@ namespace api {
             return std::unexpected(resp.error());
         if (!resp->is_ok())
             return httpErr(*resp);
-        if (!resp->data.contains("messages"))
+        if (!resp->data.contains("messages")) {
+            stx::log::error("dumpMessages: response is missing messages field");
             return std::unexpected(stx::err::Error{
                 stx::err::NetworkError::InvalidResponse, "missing messages field"
             });
+        }
         std::vector<Message> messages;
         for (const auto& item : resp->data["messages"]) {
             messages.push_back(std::move(item.get<Message>()));

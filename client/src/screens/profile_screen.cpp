@@ -2,6 +2,7 @@
 #include "utils/console/console.h"
 #include "utils/files/files.h"
 #include "utils/files/paths.h"
+#include "utils/logger/logs.h"
 
 namespace screen {
     ProfileScreen::ProfileScreen(app::AppController& controller) : controller_(controller)
@@ -18,8 +19,10 @@ namespace screen {
                 case static_cast<uint32_t>(ProfileMenu::ChangeNickname):
                 {
                     const std::string new_nickname = io::scanString("Enter new nickname: ");
+                    stx::log::info("nickname change requested");
                     if (io::check(controller_.updateNickname(new_nickname), "[Error]: Failed to update nickname on server"))
                     {
+                        stx::log::info("nickname updated on server");
                         if (!io::check(controller_.updateConfigNickname(new_nickname), "[Error]: Failed to save nickname to config"))
                         {
                             io::waitForEnter();
@@ -34,8 +37,10 @@ namespace screen {
                 case static_cast<uint32_t>(ProfileMenu::ChangePassword):
                 {
                     const std::string new_password = io::scanString("Enter new password: ");
+                    stx::log::info("password change requested");
                     if (io::check(controller_.updatePassword(new_password), "[Error]: Failed to update password on server"))
                     {
+                        stx::log::info("password updated on server");
                         if (!io::check(controller_.updateConfigPassword(new_password), "[Error]: Failed to save password to config"))
                         {
                             io::waitForEnter();

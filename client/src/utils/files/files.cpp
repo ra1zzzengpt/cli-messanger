@@ -1,5 +1,6 @@
 #include "files.h"
 #include "utils/console/console.h"
+#include "utils/logger/logs.h"
 
 #include <fstream>
 
@@ -10,6 +11,7 @@ namespace stx
         std::ifstream ifs(path);
         if (!ifs.is_open())
         {
+            log::warn("can't open file for reading: " + std::string(path));
             return std::unexpected(err::Error{err::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
         }
         std::string line;
@@ -26,6 +28,7 @@ namespace stx
         std::ofstream ofs(path);
         if (!ofs.is_open())
         {
+            log::error("can't open file for writing: " + std::string(path));
             return std::unexpected(err::Error{err::FileError::OpenFileFailed,"can't open file with path: " + std::string(path)});
         }
         for (const Message& message : messages)
@@ -37,6 +40,7 @@ namespace stx
             ofs << message_line << std::endl;
         }
         ofs.close();
+        log::info("dumped " + std::to_string(messages.size()) + " messages to " + std::string(path));
         return {};
     }
 }

@@ -5,6 +5,7 @@
 #include "server_screen.h"
 #include "utils/files/files.h"
 #include "utils/files/paths.h"
+#include "utils/logger/logs.h"
 
 namespace screen
 {
@@ -60,11 +61,13 @@ namespace screen
         const uint64_t id = io::scanUint64("Enter ID: ");
         const std::string password = io::scanString("Enter password: ");
 
+        stx::log::info("login attempt for user id=" + std::to_string(id));
         if (!io::check(controller_.loginUser(id, password), "[Error]: Login failed"))
         {
             io::waitForEnter();
             return;
         }
+        stx::log::info("login successful for user id=" + std::to_string(id));
         io::print("Login successful!", io::Color::Green);
 
         const auto user_opt = controller_.getNicknameById(id);
@@ -94,11 +97,13 @@ namespace screen
         user.nickname = controller_.getAppConfig().user.nickname;
         user.password = password;
 
+        stx::log::info("registration attempt for user id=" + std::to_string(user.id));
         if (!io::check(controller_.registerUser(user), "[Error]: Registration failed"))
         {
             io::waitForEnter();
             return;
         }
+        stx::log::info("registration successful for user id=" + std::to_string(user.id));
         io::print("Registration successful! You can now login.", io::Color::Green);
         io::check(controller_.updateConfigPassword(password), "[Error]: Failed to save password to config");
         io::waitForEnter();

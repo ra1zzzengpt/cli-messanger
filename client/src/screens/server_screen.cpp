@@ -6,6 +6,7 @@
 
 #include "utils/files/files.h"
 #include "utils/files/paths.h"
+#include "utils/logger/logs.h"
 
 namespace screen
 {
@@ -22,6 +23,7 @@ namespace screen
                 case static_cast<uint32_t>(ServerMenu::ChangeHost):
                 {
                     std::string new_url = io::scanString("Enter new url: ");
+                    stx::log::info("server URL change requested to " + new_url);
                     if (!io::check(controller_.updateUrl(new_url), "[Error]: Failed to update server URL"))
                     {
                         io::waitForEnter();

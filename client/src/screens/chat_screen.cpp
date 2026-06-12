@@ -4,6 +4,7 @@
 #include "utils/console/console.h"
 #include "utils/files/files.h"
 #include "utils/files/paths.h"
+#include "utils/logger/logs.h"
 
 namespace screen
 {
@@ -28,7 +29,7 @@ namespace screen
                     continue;
                 } else if (command == stx::Command::Dump) {
                     if (const auto msgs = controller_.getMessages(makePeerInfo()); io::check(msgs, "[Error]: Failed to load messages"))
-                        io::check(stx::dumpToFile(paths::getAssetsBase()/"save"/(chat_.peer_nick + ".txt"), msgs.value(), chat_), "[Error]: Failed to dump messages to file");
+                        io::check(stx::dumpToFile(paths::getAssetsBase()/"dump"/(chat_.peer_nick + ".txt"), msgs.value(), chat_), "[Error]: Failed to dump messages to file");
                 } else {
                     io::print("[Error]: unknown command.", io::Color::Red);
                 }
@@ -63,8 +64,10 @@ namespace screen
     }
 
     void ChatScreen::sendMessage(const std::string& text) const {
-        if (io::check(controller_.sendMessage(makePeerInfo(), text), "[Error]: Failed to send message"))
+        if (io::check(controller_.sendMessage(makePeerInfo(), text), "[Error]: Failed to send message")) {
+            stx::log::info("message sent to peer id=" + std::to_string(chat_.peer_id));
             io::print("Message sent!", io::Color::Green);
+        }
     }
 
     UserInfo ChatScreen::makePeerInfo() const {

@@ -8,6 +8,7 @@
 #include <random>
 
 #include "utils/console/console.h"
+#include "utils/logger/logs.h"
 
 namespace
 {
@@ -17,13 +18,21 @@ namespace
 
 int main()
 {
+    if (!stx::log::init())
+    {
+        io::print("[Fatal error]: Failed to initialize logs", io::Color::Red);
+        return 1;
+    }
+    stx::log::info("application started");
     if (sodium_init() < 0)
     {
+        stx::log::error("sodium init failed");
         io::print("[Fatal error]: sodium init failed", io::Color::Red);
         return 1;
     }
     if (const CURLcode init_code = curl_global_init(CURL_GLOBAL_ALL); init_code != CURLE_OK)
     {
+        stx::log::error("curl global init failed: " + std::to_string(init_code));
         io::print("[Fatal error]: curl init failed: " + std::to_string(init_code),io::Color::Red);
         return 1;
     }
@@ -38,6 +47,7 @@ int main()
         if (!std::holds_alternative<stx::err::ConfigError>(err.type) ||
             std::get<stx::err::ConfigError>(err.type) != stx::err::ConfigError::IncorrectConfiguration)
         {
+            stx::log::error("failed to load config: " + err.message);
             io::print("[Error]: Failed to load config: " + err.message, io::Color::Red);
             return 1;
         }
@@ -61,13 +71,16 @@ int main()
             // silent fail — fall through to auth screen if credentials are stale
             if (controller.loginUser(user.id, user.password).has_value())
             {
+                stx::log::info("auto-login successful for user id=" + std::to_string(user.id));
                 screen::MainScreen mainMenu(controller);
                 mainMenu.run();
                 return 0;
             }
+            stx::log::warn("auto-login failed for user id=" + std::to_string(user.id) + ", credentials may be stale");
         }
         else
         {
+            stx::log::warn("server is offline or unreachable on startup");
             io::print("[Warning]: Server is offline or unreachable. Please check settings.", io::Color::Yellow);
             io::waitForEnter();
         }
@@ -76,5 +89,6 @@ int main()
     screen::AuthScreen authScreen(controller);
     authScreen.run();
 
+    stx::log::shutdown();
     return 0;
 }

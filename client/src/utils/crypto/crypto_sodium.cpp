@@ -5,6 +5,8 @@
 #include <sodium.h>
 #include <sodium/crypto_secretbox.h>
 
+#include "utils/logger/logs.h"
+
 #if defined(__linux__)
 
 #include <fstream>
@@ -132,6 +134,7 @@ namespace stx
 
         if (rc != 0)
         {
+            log::error("crypto: Argon2id key derivation failed (out of memory)");
             return std::unexpected(err::Error{err::CryptoError::OutOfMemory,"Argon can't generate your key (out of memory)"});
         }
         salt_ = salt;
@@ -175,6 +178,7 @@ namespace stx
             crypto_secretbox_NONCEBYTES
             || crypto_info.ciphertext.size() < crypto_secretbox_MACBYTES)
         {
+            log::warn("crypto: encrypted blob has invalid sizes (salt/nonce/ciphertext), file is broken");
             return std::unexpected(err::Error{err::CryptoError::BrokenFile,"the file is broken"});
         }
         if (const std::expected<void,err::Error> generating_result = sodiumKeyGenerateBySalt(crypto_info.salt); !generating_result.has_value())
@@ -192,6 +196,7 @@ namespace stx
 
         if (rc != 0)
         {
+            log::error("crypto: secretbox_open failed (wrong key or tampered data)");
             return std::unexpected(err::Error{err::CryptoError::SecretboxOpenFailed,"secretbox open error"});
         }
 
