@@ -1,6 +1,6 @@
-#include "files.h"
-#include "utils/console/console.h"
-#include "utils/logger/logs.h"
+#include "files.hpp"
+#include "utils/console/console.hpp"
+#include "utils/logger/logs.hpp"
 
 #include <fstream>
 

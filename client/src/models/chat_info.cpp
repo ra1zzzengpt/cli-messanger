@@ -1,4 +1,4 @@
-#include "chat_info.h"
+#include "chat_info.hpp"
 
 void to_json(nlohmann::json& json, const ChatInfo& chat)
 {

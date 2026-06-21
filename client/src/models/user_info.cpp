@@ -1,4 +1,4 @@
-#include "user_info.h"
+#include "user_info.hpp"
 
 void to_json(nlohmann::json& json, const UserInfo& user)
 {

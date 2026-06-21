@@ -1,6 +1,6 @@
 #pragma once
 
-#include "error_types.h"
+#include "error_types.hpp"
 #include <variant>
 #include <string>
 

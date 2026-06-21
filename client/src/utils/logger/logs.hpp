@@ -2,7 +2,7 @@
 #include <expected>
 #include <source_location>
 
-#include "utils/error/app_error.h"
+#include "utils/error/app_error.hpp"
 
 namespace stx::log
 {

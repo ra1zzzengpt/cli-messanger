@@ -1,12 +1,12 @@
-#include "chats_screen.h"
-#include "chat_screen.h"
-#include "utils/console/console.h"
+#include "chats_screen.hpp"
+#include "chat_screen.hpp"
+#include "utils/console/console.hpp"
 
 #include <algorithm>
 #include <string>
 
-#include "utils/files/files.h"
-#include "utils/files/paths.h"
+#include "utils/files/files.hpp"
+#include "utils/files/paths.hpp"
 
 namespace
 {

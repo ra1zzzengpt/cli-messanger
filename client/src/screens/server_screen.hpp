@@ -1,7 +1,7 @@
 #pragma once
 
-#include "i_screen.h"
-#include "app/app_controller.h"
+#include "i_screen.hpp"
+#include "app/app_controller.hpp"
 
 namespace screen
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "server_info.h"
-#include "user_info.h"
+#include "server_info.hpp"
+#include "user_info.hpp"
 
 #include <nlohmann/json.hpp>
 #include <vector>

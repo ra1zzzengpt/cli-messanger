@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "models/user_info.h"
-#include "models/message.h"
-#include "models/chat_info.h"
-#include "models/server_info.h"
-#include "models/app_config.h"
+#include <models/user_info.hpp>
+#include <models/message.hpp>
+#include <models/chat_info.hpp>
+#include <models/server_info.hpp>
+#include <models/app_config.hpp>
 
 // --- UserInfo ---
 

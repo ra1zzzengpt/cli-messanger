@@ -6,53 +6,53 @@ set(CMAKE_CXX_STANDARD 23)
 add_executable(cli_messanger
         client/src/main.cpp
         client/src/app/app_controller.cpp
-        client/src/app/app_controller.h
+        client/src/app/app_controller.hpp
         client/src/utils/console/console.cpp
-        client/src/utils/console/console.h
+        client/src/utils/console/console.hpp
         client/src/api/message_api/imessage_api.h
-        client/src/models/user_info.h
-        client/src/models/message.h
-        client/src/models/chat_info.h
-        client/src/models/server_info.h
-        client/src/models/app_config.h
+        client/src/models/user_info.hpp
+        client/src/models/message.hpp
+        client/src/models/chat_info.hpp
+        client/src/models/server_info.hpp
+        client/src/models/app_config.hpp
         client/src/models/user_info.cpp
         client/src/utils/command/command_parser.cpp
-        client/src/utils/command/command_parser.h
+        client/src/utils/command/command_parser.hpp
         client/src/api/message_api/httpsapi/https_message_api.cpp
-        client/src/api/message_api/httpsapi/https_message_api.h
-        client/src/screens/i_screen.h
+        client/src/api/message_api/httpsapi/https_message_api.hpp
+        client/src/screens/i_screen.hpp
         client/src/screens/main_screen.cpp
-        client/src/screens/main_screen.h
+        client/src/screens/main_screen.hpp
         client/src/screens/chat_screen.cpp
-        client/src/screens/chat_screen.h
+        client/src/screens/chat_screen.hpp
         client/src/screens/server_screen.cpp
-        client/src/screens/server_screen.h
+        client/src/screens/server_screen.hpp
         client/src/screens/profile_screen.cpp
-        client/src/screens/profile_screen.h
+        client/src/screens/profile_screen.hpp
         client/src/screens/chats_screen.cpp
-        client/src/screens/chats_screen.h
+        client/src/screens/chats_screen.hpp
         client/src/api/message_api/fakeapi/fake_message_api.cpp
-        client/src/api/message_api/fakeapi/fake_message_api.h
+        client/src/api/message_api/fakeapi/fake_message_api.hpp
         client/src/models/app_config.cpp
         client/src/models/chat_info.cpp
         client/src/models/server_info.cpp
         client/src/utils/files/config_storage/config_storage.cpp
-        client/src/utils/files/config_storage/config_storage.h
-        client/src/api/message_api/httpsapi/https_response.h
+        client/src/utils/files/config_storage/config_storage.hpp
+        client/src/api/message_api/httpsapi/https_response.hpp
         client/src/screens/auth_screen.cpp
-        client/src/screens/auth_screen.h
+        client/src/screens/auth_screen.hpp
         client/src/utils/files/files.cpp
-        client/src/utils/files/files.h
-        client/src/utils/files/paths.h
+        client/src/utils/files/files.hpp
+        client/src/utils/files/paths.hpp
         client/src/models/message.cpp
         client/src/utils/crypto/crypto_sodium.cpp
-        client/src/utils/crypto/crypto_sodium.h
+        client/src/utils/crypto/crypto_sodium.hpp
         client/src/utils/crypto/info/crypto_info.cpp
-        client/src/utils/crypto/info/crypto_info.h
-        client/src/utils/error/error_types.h
-        client/src/utils/error/app_error.h
+        client/src/utils/crypto/info/crypto_info.hpp
+        client/src/utils/error/error_types.hpp
+        client/src/utils/error/app_error.hpp
         client/src/utils/logger/logs.cpp
-        client/src/utils/logger/logs.h
+        client/src/utils/logger/logs.hpp
 )
 
 target_include_directories(cli_messanger PRIVATE

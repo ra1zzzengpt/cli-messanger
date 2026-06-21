@@ -1,8 +1,8 @@
 #pragma once
 #include <expected>
 #include "api/message_api/imessage_api.h"
-#include "models/app_config.h"
-#include "utils/files/config_storage/config_storage.h"
+#include "models/app_config.hpp"
+#include "utils/files/config_storage/config_storage.hpp"
 
 namespace app
 {

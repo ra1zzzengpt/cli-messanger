@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "utils/command/command_parser.h"
+#include <utils/command/command_parser.hpp>
 
 using stx::parseCommand;
 using stx::Command;

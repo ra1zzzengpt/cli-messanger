@@ -1,10 +1,10 @@
 #pragma once
 
 #include <filesystem>
-#include "models/message.h"
-#include "models/chat_info.h"
+#include "models/message.hpp"
+#include "models/chat_info.hpp"
 #include <expected>
-#include <utils/error/app_error.h>
+#include <utils/error/app_error.hpp>
 
 namespace stx {
     std::expected<void, err::Error> printFromFile(const std::filesystem::path& path);

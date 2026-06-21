@@ -2,7 +2,7 @@
 #include <expected>
 #include <string>
 
-#include "utils/error/error_types.h"
+#include "utils/error/error_types.hpp"
 
 namespace stx
 {

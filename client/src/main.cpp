@@ -1,14 +1,14 @@
-#include "app/app_controller.h"
-#include "screens/main_screen.h"
-#include "screens/auth_screen.h"
-#include "utils/files/config_storage/config_storage.h"
-#include "api/message_api/httpsapi/https_message_api.h"
+#include "app/app_controller.hpp"
+#include "screens/main_screen.hpp"
+#include "screens/auth_screen.hpp"
+#include "utils/files/config_storage/config_storage.hpp"
+#include "api/message_api/httpsapi/https_message_api.hpp"
 #include <curl/curl.h>
 #include <sodium.h>
 #include <random>
 
-#include "utils/console/console.h"
-#include "utils/logger/logs.h"
+#include "utils/console/console.hpp"
+#include "utils/logger/logs.hpp"
 
 namespace
 {

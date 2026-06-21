@@ -1,11 +1,11 @@
-#include "crypto_sodium.h"
+#include "crypto_sodium.hpp"
 
 #include <stdexcept>
 #include <string>
 #include <sodium.h>
 #include <sodium/crypto_secretbox.h>
 
-#include "utils/logger/logs.h"
+#include "utils/logger/logs.hpp"
 
 #if defined(__linux__)
 

@@ -1,4 +1,4 @@
-#include "app_config.h"
+#include "app_config.hpp"
 
 void to_json(nlohmann::json& json, const AppConfig& config)
 {

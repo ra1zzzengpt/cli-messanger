@@ -1,4 +1,4 @@
-#include "server_info.h"
+#include "server_info.hpp"
 
 void to_json(nlohmann::json& json, const ServerInfo& server)
 {

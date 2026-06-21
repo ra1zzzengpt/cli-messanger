@@ -1,4 +1,4 @@
-#include "command_parser.h"
+#include "command_parser.hpp"
 
 namespace stx {
     std::expected<Command,err::CommandError> parseCommand(const std::string& command) {

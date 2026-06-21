@@ -1,6 +1,6 @@
 #pragma once
 
-#include "chat_info.h"
+#include "chat_info.hpp"
 
 #include <string>
 

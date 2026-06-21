@@ -1,9 +1,9 @@
 #pragma once
 #include <expected>
 
-#include "models/app_config.h"
-#include "utils/crypto/crypto_sodium.h"
-#include "utils/error/app_error.h"
+#include "models/app_config.hpp"
+#include "utils/crypto/crypto_sodium.hpp"
+#include "utils/error/app_error.hpp"
 
 namespace stx
 {

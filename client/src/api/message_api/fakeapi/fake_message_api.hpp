@@ -2,8 +2,8 @@
 #include <string>
 
 #include "api/message_api/imessage_api.h"
-#include "models/user_info.h"
-#include "models/message.h"
+#include "models/user_info.hpp"
+#include "models/message.hpp"
 
 namespace api
 {
