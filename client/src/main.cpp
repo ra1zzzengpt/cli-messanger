@@ -53,7 +53,7 @@ int main()
         }
         const std::string url = io::scanString("Server URL: ");
         const std::string nickname = io::scanString("Your nickname: ");
-        // WARNING: THIS WILL BE MOVED ON SERVER IN USER REGISTER TODO: 0.7/0.8?
+        // WARNING: THIS WILL BE MOVED ON SERVER IN USER REGISTER TODO: 1.0?
         std::mt19937_64 gen(std::random_device{}());
         const uint64_t id = std::uniform_int_distribution<uint64_t>{}(gen);
         // ----------------------------------------------------
