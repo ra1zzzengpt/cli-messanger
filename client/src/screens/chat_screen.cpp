@@ -28,6 +28,7 @@ namespace screen
                 } else if (command == stx::Command::Update) {
                     continue;
                 } else if (command == stx::Command::Dump) {
+                    // todo: ask user for chat dumping
                     if (const auto msgs = controller_.getMessages(makePeerInfo()); io::check(msgs, "[Error]: Failed to load messages"))
                         io::check(stx::dumpToFile(paths::getAssetsBase()/"dump"/(chat_.peer_nick + ".txt"), msgs.value(), chat_), "[Error]: Failed to dump messages to file");
                 } else {
