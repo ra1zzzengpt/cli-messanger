@@ -53,14 +53,14 @@ set(JSON_Install            OFF CACHE INTERNAL "")
 set(FTXUI_BUILD_EXAMPLES    OFF CACHE BOOL "" FORCE)
 set(FTXUI_BUILD_DOCS        OFF CACHE BOOL "" FORCE)
 
-message("[MAKING AVAILABLE]:\n"
+message("[FETCHING]:\n"
                "+ LibSodium-cmake - https://github.com/robinlinden/libsodium-cmake.git (cfebfd3da486d5a86c644c8b47067e5411c7599c)\n"
                "+ nlohmann-json - https://github.com/nlohmann/json (v3.11.3)\n"
                "+ FTXUI - https://github.com/ArthurSonzogni/FTXUI (v7.0.0)")
 FetchContent_MakeAvailable(libsodium_cmake nlohmann_json ftxui)
 
 if(BUILD_TESTS)
-    message("[ADDING AVAILABLE]:\n"
+    message("[ADDING FETCH]:\n"
                    "+ google-test - https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip")
     FetchContent_MakeAvailable(googletest)
 endif()
