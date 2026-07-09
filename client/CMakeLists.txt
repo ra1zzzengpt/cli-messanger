@@ -20,6 +20,11 @@ add_library(cli_core STATIC
         src/screens/profile_screen.cpp
         src/screens/chats_screen.cpp
         src/screens/auth_screen.cpp
+        src/screens/auth_fabric.cpp
+        src/screens/auth_fabric.hpp
+        src/screens/i_fabric.hpp
+        src/utils/time/time_controller.cpp
+        src/utils/time/time_controller.hpp
 )
 
 target_include_directories(cli_core PUBLIC
