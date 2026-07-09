@@ -1,8 +1,9 @@
 #pragma once
 #include <expected>
-#include "api/message_api/imessage_api.h"
-#include "models/app_config.hpp"
-#include "utils/files/config_storage/config_storage.hpp"
+#include <api/message_api/imessage_api.h>
+#include <models/app_config.hpp>
+#include <utils/files/config_storage/config_storage.hpp>
+#include <utils/time/time_controller.hpp>
 
 namespace app
 {
@@ -11,7 +12,7 @@ namespace app
     public:
         // - OBJECT -
         AppController(std::unique_ptr<api::IMessageApi> api,
-            std::unique_ptr<stx::ConfigStorage> storage);
+            std::unique_ptr<stx::ConfigStorage> storage, std::unique_ptr<stx::TimeController> time);
         ~AppController() = default;
         AppController(AppController&) = delete;
         AppController(AppController&&) = delete;
@@ -41,8 +42,11 @@ namespace app
         [[nodiscard]] std::expected<void,stx::err::Error> registerUser(const UserInfo& user) const;
         [[nodiscard]] std::expected<void,stx::err::Error> loginUser(std::uint64_t id, const std::string& password) const;
 
+        // - TIME -
+        bool askForRequest(std::chrono::time_point<std::chrono::steady_clock> compare);
     private:
         std::unique_ptr<api::IMessageApi> messageApi_;
         std::unique_ptr<stx::ConfigStorage> configStorage_;
+        std::unique_ptr<stx::TimeController> timeController_;
     };
 }

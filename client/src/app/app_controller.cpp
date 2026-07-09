@@ -1,11 +1,12 @@
-#include "app_controller.hpp"
+#include <app/app_controller.hpp>
 
 namespace app
 {
     AppController::AppController(
         std::unique_ptr<api::IMessageApi> api,
-        std::unique_ptr<stx::ConfigStorage> storage
-    ) : messageApi_(std::move(api)), configStorage_(std::move(storage)) {}
+        std::unique_ptr<stx::ConfigStorage> storage,
+        std::unique_ptr<stx::TimeController> time
+    ) : messageApi_(std::move(api)), configStorage_(std::move(storage)), timeController_(std::move(time)) {}
 
     // - - - C O N F I G - - -
 
@@ -121,5 +122,12 @@ namespace app
     std::expected<void,stx::err::Error> AppController::loginUser(const std::uint64_t id, const std::string& password) const
     {
         return messageApi_->loginUser(id, password);
+    }
+
+    // - - - T I M E - - -
+    // non const because can change memory application info (timeController[lastRequestTime_])
+    bool AppController::askForRequest(const std::chrono::time_point<std::chrono::steady_clock> compare)
+    {
+        return timeController_->askForRequest(compare);
     }
 }
