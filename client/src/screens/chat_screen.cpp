@@ -1,10 +1,10 @@
-#include "chat_screen.hpp"
+#include <screens/chat_screen.hpp>
 
-#include "utils/command/command_parser.hpp"
-#include "utils/console/console.hpp"
-#include "utils/files/files.hpp"
-#include "utils/files/paths.hpp"
-#include "utils/logger/logs.hpp"
+#include <utils/command/command_parser.hpp>
+#include <utils/console/console.hpp>
+#include <utils/files/files.hpp>
+#include <utils/files/paths.hpp>
+#include <utils/logger/logs.hpp>
 
 namespace screen
 {

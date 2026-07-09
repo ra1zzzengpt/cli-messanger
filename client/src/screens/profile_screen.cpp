@@ -1,8 +1,8 @@
-#include "profile_screen.hpp"
-#include "utils/console/console.hpp"
-#include "utils/files/files.hpp"
-#include "utils/files/paths.hpp"
-#include "utils/logger/logs.hpp"
+#include <screens/profile_screen.hpp>
+#include <utils/console/console.hpp>
+#include <utils/files/files.hpp>
+#include <utils/files/paths.hpp>
+#include <utils/logger/logs.hpp>
 
 namespace screen {
     ProfileScreen::ProfileScreen(app::AppController& controller) : controller_(controller)

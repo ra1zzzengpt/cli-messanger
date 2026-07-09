@@ -1,11 +1,11 @@
-#include "auth_screen.hpp"
-#include "utils/console/console.hpp"
-#include "main_screen.hpp"
+#include <screens/auth_screen.hpp>
+#include <utils/console/console.hpp>
+#include <screens/main_screen.hpp>
 
-#include "server_screen.hpp"
-#include "utils/files/files.hpp"
-#include "utils/files/paths.hpp"
-#include "utils/logger/logs.hpp"
+#include <screens/server_screen.hpp>
+#include <utils/files/files.hpp>
+#include <utils/files/paths.hpp>
+#include <utils/logger/logs.hpp>
 
 namespace screen
 {

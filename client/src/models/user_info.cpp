@@ -1,4 +1,4 @@
-#include "user_info.hpp"
+#include <models/user_info.hpp>
 
 void to_json(nlohmann::json& json, const UserInfo& user)
 {

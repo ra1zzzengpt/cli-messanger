@@ -1,8 +1,8 @@
 #pragma once
 
-#include "i_screen.hpp"
-#include "app/app_controller.hpp"
-#include "models/chat_info.hpp"
+#include <screens/i_screen.hpp>
+#include <app/app_controller.hpp>
+#include <models/chat_info.hpp>
 
 namespace screen
 {

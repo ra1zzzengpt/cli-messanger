@@ -1,11 +1,11 @@
-#include "main_screen.hpp"
+#include <screens/main_screen.hpp>
 
-#include "chats_screen.hpp"
-#include "profile_screen.hpp"
-#include "server_screen.hpp"
-#include "utils/console/console.hpp"
-#include "utils/files/files.hpp"
-#include "utils/files/paths.hpp"
+#include <screens/chats_screen.hpp>
+#include <screens/profile_screen.hpp>
+#include <screens/server_screen.hpp>
+#include <utils/console/console.hpp>
+#include <utils/files/files.hpp>
+#include <utils/files/paths.hpp>
 
 namespace screen
 {

@@ -1,4 +1,4 @@
-#include "message.hpp"
+#include <models/message.hpp>
 
 namespace
 {

@@ -1,5 +1,5 @@
-#include "crypto_info.hpp"
-#include "sodium.h"
+#include <utils/crypto/info/crypto_info.hpp>
+#include <sodium.h>
 #include <span>
 #include <stdexcept>
 

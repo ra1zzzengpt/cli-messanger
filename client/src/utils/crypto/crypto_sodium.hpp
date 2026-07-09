@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 
-#include "info/crypto_info.hpp"
-#include "utils/error/app_error.hpp"
+#include <utils/crypto/info/crypto_info.hpp>
+#include <utils/error/app_error.hpp>
 
 namespace stx
 {

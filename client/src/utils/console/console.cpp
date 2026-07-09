@@ -1,4 +1,4 @@
-#include "console.hpp"
+#include <utils/console/console.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -29,7 +29,6 @@ namespace
                 io::print("[Error]: Invalid input", io::Color::Red);
                 continue;
             }
-
             try
             {
                 const uint64_t temp = std::stoull(input);

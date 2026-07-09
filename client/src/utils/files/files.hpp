@@ -1,8 +1,8 @@
 #pragma once
 
 #include <filesystem>
-#include "models/message.hpp"
-#include "models/chat_info.hpp"
+#include <models/message.hpp>
+#include <models/chat_info.hpp>
 #include <expected>
 #include <utils/error/app_error.hpp>
 

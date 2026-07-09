@@ -1,6 +1,6 @@
 #pragma once
-#include "i_screen.hpp"
-#include "app/app_controller.hpp"
+#include <screens/i_screen.hpp>
+#include <app/app_controller.hpp>
 
 namespace screen
 {

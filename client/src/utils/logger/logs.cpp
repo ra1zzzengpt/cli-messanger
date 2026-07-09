@@ -1,10 +1,10 @@
-#include "logs.hpp"
+#include <utils/logger/logs.hpp>
 
 #include <chrono>
 #include <filesystem>
 #include <sstream>
 #include <fstream>
-#include "utils/files/paths.hpp"
+#include <utils/files/paths.hpp>
 
 namespace
 {

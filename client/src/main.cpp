@@ -1,14 +1,14 @@
-#include "app/app_controller.hpp"
-#include "screens/main_screen.hpp"
-#include "screens/auth_screen.hpp"
-#include "utils/files/config_storage/config_storage.hpp"
-#include "api/message_api/httpsapi/https_message_api.hpp"
+#include <app/app_controller.hpp>
+#include <screens/main_screen.hpp>
+#include <screens/auth_screen.hpp>
+#include <utils/files/config_storage/config_storage.hpp>
+#include <api/message_api/httpsapi/https_message_api.hpp>
 #include <curl/curl.h>
 #include <sodium.h>
 #include <random>
 
-#include "utils/console/console.hpp"
-#include "utils/logger/logs.hpp"
+#include <utils/console/console.hpp>
+#include <utils/logger/logs.hpp>
 
 namespace
 {
@@ -38,7 +38,8 @@ int main()
     }
     app::AppController controller(
         std::make_unique<api::HttpMessageApi>(),
-        std::make_unique<stx::ConfigStorage>(kConfigPath)
+        std::make_unique<stx::ConfigStorage>(kConfigPath),
+        std::make_unique<stx::TimeController>()
     );
 
     if (const auto result = controller.loadAppConfig(); !result.has_value())

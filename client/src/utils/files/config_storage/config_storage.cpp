@@ -1,4 +1,4 @@
-#include "config_storage.hpp"
+#include <utils/files/config_storage/config_storage.hpp>
 
 #include <expected>
 
@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <utility>
 
-#include "utils/logger/logs.hpp"
+#include <utils/logger/logs.hpp>
 
 namespace stx {
     namespace {

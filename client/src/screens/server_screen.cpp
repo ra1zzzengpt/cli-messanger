@@ -1,12 +1,12 @@
-#include "server_screen.hpp"
+#include <screens/server_screen.hpp>
 
-#include "utils/console/console.hpp"
+#include <utils/console/console.hpp>
 
 #include <string>
 
-#include "utils/files/files.hpp"
-#include "utils/files/paths.hpp"
-#include "utils/logger/logs.hpp"
+#include <utils/files/files.hpp>
+#include <utils/files/paths.hpp>
+#include <utils/logger/logs.hpp>
 
 namespace screen
 {

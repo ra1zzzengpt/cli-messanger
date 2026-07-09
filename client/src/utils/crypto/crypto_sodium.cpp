@@ -1,11 +1,12 @@
-#include "crypto_sodium.hpp"
+#include <utils/crypto/crypto_sodium.hpp>
 
 #include <stdexcept>
 #include <string>
 #include <sodium.h>
 #include <sodium/crypto_secretbox.h>
 
-#include "utils/logger/logs.hpp"
+#include <utils/logger/logs.hpp>
+#include <sodium/crypto_pwhash_argon2id.h>
 
 #if defined(__linux__)
 
