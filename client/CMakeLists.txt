@@ -25,6 +25,8 @@ add_library(cli_core STATIC
         src/screens/i_fabric.hpp
         src/utils/time/time_controller.cpp
         src/utils/time/time_controller.hpp
+        src/utils/low_level_utils.cpp
+        src/utils/low_level_utils.hpp
 )
 
 target_include_directories(cli_core PUBLIC
