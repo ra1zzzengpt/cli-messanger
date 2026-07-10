@@ -8,6 +8,18 @@ namespace app
         std::unique_ptr<stx::TimeController> time
     ) : messageApi_(std::move(api)), configStorage_(std::move(storage)), timeController_(std::move(time)) {}
 
+    // - - - G E T - - -
+
+    const std::string& AppController::getCurrentVersion() const
+    {
+        return current_version_;
+    }
+
+    const std::string& AppController::getLatestVersion() const
+    {
+        return latest_version_;
+    }
+
     // - - - C O N F I G - - -
 
     const AppConfig& AppController::getAppConfig() const noexcept
@@ -122,6 +134,13 @@ namespace app
     std::expected<void,stx::err::Error> AppController::loginUser(const std::uint64_t id, const std::string& password) const
     {
         return messageApi_->loginUser(id, password);
+    }
+
+    // - - - F R O M   N E T - - -
+
+    std::expected<std::string, stx::err::Error> AppController::versionControl() const
+    {
+        return messageApi_->versionControl();
     }
 
     // - - - T I M E - - -

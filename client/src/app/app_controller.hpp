@@ -7,6 +7,11 @@
 
 namespace app
 {
+    namespace
+    {
+        const std::string kCurrentVersion = "v1.0";
+    }
+
     class AppController final
     {
     public:
@@ -18,6 +23,11 @@ namespace app
         AppController(AppController&&) = delete;
         AppController& operator=(const AppController&) = delete;
         AppController& operator=(AppController&&) = delete;
+
+        // - GETTERS FIELDS (WITHOUT OBJECTS) -
+
+        [[nodiscard]] const std::string& getCurrentVersion() const;
+        [[nodiscard]] const std::string& getLatestVersion() const;
 
         // - CONFIG -
         [[nodiscard]] const AppConfig& getAppConfig() const noexcept;
@@ -42,11 +52,15 @@ namespace app
         [[nodiscard]] std::expected<void,stx::err::Error> registerUser(const UserInfo& user) const;
         [[nodiscard]] std::expected<void,stx::err::Error> loginUser(std::uint64_t id, const std::string& password) const;
 
+        // - INFO FROM NET -
+        [[nodiscard]] std::expected<std::string,stx::err::Error> versionControl() const;
+
         // - TIME -
         bool askForRequest(std::chrono::time_point<std::chrono::steady_clock> compare);
     private:
         std::unique_ptr<api::IMessageApi> messageApi_;
         std::unique_ptr<stx::ConfigStorage> configStorage_;
         std::unique_ptr<stx::TimeController> timeController_;
+        std::string current_version_ = kCurrentVersion, latest_version_;
     };
 }
