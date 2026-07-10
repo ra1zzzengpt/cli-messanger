@@ -51,6 +51,8 @@ namespace api
             const std::string& password
         ) override;
 
+        std::expected<std::string,stx::err::Error> versionControl() override;
+
         void setUrl(const std::string& url) override;
     private:
         std::string url_;

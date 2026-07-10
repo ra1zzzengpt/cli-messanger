@@ -59,6 +59,8 @@ namespace api
             const std::string& password
         ) = 0;
 
+        virtual std::expected<std::string,stx::err::Error> versionControl() = 0;
+
         virtual void setUrl(const std::string& url) = 0;
     };
 }

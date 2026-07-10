@@ -9,6 +9,8 @@
 
 namespace api {
     namespace {
+        const std::string kVersionUrl = "https://api.github.com/repos/ra1zzzengpt/cli-messanger/releases/lates";
+
         size_t WriteCallback(const char* ptr, const size_t size, const size_t nmemb, void* userdata) {
             const size_t real_size = size * nmemb;
             if (auto* buffer = static_cast<std::string*>(userdata)) {
@@ -43,6 +45,7 @@ namespace api {
             return "UNKNOWN";
         }
 
+        // TODO: WORK WITH GITHUB API
         std::expected<HttpResponse, stx::err::Error> request(
             const RequestMethod& method,
             const std::string& url,
@@ -285,6 +288,20 @@ namespace api {
             messages.push_back(std::move(item.get<Message>()));
         }
         return messages;
+    }
+
+    std::expected<std::string,stx::err::Error> HttpMessageApi::versionControl()
+    {
+        std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::GET,kVersionUrl);
+        if (!resp.has_value())
+        {
+            return std::unexpected(resp.error());
+        }
+        if (!resp->is_ok() || resp->data.value("ok",false))
+        {
+            return httpErr(*resp);
+        }
+        return resp->data["tag_name"].get<std::string>();
     }
 
     void HttpMessageApi::setUrl(const std::string& url) { url_ = url; }
