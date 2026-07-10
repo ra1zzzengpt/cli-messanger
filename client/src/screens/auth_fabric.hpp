@@ -6,10 +6,16 @@
 
 namespace screen
 {
-    class AuthFabric : public IFabric
+    class AuthFabric final : public IFabric
     {
     public:
         explicit AuthFabric(app::AppController& controller);
+        ~AuthFabric() override = default;
+        AuthFabric(const AuthFabric&)=delete;
+        AuthFabric& operator=(const AuthFabric&)=delete;
+        AuthFabric(const AuthFabric&&)=delete;
+        AuthFabric& operator=(const AuthFabric&&)=delete;
+
         ftxui::Component createScreen(int& tab_index) override;
     private:
         app::AppController& controller_;
