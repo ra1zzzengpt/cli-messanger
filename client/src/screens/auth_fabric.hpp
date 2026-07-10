@@ -2,6 +2,7 @@
 #include <screens/i_fabric.hpp>
 #include <app/app_controller.hpp>
 #include <ftxui/component/component.hpp>
+#include <utils/error/app_error.hpp>
 
 namespace screen
 {
@@ -9,9 +10,11 @@ namespace screen
     {
     public:
         explicit AuthFabric(app::AppController& controller);
-        ftxui::Component createScreen() override;
+        ftxui::Component createScreen(int& tab_index) override;
     private:
         app::AppController& controller_;
-        std::string id_, name_, password_;
+        std::string id_, name_, password_, password_control_;
+        stx::err::Error error_;
+        int inner_tab_index_;
     };
 }
