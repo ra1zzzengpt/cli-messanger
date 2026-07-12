@@ -1,4 +1,4 @@
-#include <screens/hello_fabric.h>
+#include <screens/hello_fabric.hpp>
 
 namespace screen
 {
@@ -48,7 +48,7 @@ namespace screen
             } else
             {
                 version = ftxui::text("Please update! Current version: " + controller_.getCurrentVersion() + ", Latest version: " + controller_.getLatestVersion() + "!")
-                | ftxui::bold | ftxui::hyperlink(/* TODO MAKE MY LINK */);
+                | ftxui::bold | ftxui::hyperlink("https://github.com/ra1zzzengpt/cli-messanger");
             }
             return ftxui::vbox(
                 cli_messanger_label,
