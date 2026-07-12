@@ -1,12 +1,22 @@
 #include <app/app_controller.hpp>
+#include <expected>
 
 namespace app
 {
     AppController::AppController(
         std::unique_ptr<api::IMessageApi> api,
-        std::unique_ptr<stx::ConfigStorage> storage,
+        std::unique_ptr<stx::StorageController> storage,
         std::unique_ptr<stx::TimeController> time
-    ) : messageApi_(std::move(api)), configStorage_(std::move(storage)), timeController_(std::move(time)) {}
+    ) : messageApi_(std::move(api)), configStorage_(std::move(storage)), timeController_(std::move(time))
+    {
+        if (std::expected<std::string,stx::err::Error> temp = messageApi_->versionControl(); !temp.has_value())
+        {
+            latest_version_ = temp.error().message;
+        } else
+        {
+            latest_version_ = std::move(temp.value());
+        }
+    }
 
     // - - - G E T - - -
 
