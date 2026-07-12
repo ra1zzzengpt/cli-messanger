@@ -1,4 +1,4 @@
-#include <utils/files/config_storage/config_storage.hpp>
+#include <utils/files/config_storage/storage_controller.hpp>
 
 #include <expected>
 
@@ -18,10 +18,10 @@ namespace stx {
         }
     }
 
-    ConfigStorage::ConfigStorage(std::string filepath) : filepath_(std::move(filepath))
+    StorageController::StorageController(std::string filepath) : filepath_(std::move(filepath))
     { }
 
-    std::expected<void,err::Error> ConfigStorage::save()
+    std::expected<void,err::Error> StorageController::save()
     {
 
         const std::filesystem::path path{filepath_};
@@ -52,7 +52,7 @@ namespace stx {
         return {};
     }
 
-    std::expected<void,err::Error> ConfigStorage::load()
+    std::expected<void,err::Error> StorageController::load()
     {
         const std::filesystem::path path{filepath_};
         std::error_code error;
@@ -103,43 +103,43 @@ namespace stx {
         return save();
     }
 
-    const AppConfig& ConfigStorage::getConfig() const noexcept
+    const AppConfig& StorageController::getConfig() const noexcept
     {
         return config_;
     }
 
-    std::expected<void,err::Error> ConfigStorage::setByLogin(const UserInfo& user, const std::string& password)
+    std::expected<void,err::Error> StorageController::setByLogin(const UserInfo& user, const std::string& password)
     {
         config_.user = user;
         config_.user.password = password;
         return save();
     }
 
-    std::expected<void,err::Error> ConfigStorage::updatePassword(const std::string &new_password)
+    std::expected<void,err::Error> StorageController::updatePassword(const std::string &new_password)
     {
         config_.user.password = new_password;
         return save();
     }
 
-    std::expected<void,err::Error> ConfigStorage::updateNickname(const std::string& new_nickname)
+    std::expected<void,err::Error> StorageController::updateNickname(const std::string& new_nickname)
     {
         config_.user.nickname = new_nickname;
         return save();
     }
 
-    std::expected<void,err::Error> ConfigStorage::addChat(const ChatInfo &new_chat)
+    std::expected<void,err::Error> StorageController::addChat(const ChatInfo &new_chat)
     {
         config_.chats.push_back(new_chat);
         return save();
     }
 
-    std::expected<void,err::Error> ConfigStorage::updateUrl(const std::string &new_url)
+    std::expected<void,err::Error> StorageController::updateUrl(const std::string &new_url)
     {
         config_.server.url = new_url;
         return save();
     }
 
-    std::expected<void,err::Error> ConfigStorage::setInitialUser(const uint64_t id, const std::string& nickname)
+    std::expected<void,err::Error> StorageController::setInitialUser(const uint64_t id, const std::string& nickname)
     {
         config_.user.id = id;
         config_.user.nickname = nickname;

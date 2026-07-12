@@ -7,11 +7,11 @@
 
 namespace stx
 {
-    class ConfigStorage final
+    class StorageController final
     {
     public:
-        explicit ConfigStorage(std::string filepath);
-        ~ConfigStorage() = default;
+        explicit StorageController(std::string filepath);
+        ~StorageController() = default;
 
         [[nodiscard]] const AppConfig& getConfig() const noexcept;
 
