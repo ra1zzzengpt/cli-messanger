@@ -65,7 +65,7 @@ cli-messanger/
 │       │   └── message_api/
 │       │       ├── httpsapi/      # HttpMessageApi (libcurl)
 │       │       ├── fakeapi/       # FakeMessageApi (offline stub)
-│       │       └── imessage_api.h
+│       │       └── i_network_api.h
 │       ├── app/           # AppController
 │       ├── models/        # UserInfo, Message, ChatInfo, AppConfig, ServerInfo
 │       ├── screens/       # IScreen and all screen implementations
