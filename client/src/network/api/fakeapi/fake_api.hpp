@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include <api/message_api/imessage_api.h>
+#include <api/message_api/i_network_api.h>
 #include <models/user_info.hpp>
 #include <models/message.hpp>
 

@@ -1,12 +1,17 @@
 #pragma once
-#include <api/message_api/imessage_api.h>
+#include <../i_network_api.h>
+#include <network/api/message_api/httpsapi/github_api/github_api.hpp>
 
 namespace api
 {
     class HttpMessageApi : public IMessageApi
     {
     public:
-        HttpMessageApi() = default;
+        explicit HttpMessageApi(GitHubApi& github_api);
+        HttpMessageApi(const HttpMessageApi&) = delete;
+        HttpMessageApi& operator=(const HttpMessageApi&) = delete;
+        HttpMessageApi(HttpMessageApi&&) = delete;
+        HttpMessageApi& operator=(HttpMessageApi&&) = delete;
 
         std::expected<std::string,stx::err::Error> ping() override;
 

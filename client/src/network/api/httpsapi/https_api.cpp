@@ -1,8 +1,8 @@
-#include <api/message_api/httpsapi/https_message_api.hpp>
+#include <network/api/message_api/httpsapi/https_api.hpp>
 
 #include <curl/curl.h>
 
-#include <api/message_api/httpsapi/https_response.hpp>
+#include <network/api/message_api/httpsapi/http_response.hpp>
 #include <utils/error/app_error.hpp>
 #include <utils/logger/logs.hpp>
 #include <expected>
@@ -45,11 +45,11 @@ namespace api {
             return "UNKNOWN";
         }
 
-        // TODO: WORK WITH GITHUB API
         std::expected<HttpResponse, stx::err::Error> request(
             const RequestMethod& method,
             const std::string& url,
-            const std::string& json_body = ""
+            const std::string& json_body = "",
+            const std::vector<std::string>& custom_headers = {}
         ) {
             HttpResponse response;
             CURL* handle = curl_easy_init();
@@ -71,12 +71,21 @@ namespace api {
             curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(handle, CURLOPT_TIMEOUT, 5L);
 
+            for (const std::string& header : custom_headers)
+            {
+                headers = curl_slist_append(headers, header.c_str());
+            }
+
             if (method == RequestMethod::POST || method == RequestMethod::PATCH) {
                 headers = curl_slist_append(headers, "Content-Type: application/json");
                 curl_easy_setopt(handle, CURLOPT_POSTFIELDS, json_body.c_str());
-                curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
                 if (method == RequestMethod::PATCH)
                     curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+            }
+
+            if (headers)
+            {
+                curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
             }
 
             if (const CURLcode res = curl_easy_perform(handle); res != CURLE_OK) {
@@ -143,6 +152,8 @@ namespace api {
             });
         }
     }
+
+    HttpMessageApi::HttpMessageApi(GitHubApi& github_api) : github_api_(github_api) {}
 
     // GET /ping
     std::expected<std::string, stx::err::Error> HttpMessageApi::ping() {
@@ -292,7 +303,7 @@ namespace api {
 
     std::expected<std::string,stx::err::Error> HttpMessageApi::versionControl()
     {
-        std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::GET,kVersionUrl);
+        std::expected<HttpResponse,stx::err::Error> resp = request(RequestMethod::GET,kVersionUrl,"",{"Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2026-03-10"});
         if (!resp.has_value())
         {
             return std::unexpected(resp.error());
