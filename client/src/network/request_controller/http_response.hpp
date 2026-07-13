@@ -2,7 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace api
+namespace net
 {
     struct HttpResponse
     {
