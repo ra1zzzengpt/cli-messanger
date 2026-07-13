@@ -21,6 +21,15 @@ namespace stx {
     StorageController::StorageController(std::string filepath) : filepath_(std::move(filepath))
     { }
 
+    void StorageController::clear()
+    {
+        config_.chats.clear();
+        config_.user.nickname.clear();
+        config_.server.url.clear();
+        config_.user.id = 0;
+        config_.user.password.clear();
+    }
+
     std::expected<void,err::Error> StorageController::save()
     {
 

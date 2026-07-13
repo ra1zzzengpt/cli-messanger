@@ -19,6 +19,8 @@ namespace stx
 
         std::expected<void,err::Error> save();
 
+        void clear();
+
         // - USER -
         std::expected<void,err::Error> setByLogin(const UserInfo& user, const std::string& password);
         std::expected<void,err::Error> updatePassword(const std::string& new_password);
