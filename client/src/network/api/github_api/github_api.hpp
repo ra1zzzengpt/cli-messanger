@@ -1,5 +1,8 @@
 #pragma once
-namespace api
+#include <string>
+#include <expected>
+#include <utils/error/app_error.hpp>
+namespace net::api
 {
     class GitHubApi final
     {
@@ -11,6 +14,12 @@ namespace api
         GitHubApi(GitHubApi&&) = delete;
         GitHubApi& operator=(GitHubApi&&) = delete;
 
+        [[nodiscard]] bool lastestVersionControl() const;
 
+        [[nodiscard]] const std::string& currentVersion() const;
+        [[nodiscard]] const std::string& lastestVersion() const;
+    private:
+        std::string currentVersion_, lastestVersion_;
+        static std::expected<std::string,stx::err::Error> lastestReleaseTag(const std::string& url);
     };
 }
