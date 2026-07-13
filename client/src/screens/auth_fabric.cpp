@@ -15,7 +15,7 @@ namespace screen
         // --------------- ALL SUBSCREEN PARTS COMPONENT OPTIONS ----------------------
 
         ftxui::ButtonOption back_button_option;
-        back_button_option.label = "<- back";
+        back_button_option.label = "<--/BACK/--";
         back_button_option.on_click = [&]
         {
             inner_tab_index_ = 0;
@@ -58,7 +58,7 @@ namespace screen
         ftxui::Component login_password_input = ftxui::Input(password_input_option);
 
         ftxui::ButtonOption login_button_option;
-        login_button_option.label = "->";
+        login_button_option.label = "--/LOGIN/-->";
         login_button_option.transform = [&](const ftxui::EntryState& state)
         {
             ftxui::Element element = ftxui::text(state.label) | ftxui::border;
@@ -115,7 +115,7 @@ namespace screen
 
         ftxui::Component login_container = ftxui::Container::Vertical({login_id_input,login_password_input,login_button,login_back_button});
 
-        ftxui::Component login_subscreen = ftxui::Renderer(login_container,[&]
+        ftxui::Component login_renderer = ftxui::Renderer(login_container,[&]
         {
             return ftxui::center(ftxui::vbox(login_label_text,login_container->Render(),error_text));
         });
@@ -147,7 +147,7 @@ namespace screen
         ftxui::Component registration_password_check_input = ftxui::Input(registration_password_check_option);
 
         ftxui::ButtonOption registration_button_option;
-        registration_button_option.label = "->";
+        registration_button_option.label = "--/REGISTRATION/-->";
         registration_button_option.transform = [&](const ftxui::EntryState& state)
         {
             ftxui::Element element = ftxui::text(state.label) | ftxui::border;
@@ -184,7 +184,7 @@ namespace screen
                 user.password = password_;
                 user.nickname = name_;
 
-                if (!stx::checkNoError(controller_.updateConfigPassword(password_), error_))
+                if (!stx::checkNoError(controller_.updatePassword(password_), error_))
                 {
                     return;
                 }
@@ -207,7 +207,7 @@ namespace screen
 
         ftxui::Component registration_container = ftxui::Container::Vertical({registration_name_input,registration_password_input,registration_password_check_input,registration_button,registration_button_back});
 
-        ftxui::Component registration_subscreen = ftxui::Renderer(registration_container, [&]
+        ftxui::Component registration_renderer = ftxui::Renderer(registration_container, [&]
         {
             return ftxui::center(ftxui::vbox(registration_label,registration_container->Render(),error_text));
         });
@@ -261,13 +261,32 @@ namespace screen
 
         ftxui::Component menu_container = ftxui::Container::Vertical({menu_button_login, menu_button_registration, menu_button_server, menu_button_exit});
 
-        ftxui::Component menu_subscreen = ftxui::Renderer(menu_container, [&]
+        ftxui::Component menu_renderer = ftxui::Renderer(menu_container, [&]
         {
             return ftxui::center(ftxui::vbox(menu_label, menu_container->Render()));
         });
 
-        ftxui::Component auth_subscreen_tabs = ftxui::Container::Tab({menu_subscreen,login_subscreen,registration_subscreen},&inner_tab_index_);
+        ftxui::Component auth_subscreen_tabs = ftxui::Container::Tab({menu_renderer,login_renderer,registration_renderer},&inner_tab_index_);
 
-        return auth_subscreen_tabs;
+        ftxui::Component auth_renderer = ftxui::Renderer(auth_subscreen_tabs, [&]
+        {
+            ftxui::Element document;
+            switch (inner_tab_index_)
+            {
+                case 0:
+                    document = menu_renderer->Render();
+                    break;
+                case 1:
+                    document = login_renderer->Render();
+                    break;
+                case 2:
+                    document = registration_renderer->Render();
+                    break;
+                default: break;
+            };
+            return document;
+        });
+
+        return auth_renderer;
     }
 }
