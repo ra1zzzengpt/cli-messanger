@@ -65,7 +65,7 @@ The project is split into strict layers. Violating these boundaries is the most 
 
 ### Adding a new API method
 
-1. Add the pure virtual method to `IMessageApi` (`client/src/api/message_api/imessage_api.h`).
+1. Add the pure virtual method to `IMessageApi` (`client/src/api/message_api/i_network_api.h`).
 2. Implement it in `HttpMessageApi` (`httpsapi/`). Follow the string-ID rule.
 3. Add a wrapper method to `AppController` — screens call the controller, not the API directly.
 4. Implement the corresponding endpoint in **both** servers:
