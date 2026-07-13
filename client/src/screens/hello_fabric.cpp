@@ -42,12 +42,12 @@ namespace screen
         ftxui::Component hello_screen = ftxui::Renderer(hello_container,[&]
         {
             ftxui::Element version;
-            if (controller_.getCurrentVersion() == controller_.getLatestVersion())
+            if (controller_.versionControl())
             {
-                version = ftxui::text("Latest version: " + controller_.getCurrentVersion());
+                version = ftxui::text("Latest version: " + controller_.currentVersion());
             } else
             {
-                version = ftxui::text("Please update! Current version: " + controller_.getCurrentVersion() + ", Latest version: " + controller_.getLatestVersion() + "!")
+                version = ftxui::text("Please update! Current version: " + controller_.currentVersion() + ", Latest version: " + controller_.lastestVersion() + "!")
                 | ftxui::bold | ftxui::hyperlink("https://github.com/ra1zzzengpt/cli-messanger");
             }
             return ftxui::vbox(
