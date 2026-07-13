@@ -1,8 +1,8 @@
 #include <app/app_controller.hpp>
 #include <screens/main_screen.hpp>
 #include <screens/auth_screen.hpp>
-#include <utils/files/config_storage/config_storage.hpp>
-#include <api/message_api/httpsapi/https_message_api.hpp>
+#include <utils/files/config_storage/storage_controller.hpp>
+#include <api/message_api/httpsapi/https_api.hpp>
 #include <curl/curl.h>
 #include <sodium.h>
 #include <random>
@@ -38,7 +38,7 @@ int main()
     }
     app::AppController controller(
         std::make_unique<api::HttpMessageApi>(),
-        std::make_unique<stx::ConfigStorage>(kConfigPath),
+        std::make_unique<stx::StorageController>(kConfigPath),
         std::make_unique<stx::TimeController>()
     );
 
@@ -54,7 +54,7 @@ int main()
         }
         const std::string url = io::scanString("Server URL: ");
         const std::string nickname = io::scanString("Your nickname: ");
-        // WARNING: THIS WILL BE MOVED ON SERVER IN USER REGISTER TODO: 1.0?
+        // WARNING: THIS WILL BE MOVED ON SERVER IN USER REGISTER TODO: 1.3?
         std::mt19937_64 gen(std::random_device{}());
         const uint64_t id = std::uniform_int_distribution<uint64_t>{}(gen);
         // ----------------------------------------------------
