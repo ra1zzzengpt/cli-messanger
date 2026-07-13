@@ -8,6 +8,8 @@
 
 namespace stx
 {
+    // TODO: THINK ABOUT FUNCTION
+    // ERROR - FALSE
     template<typename T>
     bool checkNoError(const std::expected<T, err::Error>& result, err::Error& error)
     {
