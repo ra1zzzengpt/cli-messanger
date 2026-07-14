@@ -6,7 +6,7 @@
 
 namespace screen
 {
-    class AuthFabric final : public IFabric
+    class AuthFabric : public IFabric
     {
     public:
         explicit AuthFabric(app::AppController& controller);

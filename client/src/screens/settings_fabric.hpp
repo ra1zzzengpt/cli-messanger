@@ -6,7 +6,7 @@
 
 namespace screen
 {
-    class SettingsFabric final : public IFabric
+    class SettingsFabric : public IFabric
     {
     public:
         explicit SettingsFabric(app::AppController& controller);

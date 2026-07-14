@@ -100,12 +100,9 @@ namespace screen
                 stx::log::info("login attempt for user id=" + id_);
                 if (stx::checkNoError(controller_.loginUser(transformed_id.value(), password_),error_))
                 {
-                    // TODO: tab_index = MAIN SCREEN
                     stx::log::info("login successful for user id=" + id_);
+                    tab_index = to_int(kScreen::kHello);
                 }
-            } else
-            {
-
             }
         };
 
@@ -192,8 +189,8 @@ namespace screen
                 stx::log::info("registration attempt for user id=" + std::to_string(user.id));
                 if (stx::checkNoError(controller_.registerUser(user), error_))
                 {
-                    // TODO: tab_index = MAIN MENU
                     stx::log::info("registration successful for user id=" + std::to_string(user.id));
+                    tab_index = to_int(kScreen::kHello);
                 }
             } else
             {
@@ -242,10 +239,10 @@ namespace screen
         ftxui::Component menu_button_registration = ftxui::Button(menu_button_registration_option);
 
         ftxui::ButtonOption menu_button_server_option;
-        menu_button_server_option.label = "server settings";
+        menu_button_server_option.label = "change server";
         menu_button_server_option.on_click = [&]
         {
-            // TODO: tab_index = SERVER SCREEN INDEX;
+            tab_index = to_int(kScreen::kEntry);
         };
 
         ftxui::Component menu_button_server = ftxui::Button(menu_button_server_option);
@@ -254,7 +251,7 @@ namespace screen
         menu_exit_option.label = "exit";
         menu_exit_option.on_click = [&]
         {
-            tab_index = 0;
+            tab_index = to_int(kScreen::kEntry);
         };
 
         ftxui::Component menu_button_exit = ftxui::Button(menu_exit_option);

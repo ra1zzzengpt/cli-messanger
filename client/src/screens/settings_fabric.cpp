@@ -132,7 +132,7 @@ namespace screen
         {
             if (controller_.askForRequest(std::chrono::steady_clock::now()) && !url_.empty())
             {
-                tab_index = 0;
+                inner_tab = 1;
             }
         };
 
@@ -156,9 +156,12 @@ namespace screen
         dialog_continue_button_option.label = "CONTINUE";
         dialog_continue_button_option.on_click = [&]
         {
-            if (stx::checkNoError(controller_.relogging(url_),error_))
+            if (stx::checkNoError(controller_.ping(), error_))
             {
-                tab_index = 0;
+                if (stx::checkNoError(controller_.relogging(url_),error_))
+                {
+                    tab_index = to_int(kScreen::kAuth);
+                }
             }
         };
 
@@ -185,7 +188,7 @@ namespace screen
         back_button_option.label = "BACK";
         back_button_option.on_click = [&]
         {
-            tab_index = 0;
+            tab_index = to_int(kScreen::kHello);
         };
 
         ftxui::Component back_button = ftxui::Button(back_button_option);
@@ -227,12 +230,12 @@ namespace screen
                                        profile_id,
                                        profile_password,
                                        ftxui::hbox(nickname_input->Render(), nickname_button->Render()),
-                                       ftxui::hbox(password_input->Render(), password_button->Render())),
+                                       ftxui::hbox(password_input->Render(), password_button->Render())) | ftxui::border,
                                    ftxui::vbox(
                                        server_label,
                                        server_url,
                                        new_url_input->Render(),
-                                       new_url_button->Render()),
+                                       new_url_button->Render()) | ftxui::border,
                                    ftxui::center(ftxui::vbox(
                                        cli_messanger_label,
                                        version_label,
@@ -241,9 +244,9 @@ namespace screen
                                        libsodium_label,
                                        ftxui_label,
                                        google_label
-                                   ))
-                               )
-                               , back_button->Render()
+                                   )) | ftxui::border
+                               ) | ftxui::border
+                               , back_button->Render(), ftxui::text(error_.message)
             ));
         });
 
