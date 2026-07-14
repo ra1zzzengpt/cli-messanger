@@ -7,7 +7,7 @@
 
 namespace screen
 {
-    class HelloFabric final : public IFabric
+    class HelloFabric : public IFabric
     {
     public:
         explicit HelloFabric(app::AppController& controller);

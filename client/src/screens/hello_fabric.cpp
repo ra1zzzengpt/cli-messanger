@@ -14,7 +14,7 @@ namespace screen
         chats_button_option.label = "chats";
         chats_button_option.on_click = [&]
         {
-            // TODO tab_index = CHAT SCREEN
+            tab_index = to_int(kScreen::kChats);
         };
 
         ftxui::Component chats_button = ftxui::Button(chats_button_option);
@@ -23,7 +23,7 @@ namespace screen
         settings_button_option.label = "settings";
         settings_button_option.on_click = [&]
         {
-            // TODO tab_index = SETTINGS SCREEN
+            tab_index = to_int(kScreen::kSettings);
         };
 
         ftxui::Component settings_button = ftxui::Button(settings_button_option);
@@ -32,14 +32,14 @@ namespace screen
         exit_button_option.label = "exit";
         exit_button_option.on_click = [&]
         {
-            // TODO screen.Exit
+            screen.ExitLoopClosure();
         };
 
         ftxui::Component exit_button = ftxui::Button(exit_button_option);
 
         ftxui::Component hello_container = ftxui::Container::Vertical({chats_button, settings_button, exit_button});
 
-        ftxui::Component hello_screen = ftxui::Renderer(hello_container,[&]
+        ftxui::Component hello_renderer = ftxui::Renderer(hello_container,[&]
         {
             ftxui::Element version;
             if (controller_.versionControl())
@@ -59,7 +59,7 @@ namespace screen
                 version);
         });
 
-        return hello_screen;
+        return hello_renderer;
     }
 }
 
