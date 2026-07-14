@@ -2,11 +2,9 @@
 #include <screens/main_screen.hpp>
 #include <screens/auth_screen.hpp>
 #include <utils/files/config_storage/storage_controller.hpp>
-#include <api/message_api/httpsapi/https_api.hpp>
 #include <curl/curl.h>
 #include <sodium.h>
 #include <random>
-
 #include <utils/console/console.hpp>
 #include <utils/logger/logs.hpp>
 
@@ -20,55 +18,46 @@ int main()
 {
     if (!stx::log::init())
     {
-        io::print("[Fatal error]: Failed to initialize logs", io::Color::Red);
+        std::cout << "[Fatal error]: Failed to initialize logs" << std::endl;
         return 1;
     }
     stx::log::info("application started");
     if (sodium_init() < 0)
     {
         stx::log::error("sodium init failed");
-        io::print("[Fatal error]: sodium init failed", io::Color::Red);
+        std::cout << "[Fatal error]: sodium init failed" << std::endl;
         return 1;
     }
     if (const CURLcode init_code = curl_global_init(CURL_GLOBAL_ALL); init_code != CURLE_OK)
     {
         stx::log::error("curl global init failed: " + std::to_string(init_code));
-        io::print("[Fatal error]: curl init failed: " + std::to_string(init_code),io::Color::Red);
+        std::cout << "[Fatal error]: curl init failed: " + std::to_string(init_code) << std::endl;
         return 1;
     }
     app::AppController controller(
-        std::make_unique<api::HttpMessageApi>(),
+        std::make_unique<net::NetworkController>(),
         std::make_unique<stx::StorageController>(kConfigPath),
         std::make_unique<stx::TimeController>()
     );
 
-    if (const auto result = controller.loadAppConfig(); !result.has_value())
+    if (const std::expected<void, stx::err::Error> result = controller.loadAppConfig(); !result.has_value())
     {
-        const auto& err = result.error();
+        const stx::err::Error& err = result.error();
         if (!std::holds_alternative<stx::err::ConfigError>(err.type) ||
             std::get<stx::err::ConfigError>(err.type) != stx::err::ConfigError::IncorrectConfiguration)
         {
             stx::log::error("failed to load config: " + err.message);
-            io::print("[Error]: Failed to load config: " + err.message, io::Color::Red);
             return 1;
         }
-        const std::string url = io::scanString("Server URL: ");
-        const std::string nickname = io::scanString("Your nickname: ");
-        // WARNING: THIS WILL BE MOVED ON SERVER IN USER REGISTER TODO: 1.3?
-        std::mt19937_64 gen(std::random_device{}());
-        const uint64_t id = std::uniform_int_distribution<uint64_t>{}(gen);
-        // ----------------------------------------------------
-        io::check(controller.updateUrl(url),"[Error]: Failed to save server URL");
-        io::check(controller.setupInitialUser(id, nickname),"[Error]: Failed to save user info");
     }
 
     if (const auto& user = controller.getAppConfig().user; user.id != 0 && !user.password.empty())
     {
-        io::print("Checking server status...",io::Color::Yellow);
+        std::cout << "Checking server status..." << std::endl;
 
         if (controller.ping().has_value())
         {
-            io::print("Attempting auto-login...",io::Color::Yellow);
+            std::cout << "Attempting auto-login..." << std::endl;
             // silent fail — fall through to auth screen if credentials are stale
             if (controller.loginUser(user.id, user.password).has_value())
             {
@@ -82,8 +71,7 @@ int main()
         else
         {
             stx::log::warn("server is offline or unreachable on startup");
-            io::print("[Warning]: Server is offline or unreachable. Please check settings.", io::Color::Yellow);
-            io::waitForEnter();
+            std::cout << "[Warning]: Server is offline or unreachable. Please check settings." << std::endl;
         }
     }
 
