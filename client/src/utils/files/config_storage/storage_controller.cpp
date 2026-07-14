@@ -147,11 +147,4 @@ namespace stx {
         config_.server.url = new_url;
         return save();
     }
-
-    std::expected<void,err::Error> StorageController::setInitialUser(const uint64_t id, const std::string& nickname)
-    {
-        config_.user.id = id;
-        config_.user.nickname = nickname;
-        return save();
-    }
 }

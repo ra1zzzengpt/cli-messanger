@@ -34,7 +34,6 @@ namespace app
         std::expected<void,stx::err::Error> loadAppConfig();
         std::expected<void,stx::err::Error> saveAppConfig();
         std::expected<void,stx::err::Error> setLogin(const UserInfo& user, const std::string& password);
-        std::expected<void,stx::err::Error> setupInitialUser(std::uint64_t id, const std::string& nickname);
         std::expected<void,stx::err::Error> addChat(const ChatInfo& new_chat);
 
         // - ONLY NETWORK FUNCTIONAL -

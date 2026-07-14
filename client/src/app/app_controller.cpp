@@ -87,12 +87,6 @@ namespace app
     }
 
     // non const also
-    std::expected<void,stx::err::Error> AppController::setupInitialUser(const std::uint64_t id, const std::string& nickname)
-    {
-        return storageController_->setInitialUser(id, nickname);
-    }
-
-    // non const also
     std::expected<void,stx::err::Error> AppController::addChat(const ChatInfo& new_chat)
     {
         return storageController_->addChat(new_chat);
