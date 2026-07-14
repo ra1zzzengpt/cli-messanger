@@ -32,6 +32,10 @@ add_library(cli_core STATIC
         src/network/request_controller/request_controller.hpp
         src/screens/entry_fabric.cpp
         src/screens/entry_fabric.hpp
+        src/screens/chats_fabric.cpp
+        src/screens/chats_fabric.hpp
+        src/screens/screen_fabric_runner.cpp
+        src/screens/screen_fabric_runner.hpp
 )
 
 target_include_directories(cli_core PUBLIC
