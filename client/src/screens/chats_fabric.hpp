@@ -15,14 +15,20 @@ namespace screen
         ChatsFabric(ChatsFabric&&) = delete;
         ChatsFabric& operator=(ChatsFabric&&) = delete;
 
-        ftxui::Component createScreen(int &tab_index) override;
+        ftxui::Component build(int &tab_index, ftxui::ScreenInteractive& screen) override;
+
+        bool messages_update();
     private:
         app::AppController& controller_;
         int inner_chat_;
+        int chat_selected_;
+        std::vector<std::string> chat_list_;
+        std::vector<Message> messages_view_;
         std::string new_chat_, message_;
         stx::err::Error error_;
-        std::vector<ftxui::Component> chat_list_;
-        std::vector<ftxui::Component> create_chat_list();
+
+        ftxui::Element messages_to_element() const;
+        void chat_list_update();
     };
 
 }
