@@ -136,6 +136,12 @@ namespace stx {
         return save();
     }
 
+    std::expected<void,err::Error> StorageController::updateID(const uint64_t& new_id)
+    {
+        config_.user.id = new_id;
+        return save();
+    }
+
     std::expected<void,err::Error> StorageController::addChat(const ChatInfo &new_chat)
     {
         config_.chats.push_back(new_chat);
