@@ -46,6 +46,11 @@ namespace app
         return {};
     }
 
+    std::expected<void, stx::err::Error> AppController::updateID(const std::uint64_t& new_id) const
+    {
+        return storageController_->updateID(new_id);
+    }
+
     std::expected<void,stx::err::Error> AppController::relogging(const std::string &new_url)
     {
         storageController_->clear();
@@ -98,6 +103,11 @@ namespace app
         return networkController_->ping();
     }
 
+    std::expected<std::string, stx::err::Error> AppController::ping(const std::string &another_url) const
+    {
+        return networkController_->ping(another_url);
+    }
+
     std::expected<std::vector<Message>,stx::err::Error> AppController::getMessages(const UserInfo& other_user) const
     {
         const auto& cfg = storageController_->getConfig().user;
@@ -143,9 +153,13 @@ namespace app
     }
 
     // - - - T I M E - - -
-    // non const because can change memory application info (timeController[lastRequestTime_])
-    bool AppController::askForRequest(const std::chrono::time_point<std::chrono::steady_clock> compare)
+    bool AppController::canMakeRequest() const
     {
-        return timeController_->askForRequest(compare);
+        return timeController_->canMakeRequest();
+    }
+
+    bool AppController::tryAcquireRequest()
+    {
+        return timeController_->tryAcquireRequest();
     }
 }

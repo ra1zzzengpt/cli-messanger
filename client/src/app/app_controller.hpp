@@ -24,6 +24,7 @@ namespace app
         // - UPDATERS -
         [[nodiscard]] std::expected<void,stx::err::Error> updatePassword(const std::string& new_password) const;
         [[nodiscard]] std::expected<void,stx::err::Error> updateNickname(const std::string& new_nickname) const;
+        [[nodiscard]] std::expected<void,stx::err::Error> updateID(const uint64_t& new_id) const;
         std::expected<void,stx::err::Error> updateUrl(const std::string& new_url);
 
         std::expected<void, stx::err::Error> relogging(const std::string& new_url);
@@ -38,6 +39,7 @@ namespace app
 
         // - ONLY NETWORK FUNCTIONAL -
         [[nodiscard]] std::expected<std::string,stx::err::Error> ping() const;
+        [[nodiscard]] std::expected<std::string,stx::err::Error> ping(const std::string& another_url) const;
         [[nodiscard]] std::expected<std::vector<Message>,stx::err::Error> getMessages(const UserInfo& other_user) const;
         [[nodiscard]] std::expected<void,stx::err::Error> sendMessage(const UserInfo& other_user, const std::string& text) const;
         [[nodiscard]] std::expected<UserInfo,stx::err::Error> getNicknameById(std::uint64_t id) const;
@@ -50,7 +52,8 @@ namespace app
         [[nodiscard]] const std::string& lastestVersion() const;
 
         // - TIME -
-        bool askForRequest(std::chrono::time_point<std::chrono::steady_clock> compare);
+        [[nodiscard]] bool canMakeRequest() const;
+        bool tryAcquireRequest();
     private:
         std::unique_ptr<net::NetworkController> networkController_;
         std::unique_ptr<stx::StorageController> storageController_;
