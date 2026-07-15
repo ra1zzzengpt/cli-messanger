@@ -1,12 +1,11 @@
 #include <app/app_controller.hpp>
-#include <screens/main_screen.hpp>
-#include <screens/auth_screen.hpp>
 #include <utils/files/config_storage/storage_controller.hpp>
 #include <curl/curl.h>
 #include <sodium.h>
 #include <random>
-#include <utils/console/console.hpp>
 #include <utils/logger/logs.hpp>
+#include <iostream>
+#include "screens/screen_fabric_runner.hpp"
 
 namespace
 {
@@ -62,8 +61,9 @@ int main()
             if (controller.loginUser(user.id, user.password).has_value())
             {
                 stx::log::info("auto-login successful for user id=" + std::to_string(user.id));
-                screen::MainScreen mainMenu(controller);
-                mainMenu.run();
+                screen::FabricBuilder builder = screen::FabricBuilder(controller,screen::to_int(screen::kScreen::kHello));
+                builder.run();
+                stx::log::shutdown();
                 return 0;
             }
             stx::log::warn("auto-login failed for user id=" + std::to_string(user.id) + ", credentials may be stale");
@@ -75,8 +75,8 @@ int main()
         }
     }
 
-    screen::AuthScreen authScreen(controller);
-    authScreen.run();
+    screen::FabricBuilder builder = screen::FabricBuilder(controller,screen::to_int(screen::kScreen::kEntry));
+    builder.run();
 
     stx::log::shutdown();
     return 0;
