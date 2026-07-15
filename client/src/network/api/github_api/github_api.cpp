@@ -3,7 +3,7 @@
 #include <network/request_controller/request_controller.hpp>
 namespace
 {
-    const std::string kCliMessangerRepoUrl = "https://api.github.com/repos/ra1zzzengpt/cli-messanger/releases/lates";
+    const std::string kCliMessangerRepoUrl = "https://api.github.com/repos/ra1zzzengpt/cli-messanger/releases/latest";
     const std::string kCurrentVersion = "v1.0";
 }
 namespace net::api
@@ -22,16 +22,33 @@ namespace net::api
 
     std::expected<std::string,stx::err::Error> GitHubApi::lastestReleaseTag(const std::string& url)
     {
-        std::expected<HttpResponse,stx::err::Error> resp = curl::RequestController::request(curl::RequestMethod::GET,url,"",{"Accept: application/vnd.github+json", "X-GitHub-Api-Version: 2026-03-10"});
+        std::expected<HttpResponse,stx::err::Error> resp = curl::RequestController::request(
+            curl::RequestMethod::GET,
+            url,
+            "",
+            {
+                "Accept: application/vnd.github+json",
+                "X-GitHub-Api-Version: 2022-11-28",
+                "User-Agent: cli-messanger"
+            }
+        );
         if (!resp.has_value())
         {
             return std::unexpected(resp.error());
         }
-        if (!resp->is_ok() || resp->data.value("ok",false))
+        if (!resp->is_ok())
         {
             return curl::RequestController::httpErr(*resp);
         }
-        return resp->data["tag_name"].get<std::string>();
+        const auto tag = resp->data.find("tag_name");
+        if (tag == resp->data.end() || !tag->is_string())
+        {
+            return std::unexpected(stx::err::Error{
+                stx::err::JsonError::ParsingFailed,
+                "GitHub API response does not contain a string tag_name"
+            });
+        }
+        return tag->get<std::string>();
     }
 
     bool GitHubApi::lastestVersionControl() const
