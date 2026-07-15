@@ -9,6 +9,11 @@ namespace net
         return httpMessageApi_.ping();
     }
 
+    std::expected<std::string, stx::err::Error> NetworkController::ping(const std::string &another_url) const
+    {
+        return httpMessageApi_.ping(another_url);
+    }
+
     std::expected<void, stx::err::Error> NetworkController::loginUser(const std::uint64_t id, const std::string &password) const
     {
         return httpMessageApi_.loginUser(id, password);
