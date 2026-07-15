@@ -8,8 +8,7 @@ namespace screen
     {
     public:
         virtual ~IFabric() = default;
-        virtual ftxui::Component createScreen(int& tab_index) = 0;
-        virtual ftxui::Component createScreen(int &tab_index, ftxui::ScreenInteractive) = 0;
+        virtual ftxui::Component build(int &tab_index, ftxui::ScreenInteractive& screen) = 0;
     };
 
     enum class kScreen
