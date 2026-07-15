@@ -21,6 +21,18 @@ namespace net::api {
              + " uptime: " + resp->data["uptime"].get<std::string>();
     }
 
+    std::expected<std::string, stx::err::Error> MessangerApi::ping(const std::string &another_url)
+    {
+        const std::expected<HttpResponse,stx::err::Error> resp = curl::RequestController::request(curl::RequestMethod::GET, another_url + "/ping");
+        if (!resp.has_value())
+            return std::unexpected(resp.error());
+        if (!resp->is_ok() || !resp->data.value("ok", false))
+            return curl::RequestController::httpErr(*resp);
+        return "status: " + resp->data["status"].get<std::string>()
+             + " uptime: " + resp->data["uptime"].get<std::string>();
+    }
+
+
     // POST /users/register
     std::expected<void, stx::err::Error> MessangerApi::registerUser(
         const std::uint64_t id, const std::string& nick, const std::string& password

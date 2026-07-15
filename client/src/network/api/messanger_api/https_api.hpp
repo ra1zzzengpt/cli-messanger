@@ -13,6 +13,7 @@ namespace net::api
     {
     public:
         [[nodiscard]] std::expected<std::string,stx::err::Error> ping() const;
+        [[nodiscard]] static std::expected<std::string,stx::err::Error> ping(const std::string& another_url);
 
         [[nodiscard]] std::expected<void,stx::err::Error> registerUser(
             std::uint64_t id,
