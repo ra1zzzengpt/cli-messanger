@@ -16,7 +16,7 @@ namespace screen
         SettingsFabric(SettingsFabric&&) = delete;
         SettingsFabric& operator=(SettingsFabric&&) = delete;
 
-        ftxui::Component createScreen(int &tab_index) override;
+        ftxui::Component build(int &tab_index, ftxui::ScreenInteractive&) override;
     private:
         app::AppController& controller_;
         stx::err::Error error_;

@@ -3,6 +3,7 @@
 #include <app/app_controller.hpp>
 #include <ftxui/component/component.hpp>
 #include <utils/error/app_error.hpp>
+#include <ftxui/component/screen_interactive.hpp>
 
 namespace screen
 {
@@ -16,7 +17,7 @@ namespace screen
         AuthFabric(const AuthFabric&&)=delete;
         AuthFabric& operator=(const AuthFabric&&)=delete;
 
-        ftxui::Component createScreen(int& tab_index) override;
+        ftxui::Component build(int& tab_index, ftxui::ScreenInteractive&) override;
     private:
         app::AppController& controller_;
         std::string id_, name_, password_, password_control_;
