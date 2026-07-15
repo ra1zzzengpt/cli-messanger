@@ -4,15 +4,13 @@ namespace screen
 {
     HelloFabric::HelloFabric(app::AppController& controller) : controller_(controller) {}
 
-    ftxui::Component HelloFabric::createScreen(int &tab_index, ftxui::ScreenInteractive screen)
+    ftxui::Component HelloFabric::build(int &tab_index, ftxui::ScreenInteractive& screen)
     {
         ftxui::Element cli_messanger_label = ftxui::text("CLI-MESSANGER");
 
-        ftxui::Element hello_label = ftxui::text("Hello, " + controller_.getAppConfig().user.nickname + "!");
-
         ftxui::ButtonOption chats_button_option;
         chats_button_option.label = "chats";
-        chats_button_option.on_click = [&]
+        chats_button_option.on_click = [&tab_index]
         {
             tab_index = to_int(kScreen::kChats);
         };
@@ -21,7 +19,7 @@ namespace screen
 
         ftxui::ButtonOption settings_button_option;
         settings_button_option.label = "settings";
-        settings_button_option.on_click = [&]
+        settings_button_option.on_click = [&tab_index]
         {
             tab_index = to_int(kScreen::kSettings);
         };
@@ -30,16 +28,16 @@ namespace screen
 
         ftxui::ButtonOption exit_button_option;
         exit_button_option.label = "exit";
-        exit_button_option.on_click = [&]
+        exit_button_option.on_click = [&screen]
         {
-            screen.ExitLoopClosure();
+            screen.ExitLoopClosure()();
         };
 
         ftxui::Component exit_button = ftxui::Button(exit_button_option);
 
         ftxui::Component hello_container = ftxui::Container::Vertical({chats_button, settings_button, exit_button});
 
-        ftxui::Component hello_renderer = ftxui::Renderer(hello_container,[&]
+        ftxui::Component hello_renderer = ftxui::Renderer(hello_container,[this,cli_messanger_label,hello_container]
         {
             ftxui::Element version;
             if (controller_.versionControl())
@@ -53,7 +51,7 @@ namespace screen
             return ftxui::vbox(
                 cli_messanger_label,
                 ftxui::text(""),
-                hello_label,
+                ftxui::text("Hello, " + controller_.getAppConfig().user.nickname + "!"),
                 ftxui::separator(),
                 hello_container->Render(),
                 version);
@@ -62,4 +60,3 @@ namespace screen
         return hello_renderer;
     }
 }
-

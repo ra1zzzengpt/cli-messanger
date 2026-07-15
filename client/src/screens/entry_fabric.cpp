@@ -6,25 +6,25 @@ namespace screen
 {
     EntryFabric::EntryFabric(app::AppController &controller) : controller_(controller){ }
 
-    ftxui::Component EntryFabric::createScreen(int& tab_index, ftxui::ScreenInteractive screen)
+    ftxui::Component EntryFabric::build(int& tab_index, ftxui::ScreenInteractive& screen)
     {
         // CLI - MESSANGER
         // separator
         // url input
         // button check and in!
 
-        ftxui::InputOption url_input_option;
-        url_input_option.content = &url_;
-        url_input_option.multiline = false;
-        url_input_option.placeholder = "url for cli-messanger server...";
+        ftxui::InputOption url_input_opt;
+        url_input_opt.content = &url_;
+        url_input_opt.multiline = false;
+        url_input_opt.placeholder = "url for cli-messanger server...";
 
-        ftxui::Component url_input = ftxui::Input(url_input_option);
+        ftxui::Component url_input = ftxui::Input(url_input_opt);
 
-        ftxui::ButtonOption url_button_option;
-        url_button_option.label = "next";
-        url_button_option.on_click = [&]
+        ftxui::ButtonOption url_button_opt;
+        url_button_opt.label = "next";
+        url_button_opt.on_click = [this,&tab_index]
         {
-            if (stx::checkNoError(controller_.ping(),error_))
+            if (stx::checkNoError(controller_.ping(url_),error_))
             {
                 if (stx::checkNoError(controller_.updateUrl(url_),error_))
                 {
@@ -33,20 +33,20 @@ namespace screen
             }
         };
 
-        ftxui::Component url_button = ftxui::Button(url_button_option);
+        ftxui::Component url_button = ftxui::Button(url_button_opt);
 
-        ftxui::ButtonOption exit_button_option;
-        exit_button_option.label = "exit";
-        exit_button_option.on_click = [&]
+        ftxui::ButtonOption exit_button_opt;
+        exit_button_opt.label = "exit";
+        exit_button_opt.on_click = [&screen]
         {
-            screen.ExitLoopClosure();
+            screen.ExitLoopClosure()();
         };
 
-        ftxui::Component exit_button = ftxui::Button(exit_button_option);
+        ftxui::Component exit_button = ftxui::Button(exit_button_opt);
 
         const ftxui::Component entry_container = ftxui::Container::Vertical({url_input, url_button, exit_button});
 
-        ftxui::Component entry_renderer = ftxui::Renderer(entry_container, [&]
+        return ftxui::Renderer(entry_container, [this,entry_container]
         {
             std::vector<ftxui::Element> elements;
             elements.push_back(ftxui::text("CLI - MESSANGER"));
@@ -57,8 +57,6 @@ namespace screen
                 elements.push_back(ftxui::text(error_.message));
             }
             return ftxui::center(ftxui::vbox(elements) | ftxui::border);
-        });
-
-        return entry_renderer;
+        });;
     }
 }
