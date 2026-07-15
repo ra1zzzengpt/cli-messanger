@@ -12,7 +12,8 @@ namespace stx
         TimeController();
         ~TimeController() = default;
 
-        bool askForRequest(std::chrono::time_point<std::chrono::steady_clock> compare);
+        [[nodiscard]] bool canMakeRequest() const;
+        bool tryAcquireRequest();
     private:
         std::chrono::time_point<std::chrono::steady_clock> lastRequestTime_;
     };
