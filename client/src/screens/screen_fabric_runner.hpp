@@ -1,8 +1,33 @@
 #pragma once
-namespace screen {
+#include "auth_fabric.hpp"
+#include "chats_fabric.hpp"
+#include "entry_fabric.hpp"
+#include "hello_fabric.hpp"
+#include "settings_fabric.hpp"
+#include "ftxui/component/screen_interactive.hpp"
+#include <thread>
 
-class screen_fabric_runner {
+namespace screen
+{
+    class FabricBuilder
+    {
+    public:
+        explicit FabricBuilder(app::AppController& controller, int starter_index);
 
-};
+        void run();
 
-} // screen
+    private:
+        SettingsFabric settings_;
+        HelloFabric hello_;
+        EntryFabric entry_;
+        ChatsFabric chats_;
+        AuthFabric auth_;
+
+        void update_chats_loop();
+        int tab_index_;
+        ftxui::ScreenInteractive screen_;
+        app::AppController& controller_;
+        std::atomic<bool> running_{true};
+        std::thread updater_thread_;
+    };
+}

@@ -1,8 +1,60 @@
-//
-// Created by devnull on 14.07.2026.
-//
-
 #include "screen_fabric_runner.hpp"
+#include <chrono>
+#include <thread>
 
 namespace screen
-{} // screen
+{
+    FabricBuilder::FabricBuilder(app::AppController& controller, int starter_index)
+        : controller_(controller),
+            tab_index_(starter_index),
+          screen_(ftxui::ScreenInteractive::Fullscreen()),
+          settings_(controller),
+          chats_(controller),
+          hello_(controller),
+          entry_(controller),
+          auth_(controller)
+    {}
+
+    void FabricBuilder::run()
+    {
+        running_ = true;
+        updater_thread_ = std::thread(&FabricBuilder::update_chats_loop, this);
+        auto hello_screen = hello_.build(tab_index_, screen_);
+        auto entry_screen = entry_.build(tab_index_, screen_);
+        auto auth_screen  = auth_.build(tab_index_, screen_);
+        auto chats_screen = chats_.build(tab_index_, screen_);
+        auto settings_screen = settings_.build(tab_index_, screen_);
+        auto tabs = ftxui::Container::Tab({
+            entry_screen,
+            auth_screen,
+            hello_screen,
+            settings_screen,
+            chats_screen
+        }, &tab_index_);
+        screen_.Loop(tabs);
+        running_ = false;
+        if (updater_thread_.joinable())
+            updater_thread_.join();
+    }
+
+    void FabricBuilder::update_chats_loop()
+    {
+        constexpr auto SUCCESS_INTERVAL = std::chrono::seconds(3);
+        constexpr auto FAILURE_INTERVAL = std::chrono::seconds(5);
+
+        while (running_)
+        {
+            bool success = false;
+            if (!controller_.getChats().empty())
+            {
+                success = chats_.messages_update();
+                if (success)
+                {
+                    screen_.PostEvent(ftxui::Event::Custom);
+                }
+            }
+            auto interval = success ? SUCCESS_INTERVAL : FAILURE_INTERVAL;
+            std::this_thread::sleep_for(interval);
+        }
+    }
+}
