@@ -23,7 +23,12 @@ add_library(cli_core STATIC
         src/network/request_controller/request_controller.cpp
         src/screens/entry_fabric.cpp
         src/screens/chats_fabric.cpp
-        src/screens/screen_fabric_runner.cpp
+        src/screens/fabric_builder.cpp
+        src/utils/time/i_time_controller.hpp
+        src/utils/files/config_storage/i_storage_controller.hpp
+        src/network/network_controller/i_network_controller.hpp
+        src/network/request_controller/curl_raii/curl_raii.cpp
+        src/network/request_controller/curl_raii/curl_raii.hpp
 )
 
 target_include_directories(cli_core PUBLIC
