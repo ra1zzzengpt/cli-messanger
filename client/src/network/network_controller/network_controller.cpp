@@ -11,7 +11,7 @@ namespace net
 
     std::expected<std::string, stx::err::Error> NetworkController::ping(const std::string &another_url) const
     {
-        return httpMessageApi_.ping(another_url);
+        return api::MessangerApi::ping(another_url);
     }
 
     std::expected<void, stx::err::Error> NetworkController::loginUser(const std::uint64_t id, const std::string &password) const
@@ -19,7 +19,7 @@ namespace net
         return httpMessageApi_.loginUser(id, password);
     }
 
-    std::expected<UserInfo, stx::err::Error> NetworkController::getUsernameById(const std::uint64_t id) const
+    std::expected<std::string, stx::err::Error> NetworkController::getUsernameById(const std::uint64_t id) const
     {
         return httpMessageApi_.getUsernameById(id);
     }
