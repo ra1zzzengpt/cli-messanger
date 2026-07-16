@@ -219,7 +219,7 @@ def get_user():
         user = get_user_by_id_unlocked(user_id)
         if user is None:
             return error_response("user not found", 404)
-        return ok_response({"user": public_user(user)})
+        return ok_response({"nick": user["nick"]})
 
 
 @app.patch("/users/<user_id>/nick")
