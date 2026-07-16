@@ -1,19 +1,17 @@
 #pragma once
 #include <chrono>
+#include "i_time_controller.hpp"
 
 namespace stx
 {
-    // BASE KERNEL COOLDOWN FOR REQUEST
-    constexpr std::chrono::seconds cooldown = std::chrono::seconds(3);
-
-    class TimeController final
+    class TimeController final : public ITimeController
     {
     public:
         TimeController();
-        ~TimeController() = default;
+        ~TimeController() override = default;
 
-        [[nodiscard]] bool canMakeRequest() const;
-        bool tryAcquireRequest();
+        [[nodiscard]] bool canMakeRequest() const override;
+        bool tryAcquireRequest() override;
     private:
         std::chrono::time_point<std::chrono::steady_clock> lastRequestTime_;
     };
