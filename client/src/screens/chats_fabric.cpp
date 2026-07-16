@@ -1,6 +1,9 @@
 #include <screens/chats_fabric.hpp>
 
 #include "utils/low_level_utils.hpp"
+#include "utils/command/command_parser.hpp"
+#include <utils/files/files.hpp>
+#include <utils/files/paths.hpp>
 
 namespace
 {
@@ -37,7 +40,7 @@ namespace
 
 namespace screen
 {
-    ChatsFabric::ChatsFabric(app::AppController &controller) : controller_(controller), inner_chat_(0), chat_selected_(0)
+    ChatsFabric::ChatsFabric(app::AppController &controller) : controller_(controller), index_chat_selected_(0)
     {
         chat_list_update();
     }
@@ -48,7 +51,7 @@ namespace screen
         for (const auto& msg : messages_view_)
         {
             std::string time_str = msg.created_at.empty() ? "" : "[" + msg.created_at + "] ";
-            std::string prefix = (msg.from_id == controller_.getAppConfig().user.id) ? "[You]: " : "[" + chat_list_[chat_selected_] + "]: ";
+            std::string prefix = (msg.from_id == controller_.getAppConfig().user.id) ? "[You]: " : "[" + chat_list_[index_chat_selected_] + "]: ";
             ftxui::Element text = ftxui::text(prefix + time_str + msg.text);
             elements.push_back(text);
         }
@@ -61,8 +64,9 @@ namespace screen
         messages_view_.clear();
 
         UserInfo user_info;
-        user_info.id = controller_.getChats()[chat_selected_].peer_id;
+        user_info.id = controller_.getChats()[index_chat_selected_].peer_id;
         user_info.nickname = controller_.getAppConfig().user.nickname;
+        std::lock_guard lock(error_mutex_);
         if (const std::expected<std::vector<Message>,stx::err::Error> fetching_messages = controller_.getMessages(user_info); stx::checkNoError(fetching_messages,error_))
         {
             for (const Message& msg : fetching_messages.value())
@@ -85,7 +89,7 @@ namespace screen
         }
     }
 
-    ftxui::Component ChatsFabric::build(int &tab_index, ftxui::ScreenInteractive&)
+    ftxui::Component ChatsFabric::build(int &tab_index, ftxui::ScreenInteractive& screen)
     {
         // INPUT NEW CHATS  | CHAT MESSAGE
         // BUTTON NEW CHATS |
@@ -122,6 +126,7 @@ namespace screen
         };
         new_chat_option.on_click = [&]
         {
+            std::lock_guard lock(error_mutex_);
             const std::expected<std::uint64_t, stx::err::Error> new_chat_id = stx::transform<std::uint64_t>(new_chat_);
             if (!stx::checkNoError(new_chat_id, error_))
             {
@@ -140,10 +145,10 @@ namespace screen
                 error_.message = "chat is already exist";
                 return;
             }
-            if (const std::expected<UserInfo, stx::err::Error> user_by_id = controller_.
+            if (const std::expected<std::string, stx::err::Error> user_by_id = controller_.
                     getNicknameById(new_chat_id.value()); stx::checkNoError(user_by_id, error_))
             {
-                if (ChatInfo chat_info{.peer_id = new_chat_id.value(), .peer_nick = user_by_id.value().nickname};
+                if (ChatInfo chat_info{.peer_id = new_chat_id.value(), .peer_nick = user_by_id.value()};
                     stx::checkNoError(controller_.addChat(chat_info), error_))
                 {
                     new_chat_.clear();
@@ -156,7 +161,7 @@ namespace screen
 
         ftxui::Component chats_menu = ftxui::Menu({
             .entries = &chat_list_,
-            .selected = &chat_selected_,
+            .selected = &index_chat_selected_,
             .on_enter = []
             {
                 // TODO: WHAT IS THIS???
@@ -191,15 +196,49 @@ namespace screen
             }
             return element;
         };
-        new_message_button_option.on_click = [this]
+        new_message_button_option.on_click = [this,&screen]
         {
             if (controller_.tryAcquireRequest())
             {
                 if (controller_.getChats().empty()) return;
-                UserInfo user;
-                user.id = controller_.getChats()[chat_selected_].peer_id;
-                user.nickname = controller_.getChats()[chat_selected_].peer_nick;
-                if (stx::checkNoError(controller_.sendMessage(user,message_), error_))
+
+                UserInfo peer_user;
+                peer_user.id = controller_.getChats()[index_chat_selected_].peer_id;
+                peer_user.nickname = controller_.getChats()[index_chat_selected_].peer_nick;
+
+                if (message_.starts_with("/")) // TODO: make modal dialog for /help
+                {
+                    if (const std::expected<stx::Command,stx::err::Error> command = stx::parseCommand(message_); stx::checkNoError(command, error_))
+                    {
+                        if (command == stx::Command::Quit)
+                        {
+                            screen.ExitLoopClosure()();
+                            return;
+                        } else if (command == stx::Command::Update)
+                        {
+                            messages_update();
+                            return;
+                        } else if (command == stx::Command::Dump)
+                        {
+                            if (messages_update() && stx::checkNoError(
+                                    stx::dumpToFile(paths::getAssetsBase() / "dump" / (peer_user.nickname + ".txt"),
+                                                    messages_view_, peer_user.nickname, peer_user.id),
+                                    error_) && stx::checkNoError(
+                                    controller_.sendMessage(
+                                        peer_user,
+                                        "[SYSTEM]: " + controller_.getAppConfig().user.nickname +
+                                        " DUMPED THIS CHAT!!!"), error_))
+                            {
+                                message_.clear();
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                std::lock_guard lock(error_mutex_);
+
+                if (stx::checkNoError(controller_.sendMessage(peer_user,message_), error_))
                 {
                     message_.clear();
                 }
@@ -238,7 +277,7 @@ namespace screen
             new_chat_button->Render(),
             chats_menu->Render(),
             back_button->Render(),
-            ftxui::text(error_.message)}) | ftxui::border , ftxui::vbox({chat_messages->Render() | ftxui::flex ,ftxui::hbox({new_message_input->Render(),new_message_button->Render()})}) | ftxui::border}));
+            ftxui::text(error_.message) | ftxui::color(ftxui::Color::Red)}) | ftxui::border , ftxui::vbox({chat_messages->Render() | ftxui::flex ,ftxui::hbox({new_message_input->Render(),new_message_button->Render()})}) | ftxui::border}));
         });
 
         return container_renderer;

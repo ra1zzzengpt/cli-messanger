@@ -2,6 +2,7 @@
 
 #include <screens/i_fabric.hpp>
 #include <app/app_controller.hpp>
+#include <mutex>
 
 namespace screen
 {
@@ -20,14 +21,16 @@ namespace screen
         bool messages_update();
     private:
         app::AppController& controller_;
-        int inner_chat_;
-        int chat_selected_;
+
+        std::mutex error_mutex_;
+
+        int index_chat_selected_;
         std::vector<std::string> chat_list_;
         std::vector<Message> messages_view_;
         std::string new_chat_, message_;
         stx::err::Error error_;
 
-        ftxui::Element messages_to_element() const;
+        [[nodiscard]] ftxui::Element messages_to_element() const;
         void chat_list_update();
     };
 
