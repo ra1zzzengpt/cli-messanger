@@ -4,6 +4,7 @@
 #include <curl/curl.h>
 #include <utils/error/app_error.hpp>
 #include <utils/logger/logs.hpp>
+#include <network/request_controller/curl_raii/curl_raii.hpp>
 
 namespace net::curl
 {
@@ -73,8 +74,8 @@ namespace net::curl
             const std::vector<std::string>& custom_headers
         ) {
             HttpResponse response;
-            CURL* handle = curl_easy_init();
-            if (!handle) {
+            CurlRAII curl_raii;
+            if (!curl_raii.handle()) {
                 stx::log::error("curl_easy_init failed for " + url);
                 return std::unexpected(stx::err::Error{
                     stx::err::NetworkError::CurlInitFailed, "curl_easy_init failed"
@@ -84,34 +85,31 @@ namespace net::curl
             stx::log::info("sending HTTP " + methodToString(method) + " " + url);
 
             std::string buffer;
-            curl_slist* headers = nullptr;
-            curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L); // ONLY FOR TESTS ON LOCAL
-            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L); // ONLY FOR TESTS ON LOCAL
-            curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, WriteCallback);
-            curl_easy_setopt(handle, CURLOPT_WRITEDATA, &buffer);
-            curl_easy_setopt(handle, CURLOPT_TIMEOUT, 5L);
+            curl_easy_setopt(curl_raii.handle(), CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl_raii.handle(), CURLOPT_SSL_VERIFYPEER, 0L); // ONLY IN DEVELOPMENT BEFORE ACCEPT TLS CERTIFICATE ON OFFICIAL SERVER TODO FIX
+            curl_easy_setopt(curl_raii.handle(), CURLOPT_SSL_VERIFYHOST, 0L); // ONLY IN DEVELOPMENT BEFORE ACCEPT TLS CERTIFICATE ON OFFICIAL SERVER TODO FIX
+            curl_easy_setopt(curl_raii.handle(), CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl_raii.handle(), CURLOPT_WRITEDATA, &buffer);
+            curl_easy_setopt(curl_raii.handle(), CURLOPT_TIMEOUT, 5L);
 
             for (const std::string& header : custom_headers)
             {
-                headers = curl_slist_append(headers, header.c_str());
+                curl_raii.addHeader(header);
             }
 
             if (method == RequestMethod::POST || method == RequestMethod::PATCH) {
-                headers = curl_slist_append(headers, "Content-Type: application/json");
-                curl_easy_setopt(handle, CURLOPT_POSTFIELDS, json_body.c_str());
+                curl_raii.addHeader("Content-Type: application/json");
+                curl_easy_setopt(curl_raii.handle(), CURLOPT_POSTFIELDS, json_body.c_str());
                 if (method == RequestMethod::PATCH)
-                    curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+                    curl_easy_setopt(curl_raii.handle(), CURLOPT_CUSTOMREQUEST, "PATCH");
             }
 
-            if (headers)
+            if (curl_raii.headers())
             {
-                curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
+                curl_easy_setopt(curl_raii.handle(), CURLOPT_HTTPHEADER, curl_raii.headers());
             }
 
-            if (const CURLcode res = curl_easy_perform(handle); res != CURLE_OK) {
-                curl_easy_cleanup(handle);
-                curl_slist_free_all(headers);
+            if (const CURLcode res = curl_easy_perform(curl_raii.handle()); res != CURLE_OK) {
                 if (res == CURLE_OPERATION_TIMEDOUT) {
                     stx::log::warn("request " + methodToString(method) + " " + url + " timed out");
                     return std::unexpected(stx::err::Error{
@@ -125,18 +123,13 @@ namespace net::curl
                 });
             }
 
-            curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response.status_code);
+            curl_easy_getinfo(curl_raii.handle(), CURLINFO_RESPONSE_CODE, &response.status_code);
             stx::log::info("HTTP " + methodToString(method) + " " + url + " -> " +
                 std::to_string(response.status_code));
 
             if (const auto parsed = ParseResponse(buffer, response); !parsed.has_value()) {
-                curl_easy_cleanup(handle);
-                curl_slist_free_all(headers);
                 return std::unexpected(parsed.error());
             }
-
-            curl_slist_free_all(headers);
-            curl_easy_cleanup(handle);
             return response;
         }
 
