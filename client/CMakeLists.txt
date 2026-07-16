@@ -5,21 +5,30 @@ add_library(cli_core STATIC
         src/models/chat_info.cpp
         src/models/server_info.cpp
         src/models/app_config.cpp
-        src/utils/console/console.cpp
         src/utils/command/command_parser.cpp
         src/utils/files/files.cpp
-        src/utils/files/config_storage/config_storage.cpp
+        src/utils/files/config_storage/storage_controller.cpp
         src/utils/crypto/crypto_sodium.cpp
         src/utils/crypto/info/crypto_info.cpp
         src/utils/logger/logs.cpp
-        src/api/message_api/httpsapi/https_message_api.cpp
-        src/api/message_api/fakeapi/fake_message_api.cpp
-        src/screens/main_screen.cpp
-        src/screens/chat_screen.cpp
-        src/screens/server_screen.cpp
-        src/screens/profile_screen.cpp
-        src/screens/chats_screen.cpp
-        src/screens/auth_screen.cpp
+        src/network/api/messanger_api/https_api.cpp
+        src/screens/i_fabric.hpp
+        src/screens/auth_fabric.cpp
+        src/utils/time/time_controller.cpp
+        src/utils/low_level_utils.cpp
+        src/screens/hello_fabric.cpp
+        src/screens/settings_fabric.cpp
+        src/network/api/github_api/github_api.cpp
+        src/network/network_controller/network_controller.cpp
+        src/network/request_controller/request_controller.cpp
+        src/screens/entry_fabric.cpp
+        src/screens/chats_fabric.cpp
+        src/screens/fabric_builder.cpp
+        src/utils/time/i_time_controller.hpp
+        src/utils/files/config_storage/i_storage_controller.hpp
+        src/network/network_controller/i_network_controller.hpp
+        src/network/request_controller/curl_raii/curl_raii.cpp
+        src/network/request_controller/curl_raii/curl_raii.hpp
 )
 
 target_include_directories(cli_core PUBLIC
@@ -28,8 +37,11 @@ target_include_directories(cli_core PUBLIC
 
 target_link_libraries(cli_core PRIVATE
         CURL::libcurl
-        nlohmann_json::nlohmann_json
         sodium
+)
+
+target_link_libraries(cli_core PUBLIC
+        nlohmann_json::nlohmann_json
         ftxui::ftxui
 )
 

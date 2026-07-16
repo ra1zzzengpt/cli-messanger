@@ -1,6 +1,6 @@
 #pragma once
 
-#include "chat_info.hpp"
+#include <models/chat_info.hpp>
 
 #include <string>
 

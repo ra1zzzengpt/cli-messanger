@@ -1,10 +1,12 @@
-#include "logs.hpp"
+#include <utils/logger/logs.hpp>
 
 #include <chrono>
 #include <filesystem>
-#include <sstream>
 #include <fstream>
-#include "utils/files/paths.hpp"
+#include <format>
+#include <sstream>
+#include <system_error>
+#include <utils/files/paths.hpp>
 
 namespace
 {
@@ -24,28 +26,46 @@ namespace
 
 std::expected<void, stx::err::Error> stx::log::init()
 {
-    std::filesystem::path path = paths::logs;
+    const std::filesystem::path path = paths::logs;
 
-    out_stream.open(std::filesystem::path(path));
+    std::error_code error_code;
+    std::filesystem::create_directories(path.parent_path(), error_code);
+    if (error_code)
+    {
+        return std::unexpected(err::Error{
+            err::FileError::OpenFileFailed,
+            "failed to create log directory '" + path.parent_path().string() + "': " + error_code.message()
+        });
+    }
+
+    out_stream.open(path, std::ios::out | std::ios::trunc);
+    if (!out_stream.is_open())
+    {
+        return std::unexpected(err::Error{
+            err::FileError::OpenFileFailed,
+            "failed to open log file '" + path.string() + "'"
+        });
+    }
     return {};
 }
 
 void stx::log::shutdown()
 {
+    out_stream.flush();
     out_stream.close();
 }
 
 void stx::log::info(const std::string_view message, const std::source_location location)
 {
-    out_stream << string_stream_factory("INFO", message, location).str();
+    out_stream << string_stream_factory("INFO", message, location).str() << std::flush;
 }
 
 void stx::log::warn(const std::string_view message, const std::source_location location)
 {
-    out_stream << string_stream_factory("WARNING", message, location).str();
+    out_stream << string_stream_factory("WARNING", message, location).str() << std::flush;
 }
 
 void stx::log::error(const std::string_view message, const std::source_location location)
 {
-    out_stream << string_stream_factory("ERROR", message, location).str();
+    out_stream << string_stream_factory("ERROR", message, location).str() << std::flush;
 }

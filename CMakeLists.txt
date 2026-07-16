@@ -14,7 +14,7 @@ include(FetchContent)
 FetchContent_Declare(
         libsodium_cmake
         GIT_REPOSITORY https://github.com/robinlinden/libsodium-cmake.git
-        GIT_TAG        cfebfd3da486d5a86c644c8b47067e5411c7599c
+        GIT_TAG        9b2848dfc1b917a9410f0de9d81059b26cbfaa8d   
 )
 
 FetchContent_Declare(

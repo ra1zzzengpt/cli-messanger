@@ -46,12 +46,17 @@ namespace stx::err
         UnknownCommand,
     };
 
-    enum class Base64Error
+    enum class TransformError
     {
-        SodiumBase64Error,
+        TransformFailed,
     };
 
     enum class JsonError {
         ParsingFailed,
+    };
+
+    enum class PasswordError
+    {
+        PasswordNotEqual,
     };
 }

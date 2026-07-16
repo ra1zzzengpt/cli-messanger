@@ -1,12 +1,9 @@
-#include "command_parser.hpp"
+#include <utils/command/command_parser.hpp>
 
 namespace stx {
-    std::expected<Command,err::CommandError> parseCommand(const std::string& command) {
+    std::expected<Command,err::Error> parseCommand(const std::string& command) {
         if (command == "/quit") {
             return Command::Quit;
-        }
-        if (command == "/help") {
-            return Command::Help;
         }
         if (command == "/update")
         {
@@ -16,6 +13,6 @@ namespace stx {
         {
             return Command::Dump;
         }
-        return std::unexpected(err::CommandError::UnknownCommand);
+        return std::unexpected(err::Error{err::CommandError::UnknownCommand,"unknown command"});
     }
 }

@@ -1,125 +1,177 @@
-#include "app_controller.hpp"
+#include <app/app_controller.hpp>
+#include <expected>
 
 namespace app
 {
     AppController::AppController(
-        std::unique_ptr<api::IMessageApi> api,
-        std::unique_ptr<stx::ConfigStorage> storage
-    ) : messageApi_(std::move(api)), configStorage_(std::move(storage)) {}
+        std::unique_ptr<net::INetworkController> net,
+        std::unique_ptr<stx::IStorageController> storage,
+        std::unique_ptr<stx::ITimeController> time
+    ) : networkController_(std::move(net)), storageController_(std::move(storage)), timeController_(std::move(time))
+    { }
+
+    // - - - U P D A T E R S - - -
+
+    std::expected<void,stx::err::Error> AppController::updateUrl(const std::string& new_url)
+    {
+        networkController_->setUrlMessageApi(new_url);
+        return storageController_->updateUrl(new_url);
+    }
+
+    std::expected<void,stx::err::Error> AppController::updatePassword(const std::string& new_password) const
+    {
+        const auto& cfg = storageController_->getConfig().user;
+        if (const std::expected<void,stx::err::Error> net_update = networkController_->updatePassword(cfg.id, cfg.password, new_password); !net_update.has_value())
+        {
+            return net_update;
+        }
+        if (const std::expected<void,stx::err::Error> storage_update = storageController_->updatePassword(new_password); !storage_update.has_value())
+        {
+            return storage_update;
+        }
+        return {};
+    }
+
+    std::expected<void,stx::err::Error> AppController::updateNickname(const std::string& new_nickname) const
+    {
+        const auto& cfg = storageController_->getConfig().user;
+        if (const std::expected<void,stx::err::Error> net_update = networkController_->updateNickname(cfg.id, cfg.password, new_nickname); !net_update.has_value())
+        {
+            return net_update;
+        }
+        if (const std::expected<void,stx::err::Error> storage_update = storageController_->updateNickname(new_nickname); !storage_update.has_value())
+        {
+            return storage_update;
+        }
+        return {};
+    }
+
+    // std::expected<void, stx::err::Error> AppController::updateID(const std::uint64_t& new_id) const
+    // {
+    //     return storageController_->updateID(new_id);
+    // }
+
+    std::expected<void,stx::err::Error> AppController::relogging(const std::string &new_url)
+    {
+        storageController_->clear();
+        networkController_->setUrlMessageApi(new_url);
+        return storageController_->updateUrl(new_url);
+    }
 
     // - - - C O N F I G - - -
 
     const AppConfig& AppController::getAppConfig() const noexcept
     {
-        return configStorage_->getConfig();
+        return storageController_->getConfig();
     }
 
     const std::vector<ChatInfo>& AppController::getChats() const
     {
-        return configStorage_->getConfig().chats;
+        return storageController_->getConfig().chats;
     }
 
     // non const method (the body of the internal function changes the application parameters in memory)
     std::expected<void,stx::err::Error> AppController::loadAppConfig()
     {
-        if (const std::expected<void,stx::err::Error> result = configStorage_->load(); !result.has_value())
+        if (const std::expected<void,stx::err::Error> result = storageController_->load(); !result.has_value())
             return std::unexpected(result.error());
-        messageApi_->setUrl(configStorage_->getConfig().server.url);
+        networkController_->setUrlMessageApi(storageController_->getConfig().server.url);
         return {};
     }
 
     // non const also
     std::expected<void,stx::err::Error> AppController::saveAppConfig()
     {
-        return configStorage_->save();
-    }
-
-    // non const also
-    std::expected<void,stx::err::Error> AppController::setLogin(const UserInfo& user, const std::string& password)
-    {
-        return configStorage_->setByLogin(user, password);
-    }
-
-    // non const also
-    std::expected<void,stx::err::Error> AppController::setupInitialUser(const std::uint64_t id, const std::string& nickname)
-    {
-        return configStorage_->setInitialUser(id, nickname);
-    }
-
-    // non const also
-    std::expected<void,stx::err::Error> AppController::updateConfigPassword(const std::string& new_password)
-    {
-        return configStorage_->updatePassword(new_password);
-    }
-
-    // non const also
-    std::expected<void,stx::err::Error> AppController::updateConfigNickname(const std::string& new_nickname)
-    {
-        return configStorage_->updateNickname(new_nickname);
-    }
-
-    // non const also
-    std::expected<void,stx::err::Error> AppController::updateConfigUrl(const std::string& new_url)
-    {
-        return configStorage_->updateUrl(new_url);
+        return storageController_->save();
     }
 
     // non const also
     std::expected<void,stx::err::Error> AppController::addChat(const ChatInfo& new_chat)
     {
-        return configStorage_->addChat(new_chat);
+        return storageController_->addChat(new_chat);
     }
 
     // - - - N E T W O R K - - -
-
-    // Updates both the live API handle and the persisted config
-    std::expected<void,stx::err::Error> AppController::updateUrl(const std::string& new_url)
-    {
-        messageApi_->setUrl(new_url);
-        return configStorage_->updateUrl(new_url);
-    }
-
     std::expected<std::string,stx::err::Error> AppController::ping() const
     {
-        return messageApi_->ping();
+        return networkController_->ping();
+    }
+
+    std::expected<std::string, stx::err::Error> AppController::ping(const std::string &another_url) const
+    {
+        return networkController_->ping(another_url);
     }
 
     std::expected<std::vector<Message>,stx::err::Error> AppController::getMessages(const UserInfo& other_user) const
     {
-        const auto& cfg = configStorage_->getConfig().user;
-        return messageApi_->dumpMessages(cfg.id, other_user.id, cfg.password);
+        const auto& cfg = storageController_->getConfig().user;
+        return networkController_->dumpMessages(cfg.id, other_user.id, cfg.password);
     }
 
     std::expected<void,stx::err::Error> AppController::sendMessage(const UserInfo& other_user, const std::string& text) const
     {
-        const auto& cfg = configStorage_->getConfig().user;
-        return messageApi_->sendMessage(cfg.id, other_user.id, cfg.password, text);
+        const auto& cfg = storageController_->getConfig().user;
+        return networkController_->sendMessage(cfg.id, other_user.id, cfg.password, text);
     }
 
-    std::expected<void,stx::err::Error> AppController::updatePassword(const std::string& new_password) const
+    std::expected<std::string,stx::err::Error> AppController::getNicknameById(const std::uint64_t id) const
     {
-        const auto& cfg = configStorage_->getConfig().user;
-        return messageApi_->updatePassword(cfg.id, cfg.password, new_password);
-    }
-
-    std::expected<void,stx::err::Error> AppController::updateNickname(const std::string& new_nickname) const
-    {
-        const auto& cfg = configStorage_->getConfig().user;
-        return messageApi_->updateNickname(cfg.id, cfg.password, new_nickname);
-    }
-
-    std::expected<UserInfo,stx::err::Error> AppController::getNicknameById(const std::uint64_t id) const
-    {
-        return messageApi_->getUsernameById(id);
+        return networkController_->getUsernameById(id);
     }
 
     std::expected<void,stx::err::Error> AppController::registerUser(const UserInfo& user) const
     {
-        return messageApi_->registerUser(user.id, user.nickname, user.password);
+        if (const std::expected<void, stx::err::Error> register_result = networkController_->registerUser(user.id, user.nickname, user.password); !register_result.has_value())
+        {
+            return register_result;
+        }
+        return storageController_->updateUser(user);
     }
 
     std::expected<void,stx::err::Error> AppController::loginUser(const std::uint64_t id, const std::string& password) const
     {
-        return messageApi_->loginUser(id, password);
+        if (const std::expected<void,stx::err::Error> login_result = networkController_->loginUser(id, password); !login_result.has_value())
+        {
+            return login_result;
+        }
+        UserInfo user;
+        user.id = id;
+        user.password = password;
+        if (const std::expected<std::string,stx::err::Error> nickname_result = networkController_->getUsernameById(id); !nickname_result.has_value())
+        {
+            return std::unexpected{nickname_result.error()};
+        } else
+        {
+            user.nickname = nickname_result.value();
+            return storageController_->updateUser(user);
+        }
+    }
+
+    // - - - F R O M   N E T - - -
+
+    bool AppController::versionControl() const
+    {
+        return networkController_->verifyVersion();
+    }
+
+    const std::string& AppController::currentVersion() const
+    {
+        return networkController_->currentVersion();
+    }
+
+    const std::string& AppController::lastestVersion() const
+    {
+        return networkController_->lastestVersion();
+    }
+
+    // - - - T I M E - - -
+    bool AppController::canMakeRequest() const
+    {
+        return timeController_->canMakeRequest();
+    }
+
+    bool AppController::tryAcquireRequest()
+    {
+        return timeController_->tryAcquireRequest();
     }
 }
