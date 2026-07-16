@@ -67,7 +67,7 @@ namespace net::api {
     }
 
     // POST /users/get
-    std::expected<UserInfo, stx::err::Error> MessangerApi::getUsernameById(
+    std::expected<std::string, stx::err::Error> MessangerApi::getUsernameById(
         const std::uint64_t id
     ) const
     {
@@ -78,15 +78,13 @@ namespace net::api {
             return std::unexpected(resp.error());
         if (!resp->is_ok())
             return curl::RequestController::httpErr(*resp);
-        if (!resp->data.contains("user")
-            || !resp->data["user"].contains("id")
-            || !resp->data["user"].contains("nick")) {
+         if (!resp->data.contains("nick") || !resp->data["nick"].is_string()) {
             stx::log::error("getUsernameById: response is missing user fields");
             return std::unexpected(stx::err::Error{
                 stx::err::NetworkError::InvalidResponse, "missing user fields"
             });
         }
-        return resp->data["user"].get<UserInfo>();
+        return resp->data["nick"].get<std::string>();
     }
 
     // PATCH /users/:id/password

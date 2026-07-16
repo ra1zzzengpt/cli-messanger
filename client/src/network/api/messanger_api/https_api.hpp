@@ -26,7 +26,7 @@ namespace net::api
             const std::string& password
         ) const;
 
-        [[nodiscard]] std::expected<UserInfo,stx::err::Error> getUsernameById(
+        [[nodiscard]] std::expected<std::string,stx::err::Error> getUsernameById(
             std::uint64_t id
         ) const;
         
