@@ -117,23 +117,40 @@ namespace stx {
         return config_;
     }
 
-    std::expected<void,err::Error> StorageController::setByLogin(const UserInfo& user, const std::string& password)
+    std::expected<void,err::Error> StorageController::updateUser(const UserInfo& user)
     {
+        const UserInfo old_user = config_.user;
         config_.user = user;
-        config_.user.password = password;
-        return save();
+        if (const std::expected<void,err::Error> save_result = save(); !save_result.has_value())
+        {
+            config_.user = old_user;
+            return save_result;
+        }
+        return {};
     }
 
     std::expected<void,err::Error> StorageController::updatePassword(const std::string &new_password)
     {
+        const std::string old_password = config_.user.password;
         config_.user.password = new_password;
-        return save();
+        if (const std::expected<void,err::Error> save_result = save(); !save_result.has_value())
+        {
+            config_.user.password = old_password;
+            return save_result;
+        }
+        return {};
     }
 
     std::expected<void,err::Error> StorageController::updateNickname(const std::string& new_nickname)
     {
+        const std::string old_nickname = config_.user.nickname;
         config_.user.nickname = new_nickname;
-        return save();
+        if (const std::expected<void,err::Error> save_result = save(); !save_result.has_value())
+        {
+            config_.user.nickname = old_nickname;
+            return save_result;
+        }
+        return {};
     }
 
     std::expected<void,err::Error> StorageController::updateID(const uint64_t& new_id)
