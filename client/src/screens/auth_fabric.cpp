@@ -14,7 +14,7 @@ namespace screen
         // --------------- ALL SUBSCREEN PARTS COMPONENT OPTIONS ----------------------
 
         ftxui::ButtonOption back_button_option;
-        back_button_option.label = "<--/BACK/--";
+        back_button_option.label = "back";
         back_button_option.on_click = [this]
         {
             inner_tab_index_ = 0;
@@ -23,7 +23,7 @@ namespace screen
         ftxui::InputOption password_input_option;
         password_input_option.content = &password_;
         password_input_option.multiline = false;
-        password_input_option.placeholder = "your password for login...";
+        password_input_option.placeholder = "password...";
         password_input_option.password = true;
 
         // ---------------------------- LOGIN -------------------------------------
@@ -34,16 +34,13 @@ namespace screen
         // INPUT PWD +
         // LOGIN +
         // BACK +
-        constexpr uint8_t kSizeLoginButtons_HEIGHT = 30; // TODO: SIZES WORK
-
-        ftxui::Element login_label_text = ftxui::text("LOGIN");
 
         ftxui::InputOption login_id_input_option;
         login_id_input_option.content = &id_;
         login_id_input_option.multiline = false;
-        login_id_input_option.placeholder = "your id for login...";
+        login_id_input_option.placeholder = "login...";
 
-        ftxui::Component login_id_input = ftxui::Input(login_id_input_option) | ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, kSizeLoginButtons_HEIGHT);
+        ftxui::Component login_id_input = ftxui::Input(login_id_input_option);
 
         login_id_input |= ftxui::CatchEvent([](const ftxui::Event& event)
         {
@@ -53,7 +50,7 @@ namespace screen
         ftxui::Component login_password_input = ftxui::Input(password_input_option);
 
         ftxui::ButtonOption login_button_option;
-        login_button_option.label = "--/LOGIN/-->";
+        login_button_option.label = "login";
         login_button_option.transform = [this](const ftxui::EntryState& state)
         {
             ftxui::Element element = ftxui::text(state.label) | ftxui::border;
@@ -83,15 +80,6 @@ namespace screen
                     return;
                 }
                 // transformed_id.value is safety operations
-                const auto user_opt = controller_.getNicknameById(transformed_id.value());
-                if (!stx::checkNoError(user_opt, error_))
-                {
-                    return;
-                }
-                if (!stx::checkNoError(controller_.setLogin(user_opt.value(), password_), error_))
-                {
-                    return;
-                }
                 stx::log::info("login attempt for user id=" + id_);
                 if (stx::checkNoError(controller_.loginUser(transformed_id.value(), password_),error_))
                 {
@@ -107,9 +95,12 @@ namespace screen
 
         ftxui::Component login_container = ftxui::Container::Vertical({login_id_input,login_password_input,login_button,login_back_button});
 
-        ftxui::Component login_renderer = ftxui::Renderer(login_container,[this,login_label_text,login_container]
+        ftxui::Component login_renderer = ftxui::Renderer(login_container, [this,login_id_input,login_password_input,login_button,login_back_button]
         {
-            return ftxui::center(ftxui::vbox(login_label_text,login_container->Render(),ftxui::text(error_.message)));
+            return ftxui::center(ftxui::vbox(ftxui::center(ftxui::text("LOGIN")), ftxui::separator(),
+                                             login_id_input->Render() | ftxui::border,
+                                             login_password_input->Render() | ftxui::border,
+                                             ftxui::hbox(login_back_button->Render(),login_button->Render()), ftxui::text(error_.message)) | ftxui::border);
         });
 
         // ------------------- REGISTRATION ----------------------------------------
@@ -127,7 +118,7 @@ namespace screen
         ftxui::InputOption registration_name_input_option;
         registration_name_input_option.content = &name_;
         registration_name_input_option.multiline = false;
-        registration_name_input_option.placeholder = "your name for registration...";
+        registration_name_input_option.placeholder = "name...";
 
         ftxui::Component registration_name_input = ftxui::Input(registration_name_input_option);
 
@@ -139,7 +130,7 @@ namespace screen
         ftxui::Component registration_password_check_input = ftxui::Input(registration_password_check_option);
 
         ftxui::ButtonOption registration_button_option;
-        registration_button_option.label = "--/REGISTRATION/-->";
+        registration_button_option.label = "registration";
         registration_button_option.transform = [this](const ftxui::EntryState& state)
         {
             ftxui::Element element = ftxui::text(state.label) | ftxui::border;
@@ -179,14 +170,11 @@ namespace screen
                 stx::log::info("registration attempt for user id=" + std::to_string(user.id));
                 if (stx::checkNoError(controller_.registerUser(user), error_))
                 {
-                    if (stx::checkNoError(controller_.setLogin(user, password_), error_))
-                    {
                         stx::log::info(
                             "registration successful for user id=" +
                             std::to_string(user.id)
                         );
                         tab_index = to_int(kScreen::kHello);
-                    }
                 }
             }
         };
@@ -195,11 +183,14 @@ namespace screen
 
         ftxui::Component registration_button_back = ftxui::Button(back_button_option);
 
-        ftxui::Component registration_container = ftxui::Container::Vertical({registration_name_input,registration_password_input,registration_password_check_input,registration_button,registration_button_back});
+        ftxui::Component registration_container = ftxui::Container::Vertical({registration_name_input,registration_password_input,registration_password_check_input,ftxui::Container::Horizontal({registration_button,registration_button_back})});
 
-        ftxui::Component registration_renderer = ftxui::Renderer(registration_container, [this,registration_label,registration_container]
+        ftxui::Component registration_renderer = ftxui::Renderer(registration_container, [this,registration_label,registration_name_input,registration_password_input,registration_password_check_input,registration_button,registration_button_back]
         {
-            return ftxui::center(ftxui::vbox(registration_label,registration_container->Render(),ftxui::text(error_.message)));
+            return ftxui::center(ftxui::vbox(ftxui::center(registration_label), ftxui::separatorDouble(),
+                registration_name_input->Render() | ftxui::border,registration_password_input->Render() | ftxui::border,
+                registration_password_check_input->Render() | ftxui::border,
+                ftxui::hbox(registration_button_back->Render(),registration_button->Render()),ftxui::text(error_.message)) | ftxui::border);
         });
 
         // -------------------- MENU COMPONENTS -----------------------
@@ -253,7 +244,8 @@ namespace screen
 
         ftxui::Component menu_renderer = ftxui::Renderer(menu_container, [menu_label,menu_container]
         {
-            return ftxui::center(ftxui::vbox(menu_label, menu_container->Render()));
+            return ftxui::center(ftxui::vbox(ftxui::center(menu_label),ftxui::separatorDouble(),
+                menu_container->Render()) | ftxui::border);
         });
 
         ftxui::Component auth_subscreen_tabs = ftxui::Container::Tab({menu_renderer,login_renderer,registration_renderer},&inner_tab_index_);

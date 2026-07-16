@@ -48,13 +48,13 @@ namespace screen
                 version = ftxui::text("Please update! Current version: " + controller_.currentVersion() + ", Latest version: " + controller_.lastestVersion() + "!")
                 | ftxui::bold | ftxui::hyperlink("https://github.com/ra1zzzengpt/cli-messanger");
             }
-            return ftxui::vbox(
+            return ftxui::center(ftxui::vbox(
                 cli_messanger_label,
                 ftxui::text(""),
                 ftxui::text("Hello, " + controller_.getAppConfig().user.nickname + "!"),
                 ftxui::separator(),
                 hello_container->Render(),
-                version);
+                version));
         });
 
         return hello_renderer;

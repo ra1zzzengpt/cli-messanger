@@ -21,6 +21,6 @@ namespace screen
         app::AppController& controller_;
         stx::err::Error error_;
         std::string nickname_, password_, url_;
-        int inner_tab;
+        int inner_tab_index_;
     };
 }

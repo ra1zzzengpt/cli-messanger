@@ -1,36 +1,39 @@
-#include "screen_fabric_runner.hpp"
+#include "fabric_builder.hpp"
 #include <chrono>
 #include <thread>
 
 namespace screen
 {
-    FabricBuilder::FabricBuilder(app::AppController& controller, int starter_index)
+    FabricBuilder::FabricBuilder(app::AppController& controller, const int starter_index)
         : controller_(controller),
-            tab_index_(starter_index),
-          screen_(ftxui::ScreenInteractive::Fullscreen()),
-          settings_(controller),
-          chats_(controller),
+            settings_(controller),
           hello_(controller),
           entry_(controller),
-          auth_(controller)
+          chats_(controller),
+          auth_(controller),
+          tab_index_(starter_index),
+          screen_(ftxui::ScreenInteractive::Fullscreen())
     {}
 
     void FabricBuilder::run()
     {
         running_ = true;
         updater_thread_ = std::thread(&FabricBuilder::update_chats_loop, this);
-        auto hello_screen = hello_.build(tab_index_, screen_);
-        auto entry_screen = entry_.build(tab_index_, screen_);
-        auto auth_screen  = auth_.build(tab_index_, screen_);
-        auto chats_screen = chats_.build(tab_index_, screen_);
-        auto settings_screen = settings_.build(tab_index_, screen_);
-        auto tabs = ftxui::Container::Tab({
+
+        ftxui::Component hello_screen = hello_.build(tab_index_, screen_);
+        ftxui::Component entry_screen = entry_.build(tab_index_, screen_);
+        ftxui::Component auth_screen  = auth_.build(tab_index_, screen_);
+        ftxui::Component chats_screen = chats_.build(tab_index_, screen_);
+        ftxui::Component settings_screen = settings_.build(tab_index_, screen_);
+
+        const ftxui::Component tabs = ftxui::Container::Tab({
             entry_screen,
             auth_screen,
             hello_screen,
             settings_screen,
             chats_screen
         }, &tab_index_);
+
         screen_.Loop(tabs);
         running_ = false;
         if (updater_thread_.joinable())
@@ -39,8 +42,8 @@ namespace screen
 
     void FabricBuilder::update_chats_loop()
     {
-        constexpr auto SUCCESS_INTERVAL = std::chrono::seconds(3);
-        constexpr auto FAILURE_INTERVAL = std::chrono::seconds(5);
+        constexpr std::chrono::seconds FAILURE_INTERVAL = std::chrono::seconds(5);
+        constexpr std::chrono::seconds SUCCESS_INTERVAL = std::chrono::seconds(3);
 
         while (running_)
         {

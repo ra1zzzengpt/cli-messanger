@@ -17,6 +17,8 @@ namespace screen
         void run();
 
     private:
+        app::AppController& controller_;
+
         SettingsFabric settings_;
         HelloFabric hello_;
         EntryFabric entry_;
@@ -26,7 +28,6 @@ namespace screen
         void update_chats_loop();
         int tab_index_;
         ftxui::ScreenInteractive screen_;
-        app::AppController& controller_;
         std::atomic<bool> running_{true};
         std::thread updater_thread_;
     };
