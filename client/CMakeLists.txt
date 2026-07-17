@@ -12,23 +12,25 @@ add_library(cli_core STATIC
         src/utils/crypto/info/crypto_info.cpp
         src/utils/logger/logs.cpp
         src/network/api/messanger_api/https_api.cpp
-        src/screens/i_fabric.hpp
-        src/screens/auth_fabric.cpp
+        src/ui/screens/i_screen.hpp
+        src/ui/screens/auth_screen.cpp
         src/utils/time/time_controller.cpp
         src/utils/low_level_utils.cpp
-        src/screens/hello_fabric.cpp
-        src/screens/settings_fabric.cpp
+        src/ui/screens/hello_screen.cpp
+        src/ui/screens/settings_screen.cpp
         src/network/api/github_api/github_api.cpp
         src/network/network_controller/network_controller.cpp
         src/network/request_controller/request_controller.cpp
-        src/screens/entry_fabric.cpp
-        src/screens/chats_fabric.cpp
-        src/screens/fabric_builder.cpp
+        src/ui/screens/entry_screen.cpp
+        src/ui/screens/chats_screen.cpp
+        src/ui/screens/screen_runner.cpp
         src/utils/time/i_time_controller.hpp
         src/utils/files/config_storage/i_storage_controller.hpp
         src/network/network_controller/i_network_controller.hpp
         src/network/request_controller/curl_raii/curl_raii.cpp
-        src/network/request_controller/curl_raii/curl_raii.hpp
+        src/ui/components/button.hpp
+        src/ui/components/input.hpp
+        src/ui/elements/text.hpp
 )
 
 target_include_directories(cli_core PUBLIC
