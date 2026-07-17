@@ -1,9 +1,9 @@
 #pragma once
-#include "auth_fabric.hpp"
-#include "chats_fabric.hpp"
-#include "entry_fabric.hpp"
-#include "hello_fabric.hpp"
-#include "settings_fabric.hpp"
+#include "auth_screen.hpp"
+#include "chats_screen.hpp"
+#include "entry_screen.hpp"
+#include "hello_screen.hpp"
+#include "settings_screen.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include <thread>
 

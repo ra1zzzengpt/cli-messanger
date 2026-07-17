@@ -1,4 +1,6 @@
-#include <screens/hello_fabric.hpp>
+#include <ui/screens/hello_screen.hpp>
+#include <ui/components/button.hpp>
+#include <ui/components/input.hpp>
 
 namespace screen
 {
@@ -8,36 +10,23 @@ namespace screen
     {
         ftxui::Element cli_messanger_label = ftxui::text("CLI-MESSANGER");
 
-        ftxui::ButtonOption chats_button_option;
-        chats_button_option.label = "chats";
-        chats_button_option.on_click = [&tab_index]
+        ftxui::Component chats_button = ui::cmp::button("chats", [&tab_index]
         {
             tab_index = to_int(kScreen::kChats);
-        };
-
-        ftxui::Component chats_button = ftxui::Button(chats_button_option);
-
-        ftxui::ButtonOption settings_button_option;
-        settings_button_option.label = "settings";
-        settings_button_option.on_click = [&tab_index]
+        });
+        ftxui::Component settings_button = ui::cmp::button("settings", [&tab_index]
         {
             tab_index = to_int(kScreen::kSettings);
-        };
-
-        ftxui::Component settings_button = ftxui::Button(settings_button_option);
-
-        ftxui::ButtonOption exit_button_option;
-        exit_button_option.label = "exit";
-        exit_button_option.on_click = [&screen]
+        });
+        ftxui::Component exit_button = ui::cmp::button("exit", [&screen]
         {
             screen.ExitLoopClosure()();
-        };
+        });
 
-        ftxui::Component exit_button = ftxui::Button(exit_button_option);
+        const ftxui::Component hello_container = ftxui::Container::Vertical({chats_button, settings_button, exit_button});
 
-        ftxui::Component hello_container = ftxui::Container::Vertical({chats_button, settings_button, exit_button});
-
-        ftxui::Component hello_renderer = ftxui::Renderer(hello_container,[this,cli_messanger_label,hello_container]
+        ftxui::Component hello_renderer = ftxui::Renderer(hello_container,
+        [this,cli_messanger_label,chats_button,settings_button,exit_button]
         {
             ftxui::Element version;
             if (controller_.versionControl())
@@ -53,7 +42,9 @@ namespace screen
                 ftxui::text(""),
                 ftxui::text("Hello, " + controller_.getAppConfig().user.nickname + "!"),
                 ftxui::separator(),
-                hello_container->Render(),
+                chats_button->Render(),
+                settings_button->Render(),
+                exit_button->Render(),
                 version));
         });
 

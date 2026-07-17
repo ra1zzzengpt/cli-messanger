@@ -1,6 +1,9 @@
-#include <screens/settings_fabric.hpp>
+#include <ui/screens/settings_screen.hpp>
 #include <ftxui/dom/elements.hpp>
 
+#include <ui/components/button.hpp>
+#include <ui/components/input.hpp>
+#include <ui/elements/text.hpp>
 #include "utils/low_level_utils.hpp"
 
 namespace screen
@@ -9,43 +12,9 @@ namespace screen
 
     ftxui::Component SettingsFabric::build(int& tab_index, ftxui::ScreenInteractive&)
     {
-        // SETTINGS
-        // PROFILE | SERVER | PROJECT
-        // CURRENT USER INFO | CURRENT SERVER INFO | CURRENT VERSION
-        // SET NICKNAME -> | NEW URL |
-        // SET PASSWORD -> | RE-LOGIN ON ANOTHER SERVER |
-        // BACK
-
         // ------------------------ P R O F I L E -----------------------------
-        ftxui::InputOption nickname_input_option;
-        nickname_input_option.content = &nickname_;
-        nickname_input_option.placeholder = "new nickname...";
-        nickname_input_option.multiline = false;
-
-        ftxui::Component nickname_input = ftxui::Input(nickname_input_option);
-
-        ftxui::ButtonOption nickname_button_option;
-        nickname_button_option.label = "->";
-        nickname_button_option.transform = [&](const ftxui::EntryState& state)
-        {
-            ftxui::Element element = ftxui::text(state.label) | ftxui::border;
-            if (controller_.canMakeRequest() && !nickname_.empty())
-            {
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            } else
-            {
-                element = element | ftxui::dim;
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            }
-            return element;
-        };
-        nickname_button_option.on_click = [&]
+        ftxui::Component nickname_input = ui::cmp::input(nickname_, "new nickname...");
+        ftxui::Component nickname_button = ui::cmp::button("->", [this]
         {
             if (!nickname_.empty() && controller_.tryAcquireRequest())
             {
@@ -54,39 +23,10 @@ namespace screen
                     nickname_.clear();
                 }
             }
-        };
+        }, [this] { return controller_.canMakeRequest() && !nickname_.empty(); });
 
-        ftxui::Component nickname_button = ftxui::Button(nickname_button_option);
-
-        ftxui::InputOption password_input_option;
-        password_input_option.content = &password_;
-        password_input_option.placeholder = "new password...";
-        password_input_option.multiline = false;
-
-        ftxui::Component password_input = ftxui::Input(password_input_option);
-
-        ftxui::ButtonOption password_button_option;
-        password_button_option.label = "->";
-        password_button_option.transform = [this](const ftxui::EntryState& state)
-        {
-            ftxui::Element element = ftxui::text(state.label) | ftxui::border;
-            if (controller_.canMakeRequest() && !password_.empty())
-            {
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            } else
-            {
-                element = element | ftxui::dim;
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            }
-            return element;
-        };
-        password_button_option.on_click = [this]
+        ftxui::Component password_input = ui::cmp::input(password_, "new password...", true);
+        ftxui::Component password_button = ui::cmp::button("->", [this]
         {
             if (!password_.empty() && controller_.tryAcquireRequest())
             {
@@ -95,66 +35,28 @@ namespace screen
                     password_.clear();
                 }
             }
-        };
-
-        ftxui::Component password_button = ftxui::Button(password_button_option);
+        }, [this] { return controller_.canMakeRequest() && !password_.empty(); });
 
         // -------------------------- S E R V E R ----------------------------
-        ftxui::InputOption new_url_input_option;
-        new_url_input_option.content = &url_;
-        new_url_input_option.placeholder = "new url...";
-        new_url_input_option.multiline = false;
-
-        ftxui::Component new_url_input = ftxui::Input(new_url_input_option);
-
-        ftxui::ButtonOption new_url_button_option;
-        new_url_button_option.label = "reboot";
-        new_url_button_option.transform = [this](const ftxui::EntryState& state)
-        {
-            ftxui::Element element = ftxui::text(state.label) | ftxui::border;
-            if (controller_.canMakeRequest() && !url_.empty())
-            {
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            } else
-            {
-                element = element | ftxui::dim;
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            }
-            return element;
-        };
-        new_url_button_option.on_click = [this]
+        ftxui::Component new_url_input = ui::cmp::input(url_, "new url...");
+        ftxui::Component new_url_button = ui::cmp::button("reboot", [this]
         {
             if (!url_.empty() && controller_.tryAcquireRequest())
             {
                 inner_tab_index_ = 1;
             }
-        };
-
-        ftxui::Component new_url_button = ftxui::Button(new_url_button_option);
+        }, [this] { return controller_.canMakeRequest() && !url_.empty(); });
         // -------------------- WARNING DIALOG -----------------------------------------
         ftxui::Element warning_label = ftxui::text("!!! WARNING !!!") | ftxui::bold | ftxui::color(ftxui::Color::Yellow);
         ftxui::Element warning_text = ftxui::text("If you continue, then all your local saves (nickname, chats, ID) will not be saved.");
         ftxui::Element warning_text2 = ftxui::text("and you will have to log in to a new server (the link to which you entered above).");
         ftxui::Element warning_text3 = ftxui::text("continue only if you know what you are doing!");
 
-        ftxui::ButtonOption dialog_back_button_option;
-        dialog_back_button_option.label = "CANCEL";
-        dialog_back_button_option.on_click = [&]
+        ftxui::Component dialog_back_button = ui::cmp::button("CANCEL", [this]
         {
             inner_tab_index_ = 0;
-        };
-
-        ftxui::Component dialog_back_button = ftxui::Button(dialog_back_button_option);
-
-        ftxui::ButtonOption dialog_continue_button_option;
-        dialog_continue_button_option.label = "CONTINUE";
-        dialog_continue_button_option.on_click = [this,&tab_index]
+        });
+        ftxui::Component dialog_continue_button = ui::cmp::button("CONTINUE", [this,&tab_index]
         {
             if (stx::checkNoError(controller_.ping(url_), error_))
             {
@@ -163,15 +65,20 @@ namespace screen
                     tab_index = to_int(kScreen::kAuth);
                 }
             }
-        };
-
-        ftxui::Component dialog_continue_button = ftxui::Button(dialog_continue_button_option);
+        });
 
         ftxui::Component dialog_container = ftxui::Container::Horizontal({dialog_back_button,dialog_continue_button});
 
-        ftxui::Component dialog_renderer = ftxui::Renderer(dialog_container,[warning_label,warning_text,warning_text2,warning_text3,dialog_container]
+        ftxui::Component dialog_renderer = ftxui::Renderer(dialog_container,
+        [warning_label,warning_text,warning_text2,warning_text3,dialog_back_button,dialog_continue_button]
         {
-            return ftxui::center(ftxui::vbox(ftxui::center(ftxui::vbox(warning_label,warning_text,warning_text2,warning_text3,dialog_container->Render()))) | ftxui::border);
+            return ftxui::center(ftxui::vbox(
+                warning_label,
+                warning_text,
+                warning_text2,
+                warning_text3,
+                ftxui::hbox(dialog_back_button->Render(), dialog_continue_button->Render()) | ftxui::center
+            ) | ftxui::border);
         });
 
         // -------------------- SOFTWARE INFO (ELEMENT ONLY) ----------------------------
@@ -184,14 +91,10 @@ namespace screen
         ftxui::Element ftxui_label = ftxui::text("ftxui: v7.0.0") | ftxui::hyperlink("https://github.com/ArthurSonzogni/FTXUI") | ftxui::bold;
         ftxui::Element google_label = ftxui::text("google: v1.14.0") | ftxui::hyperlink("https://github.com/google/googletest/") | ftxui::bold;
 
-        ftxui::ButtonOption back_button_option;
-        back_button_option.label = "back";
-        back_button_option.on_click = [&tab_index]
+        ftxui::Component back_button = ui::cmp::button("back", [&tab_index]
         {
             tab_index = to_int(kScreen::kHello);
-        };
-
-        ftxui::Component back_button = ftxui::Button(back_button_option);
+        });
 
         ftxui::Component settings_container = ftxui::Container::Vertical(
             {
@@ -228,9 +131,7 @@ namespace screen
             ftxui::Element server_label =ftxui::text("SERVER") | ftxui::bold;
             ftxui::Element server_url = ftxui::text("Current server: " + controller_.getAppConfig().server.url);
 
-            return
-            ftxui::center(ftxui::vbox(ftxui::center(ftxui::text("SETTINGS") | ftxui::bold),ftxui::hbox(
-                ftxui::vbox(
+            const ftxui::Element profile_panel = ftxui::vbox(
                     profile_label,
                     profile_nickname,
                     profile_id,
@@ -240,25 +141,30 @@ namespace screen
                         nickname_button->Render()),
                     ftxui::hbox(
                         password_input->Render() | ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, 1) | ftxui::border,
-                        password_button->Render())) | ftxui::border,
-                ftxui::vbox(
+                        password_button->Render())) | ftxui::border;
+
+            const ftxui::Element server_panel = ftxui::vbox(
                     server_label,
                     server_url,
                     new_url_input->Render() | ftxui::border,
-                    new_url_button->Render()) | ftxui::border,
-                ftxui::center(ftxui::vbox(
+                    new_url_button->Render()) | ftxui::border;
+
+            const ftxui::Element project_panel = ftxui::vbox(
                     ftxui::center(cli_messanger_label),
                     ftxui::separatorDouble(),
                     ftxui::center(ftxui::vbox(
-                    version_label,
-                    dependencies_label,
-                    nlohmann_json_label,
-                    libsodium_label,
-                    ftxui_label,
-                    google_label)))) | ftxui::border) | ftxui::border,
+                        version_label,
+                        dependencies_label,
+                        nlohmann_json_label,
+                        libsodium_label,
+                        ftxui_label,
+                        google_label))) | ftxui::border;
+
+            return ftxui::vbox(
+                ftxui::text("SETTINGS") | ftxui::bold | ftxui::center,
+                ftxui::hbox(profile_panel, server_panel, project_panel) | ftxui::border,
                 back_button->Render(),
-                ftxui::text(error_.message)
-            ));
+                ui::elm::error_text(error_.message))| ftxui::center;
         });
 
         ftxui::Component settings_tabs = ftxui::Container::Tab(
@@ -275,7 +181,7 @@ namespace screen
             {
                 element = ftxui::dbox(
                     element,
-                    dialog_renderer->Render()) | ftxui::center | ftxui::clear_under;
+                    dialog_renderer->Render()) | ftxui::center;
             }
             return element;
         });

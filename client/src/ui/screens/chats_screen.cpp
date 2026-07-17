@@ -1,4 +1,6 @@
-#include <screens/chats_fabric.hpp>
+#include <ui/screens/chats_screen.hpp>
+#include <ui/components/button.hpp>
+#include <ui/components/input.hpp>
 
 #include "utils/low_level_utils.hpp"
 #include "utils/command/command_parser.hpp"
@@ -47,7 +49,7 @@ namespace screen
 
     ftxui::Element ChatsFabric::messages_to_element() const
     {
-        std::vector<ftxui::Element> elements;
+        ftxui::Elements elements;
         for (const auto& msg : messages_view_)
         {
             std::string time_str = msg.created_at.empty() ? "" : "[" + msg.created_at + "] ";
@@ -91,40 +93,8 @@ namespace screen
 
     ftxui::Component ChatsFabric::build(int &tab_index, ftxui::ScreenInteractive& screen)
     {
-        // INPUT NEW CHATS  | CHAT MESSAGE
-        // BUTTON NEW CHATS |
-        // LIST CHATS       | NEW MESSAGE
-        // BACK
-        // TODO: ALL FIX!!!!
-        ftxui::InputOption new_chat_input_option;
-        new_chat_input_option.content = &new_chat_;
-        new_chat_input_option.multiline = false;
-        new_chat_input_option.placeholder = "new chat...";
-
-        ftxui::Component new_chat_input = ftxui::Input(new_chat_input_option);
-
-        ftxui::ButtonOption new_chat_option;
-        new_chat_option.label = "New Chat";
-        new_chat_option.transform = [this](const ftxui::EntryState& state)
-        {
-            ftxui::Element element = ftxui::text(state.label) | ftxui::border;
-            if (!new_chat_.empty())
-            {
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            } else
-            {
-                element = element | ftxui::dim;
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            }
-            return element;
-        };
-        new_chat_option.on_click = [&]
+        ftxui::Component new_chat_input = ui::cmp::input(new_chat_, "new chat...");
+        ftxui::Component new_chat_button = ui::cmp::button("New Chat", [this]
         {
             std::lock_guard lock(error_mutex_);
             const std::expected<std::uint64_t, stx::err::Error> new_chat_id = stx::transform<std::uint64_t>(new_chat_);
@@ -155,48 +125,20 @@ namespace screen
                     chat_list_update();
                 }
             }
-        };
-
-        ftxui::Component new_chat_button = ftxui::Button(new_chat_option);
+        }, [this] { return !new_chat_.empty(); });
 
         ftxui::Component chats_menu = ftxui::Menu({
             .entries = &chat_list_,
-            .selected = &index_chat_selected_,
-            .on_enter = []
-            {
-                // TODO: WHAT IS THIS???
-            }});
+            .selected = &index_chat_selected_
+        });
 
         ftxui::Component chat_messages = scroll_content([this]()-> ftxui::Element
         {
             return messages_to_element();
         });
 
-        ftxui::InputOption new_message_input_opt;
-        new_message_input_opt.content = &message_;
-        new_message_input_opt.multiline = true;
-        new_message_input_opt.placeholder = "new message...";
-
-        ftxui::Component new_message_input = ftxui::Input(new_message_input_opt);
-
-        ftxui::ButtonOption new_message_button_option;
-        new_message_button_option.label = "->";
-        new_message_button_option.transform = [this](const ftxui::EntryState& state)
-        {
-            ftxui::Element element = ftxui::text(state.label);
-            if (controller_.canMakeRequest())
-            {
-                if (state.focused)
-                {
-                    element = element | ftxui::bold;
-                }
-            } else
-            {
-                element = element | ftxui::dim;
-            }
-            return element;
-        };
-        new_message_button_option.on_click = [this,&screen]
+        ftxui::Component new_message_input = ui::cmp::input(message_, "new message...", false, false);
+        ftxui::Component new_message_button = ui::cmp::button("->", [this,&screen]
         {
             if (controller_.tryAcquireRequest())
             {
@@ -243,18 +185,12 @@ namespace screen
                     message_.clear();
                 }
             }
-        };
+        }, [this] { return controller_.canMakeRequest(); }, false);
 
-        ftxui::Component new_message_button = ftxui::Button(new_message_button_option);
-
-        ftxui::ButtonOption back_button_option;
-        back_button_option.label = "back";
-        back_button_option.on_click = [&tab_index]
+        ftxui::Component back_button = ui::cmp::button("back", [&tab_index]
         {
             tab_index = to_int(kScreen::kHello);
-        };
-
-        ftxui::Component back_button = ftxui::Button(back_button_option);
+        });
 
         ftxui::Component left_panel = ftxui::Container::Vertical({
             new_chat_input,
@@ -268,16 +204,24 @@ namespace screen
             ftxui::Container::Horizontal({new_message_input,new_message_button})
         });
 
-        ftxui::Component container = ftxui::Container::Horizontal({left_panel, right_panel});
+        const ftxui::Component container = ftxui::Container::Horizontal({left_panel, right_panel});
 
         ftxui::Component container_renderer = ftxui::Renderer(container, [this,new_chat_input,new_chat_button,chats_menu,back_button,chat_messages,new_message_input,new_message_button]
         {
-            return ftxui::center(ftxui::hbox({ftxui::vbox({
-            new_chat_input->Render(),
-            new_chat_button->Render(),
-            chats_menu->Render(),
-            back_button->Render(),
-            ftxui::text(error_.message) | ftxui::color(ftxui::Color::Red)}) | ftxui::border , ftxui::vbox({chat_messages->Render() | ftxui::flex ,ftxui::hbox({new_message_input->Render(),new_message_button->Render()})}) | ftxui::border}));
+            const ftxui::Element chats_panel = ftxui::vbox({
+                new_chat_input->Render(),
+                new_chat_button->Render(),
+                chats_menu->Render(),
+                back_button->Render(),
+                ftxui::text(error_.message) | ftxui::bold | ftxui::color(ftxui::Color::Red) | ftxui::center,
+            }) | ftxui::border;
+
+            const ftxui::Element messages_panel = ftxui::vbox({
+                chat_messages->Render() | ftxui::flex,
+                ftxui::hbox({new_message_input->Render(), new_message_button->Render()}),
+            }) | ftxui::border;
+
+            return ftxui::hbox({chats_panel, messages_panel}) | ftxui::center;
         });
 
         return container_renderer;

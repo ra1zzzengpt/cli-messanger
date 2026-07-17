@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ftxui/component/component.hpp>
-#include <screens/i_fabric.hpp>
+#include <ui/screens/i_screen.hpp>
 #include <app/app_controller.hpp>
 
 namespace screen
