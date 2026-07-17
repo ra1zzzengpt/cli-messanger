@@ -7,7 +7,7 @@
 #include <random>
 #include <utils/logger/logs.hpp>
 #include <iostream>
-#include "screens/fabric_builder.hpp"
+#include <ui/screens/screen_runner.hpp>
 
 namespace
 {
