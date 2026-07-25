@@ -13,6 +13,10 @@ namespace stx {
         {
             return Command::Dump;
         }
+        if (command == "/help")
+        {
+            return Command::Help;
+        }
         return std::unexpected(err::Error{err::CommandError::UnknownCommand,"unknown command"});
     }
 }

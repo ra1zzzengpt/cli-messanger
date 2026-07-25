@@ -10,7 +10,8 @@ namespace stx
     {
         Quit,
         Update,
-        Dump
+        Dump,
+        Help
     };
 
     std::expected<Command,err::Error> parseCommand(const std::string& command);
