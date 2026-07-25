@@ -8,6 +8,18 @@ namespace stx
     std::expected<void, err::Error> dumpToFile(const std::filesystem::path& path, const std::vector<Message>& messages, const std::string& peer_nick, const uint64_t& peer_id)
     {
         std::ofstream ofs(path);
+        if (!std::filesystem::exists(path))
+        {
+            std::error_code error_code;
+            std::filesystem::create_directories(path.parent_path(), error_code);
+            if (error_code)
+            {
+                return std::unexpected(err::Error{
+            err::FileError::OpenFileFailed,
+            "failed to create log directory '" + path.parent_path().string() + "': " + error_code.message()
+        });
+            }
+        }
         if (!ofs.is_open())
         {
             log::error("can't open file for writing: " + std::string(path));
