@@ -155,19 +155,37 @@ namespace stx {
 
     std::expected<void,err::Error> StorageController::updateID(const uint64_t& new_id)
     {
+        const uint64_t old_id = config_.user.id;
         config_.user.id = new_id;
-        return save();
+        if (const std::expected<void,err::Error> save_result = save(); !save_result.has_value())
+        {
+            config_.user.id = old_id;
+            return save_result;
+        }
+        return {};
     }
 
     std::expected<void,err::Error> StorageController::addChat(const ChatInfo &new_chat)
     {
+        const std::vector<ChatInfo> old_chats = config_.chats;
         config_.chats.push_back(new_chat);
-        return save();
+        if (const std::expected<void,err::Error> save_result = save(); !save_result.has_value())
+        {
+            config_.chats = old_chats;
+            return save_result;
+        }
+        return {};
     }
 
     std::expected<void,err::Error> StorageController::updateUrl(const std::string &new_url)
     {
+        const std::string old_url = config_.server.url;
         config_.server.url = new_url;
-        return save();
+        if (const std::expected<void,err::Error> save_result = save(); !save_result.has_value())
+        {
+            config_.server.url = old_url;
+            return save_result;
+        }
+        return {};
     }
 }
