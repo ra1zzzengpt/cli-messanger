@@ -42,7 +42,7 @@ namespace
 
 namespace screen
 {
-    ChatsFabric::ChatsFabric(app::AppController &controller) : controller_(controller), index_chat_selected_(0)
+    ChatsFabric::ChatsFabric(app::AppController &controller) : controller_(controller), index_chat_selected_(0), inner_tab_index_(0)
     {
         chat_list_update();
     }
@@ -63,12 +63,12 @@ namespace screen
     bool ChatsFabric::messages_update()
     {
         if (controller_.getChats().empty()) return false;
+        std::lock_guard lock(mutex_);
         messages_view_.clear();
 
         UserInfo user_info;
         user_info.id = controller_.getChats()[index_chat_selected_].peer_id;
         user_info.nickname = controller_.getAppConfig().user.nickname;
-        std::lock_guard lock(error_mutex_);
         if (const std::expected<std::vector<Message>,stx::err::Error> fetching_messages = controller_.getMessages(user_info); stx::checkNoError(fetching_messages,error_))
         {
             for (const Message& msg : fetching_messages.value())
@@ -96,7 +96,7 @@ namespace screen
         ftxui::Component new_chat_input = ui::cmp::input(new_chat_, "new chat...");
         ftxui::Component new_chat_button = ui::cmp::button("New Chat", [this]
         {
-            std::lock_guard lock(error_mutex_);
+            std::lock_guard lock(mutex_);
             const std::expected<std::uint64_t, stx::err::Error> new_chat_id = stx::transform<std::uint64_t>(new_chat_);
             if (!stx::checkNoError(new_chat_id, error_))
             {
@@ -148,19 +148,17 @@ namespace screen
                 peer_user.id = controller_.getChats()[index_chat_selected_].peer_id;
                 peer_user.nickname = controller_.getChats()[index_chat_selected_].peer_nick;
 
-                if (message_.starts_with("/")) // TODO: make modal dialog for /help
+                if (message_.starts_with("/"))
                 {
                     if (const std::expected<stx::Command,stx::err::Error> command = stx::parseCommand(message_); stx::checkNoError(command, error_))
                     {
                         if (command == stx::Command::Quit)
                         {
                             screen.ExitLoopClosure()();
-                            return;
-                        } else if (command == stx::Command::Update)
+                        } if (command == stx::Command::Update)
                         {
                             messages_update();
-                            return;
-                        } else if (command == stx::Command::Dump)
+                        } if (command == stx::Command::Dump)
                         {
                             if (messages_update() && stx::checkNoError(
                                     stx::dumpToFile(paths::getAssetsBase() / "dump" / (peer_user.nickname + ".txt"),
@@ -172,13 +170,16 @@ namespace screen
                                         " DUMPED THIS CHAT!!!"), error_))
                             {
                                 message_.clear();
-                                return;
                             }
+                        } if (command == stx::Command::Help)
+                        {
+                            inner_tab_index_ = 1;
                         }
                     }
+                    return;
                 }
 
-                std::lock_guard lock(error_mutex_);
+                std::lock_guard lock(mutex_);
 
                 if (stx::checkNoError(controller_.sendMessage(peer_user,message_), error_))
                 {
@@ -186,6 +187,22 @@ namespace screen
                 }
             }
         }, [this] { return controller_.canMakeRequest(); }, false);
+
+        // --- DIALOG ---
+        ftxui::Element help = ftxui::text("HELP");
+
+        ftxui::Element help_info = ftxui::text("/help - this dialog,\n/update - updating messages,\n/dump - dumping messages,\n/quit - leave from messanger.");
+
+        ftxui::Component help_back = ui::cmp::button("back",[this]
+        {
+            inner_tab_index_ = 0;
+        });
+
+        ftxui::Component help_renderer = ftxui::Renderer(help_back,[help,help_info,help_back]
+        {
+            return ftxui::center(ftxui::vbox({
+            help | ftxui::bold | ftxui::center, ftxui::separatorDouble(), help_info | ftxui::border,help_back->Render()}) | ftxui::border);
+        });
 
         ftxui::Component back_button = ui::cmp::button("back", [&tab_index]
         {
@@ -224,6 +241,20 @@ namespace screen
             return ftxui::hbox({chats_panel, messages_panel}) | ftxui::center;
         });
 
-        return container_renderer;
+        ftxui::Component container_tabs = ftxui::Container::Tab({
+        container_renderer,help_renderer},&inner_tab_index_);
+
+        ftxui::Component tab_renderer = ftxui::Renderer(container_tabs,[this,container_renderer,help_renderer]
+        {
+            ftxui::Element element = container_renderer->Render();
+            if (inner_tab_index_ == 1)
+            {
+                element = ftxui::dbox(element,help_renderer->Render());
+                return element;
+            }
+            return element;
+        });
+
+        return tab_renderer;
     }
 }
