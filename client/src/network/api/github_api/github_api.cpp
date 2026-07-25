@@ -4,7 +4,7 @@
 namespace
 {
     const std::string kCliMessangerRepoUrl = "https://api.github.com/repos/ra1zzzengpt/cli-messanger/releases/latest";
-    const std::string kCurrentVersion = "v1.0";
+    const std::string kCurrentVersion = "v1.1";
 }
 namespace net::api
 {

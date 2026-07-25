@@ -93,7 +93,7 @@ namespace stx
 
     namespace
     {
-        constexpr auto APP_CERTIFICATE = "CLI-MESSANGER-CERTIFICATE-v0.4LBSDM127.2";
+        constexpr auto APP_CERTIFICATE = "CLI-MESSANGER-CERTIFICATE-v1.1=1CLI";
     }
 
     CryptoSodium::CryptoSodium()
