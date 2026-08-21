@@ -14,6 +14,9 @@ CLI Messenger combines a C++23/FTXUI desktop client with a lightweight Flask ser
 
 </div>
 
+> [!NOTE]
+> now version with custom TCP protocol and E2EE in active development. 
+
 ## Screenshots
 
 | Main menu | Settings | Chat |
