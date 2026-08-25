@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GIT_HUB_API_HPP
+#define GIT_HUB_API_HPP
+
 #include <string>
 #include <expected>
 #include <utils/error/app_error.hpp>
@@ -23,3 +25,5 @@ namespace net::api
         static std::expected<std::string,stx::err::Error> lastestReleaseTag(const std::string& url);
     };
 }
+
+#endif

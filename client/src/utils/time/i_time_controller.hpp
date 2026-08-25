@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef I_TIME_CONTROLLER_HPP
+#define I_TIME_CONTROLLER_HPP
 #include <chrono>
 
 namespace stx
@@ -16,3 +16,4 @@ namespace stx
         virtual bool tryAcquireRequest() = 0;
     };
 }
+#endif

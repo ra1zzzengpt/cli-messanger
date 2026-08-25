@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INPUT_HPP
+#define INPUT_HPP
 
 #include <cctype>
 #include <functional>
@@ -35,3 +36,5 @@ namespace ui::cmp
         return component;
     }
 }
+
+#endif

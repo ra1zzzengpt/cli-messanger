@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CHAT_INFO_HPP
+#define CHAT_INFO_HPP
 
 #include <cstdint>
 #include <string>
@@ -12,3 +13,5 @@ struct ChatInfo
 
 void to_json(nlohmann::json& json, const ChatInfo& chat);
 void from_json(const nlohmann::json& json, ChatInfo& chat);
+
+#endif

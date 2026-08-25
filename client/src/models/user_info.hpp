@@ -1,4 +1,5 @@
-#pragma once
+#ifndef USER_INFO_HPP
+#define USER_INFO_HPP
 
 #include <string>
 #include <nlohmann/json.hpp>
@@ -32,3 +33,5 @@ struct UserInfo
 
 void to_json(nlohmann::json& json, const UserInfo& user);
 void from_json(const nlohmann::json& json, UserInfo& user);
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SETTINGS_SCREEN_HPP
+#define SETTINGS_SCREEN_HPP
 
 #include <ftxui/component/component.hpp>
 #include <ui/screens/i_screen.hpp>
@@ -24,3 +25,5 @@ namespace screen
         int inner_tab_index_;
     };
 }
+
+#endif

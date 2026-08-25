@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HTTP_RESPONSE_HPP
+#define HTTP_RESPONSE_HPP
 
 #include <nlohmann/json.hpp>
 
@@ -15,3 +16,5 @@ namespace net
         }
     };
 }
+
+#endif

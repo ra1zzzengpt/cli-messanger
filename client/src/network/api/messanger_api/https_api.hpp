@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HTTPS_API_HPP
+#define HTTPS_API_HPP
 
 #include <string>
 #include <expected>
@@ -60,3 +61,5 @@ namespace net::api
         std::string url_;
     };
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ERROR_TYPES_HPP
+#define ERROR_TYPES_HPP
 
 namespace stx::err
 {
@@ -60,3 +61,5 @@ namespace stx::err
         PasswordNotEqual,
     };
 }
+
+#endif

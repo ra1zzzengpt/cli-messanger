@@ -1,4 +1,5 @@
-#pragma once
+#ifndef REQUEST_CONTROLLER_HPP
+#define REQUEST_CONTROLLER_HPP
 
 #include <expected>
 #include <string>
@@ -24,3 +25,5 @@ namespace net::curl
         static std::unexpected<stx::err::Error> httpErr(const HttpResponse& response);
     };
 }
+
+#endif

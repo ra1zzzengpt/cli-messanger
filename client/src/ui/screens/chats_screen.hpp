@@ -1,4 +1,6 @@
-#pragma once
+#include "i_screen.hpp"
+#ifndef CHATS_SCREEN_HPP
+#define CHATS_SCREEN_HPP
 
 #include <ui/screens/i_screen.hpp>
 #include <app/app_controller.hpp>
@@ -37,3 +39,5 @@ namespace screen
     };
 
 }
+
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef COMMAND_PARSER_HPP
+#define COMMAND_PARSER_HPP
+
 #include <expected>
 #include <string>
 
@@ -16,3 +18,5 @@ namespace stx
 
     std::expected<Command,err::Error> parseCommand(const std::string& command);
 };
+
+#endif

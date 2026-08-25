@@ -1,4 +1,6 @@
-#pragma once
+#ifndef AUTH_SCREEN_HPP
+#define AUTH_SCREEN_HPP
+
 #include <ui/screens/i_screen.hpp>
 #include <app/app_controller.hpp>
 #include <ftxui/component/component.hpp>
@@ -25,3 +27,5 @@ namespace screen
         int inner_tab_index_;
     };
 }
+
+#endif

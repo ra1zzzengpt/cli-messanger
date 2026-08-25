@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LOW_LEVEL_UTILS_HPP
+#define LOW_LEVEL_UTILS_HPP
 
 #include <expected>
 #include <utils/error/app_error.hpp>
@@ -41,3 +42,5 @@ namespace stx
         }
     }
 }
+
+#endif

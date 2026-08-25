@@ -1,4 +1,6 @@
-#pragma once
+#ifndef I_STORAGE_CONTROLLER_HPP
+#define I_STORAGE_CONTROLLER_HPP
+
 #include <expected>
 
 #include <models/app_config.hpp>
@@ -32,3 +34,5 @@ namespace stx
         virtual std::expected<void,err::Error> addChat(const ChatInfo& new_chat) = 0;
     };
 }
+
+#endif

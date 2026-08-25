@@ -1,4 +1,5 @@
-#pragma once
+#ifndef APP_CONFIG_HPP
+#define APP_CONFIG_HPP
 
 #include <models/server_info.hpp>
 #include <models/user_info.hpp>
@@ -15,3 +16,5 @@ struct AppConfig
 
 void to_json(nlohmann::json& json, const AppConfig& config);
 void from_json(const nlohmann::json& json, AppConfig& config);
+
+#endif

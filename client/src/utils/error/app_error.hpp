@@ -1,4 +1,5 @@
-#pragma once
+#ifndef APP_ERROR_HPP
+#define APP_ERROR_HPP
 
 #include <utils/error/error_types.hpp>
 #include <variant>
@@ -13,3 +14,5 @@ namespace stx::err
         std::string message;
     };
 }
+
+#endif

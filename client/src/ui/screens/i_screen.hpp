@@ -1,4 +1,6 @@
-#pragma once
+#ifndef I_SCREEN_HPP
+#define I_SCREEN_HPP
+
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 
@@ -38,3 +40,5 @@ namespace screen
         return 0;
     }
 }
+
+#endif

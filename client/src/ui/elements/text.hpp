@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TEXT_HPP
+#define TEXT_HPP
+
 #include "ftxui/ftxui.hpp"
 
 namespace ui::elm
@@ -8,3 +10,5 @@ namespace ui::elm
         return ftxui::text(text) | ftxui::bold | ftxui::color(ftxui::Color::Red);
     }
 }
+#endif
+

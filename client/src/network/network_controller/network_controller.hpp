@@ -1,4 +1,5 @@
-#pragma once
+#ifndef NETWORK_CONTROLLER_HPP
+#define NETWORK_CONTROLLER_HPP
 
 #include <network/api/messanger_api/https_api.hpp>
 #include <network/api/github_api/github_api.hpp>
@@ -81,3 +82,5 @@ namespace net
         api::MessangerApi httpMessageApi_;
     };
 }
+
+#endif

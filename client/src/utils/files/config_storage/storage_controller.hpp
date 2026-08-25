@@ -1,4 +1,6 @@
-#pragma once
+#ifndef STORAGE_CONTROLLER_HPP
+#define STORAGE_CONTROLLER_HPP
+
 #include <expected>
 
 #include <utils/files/config_storage/i_storage_controller.hpp>
@@ -40,3 +42,5 @@ namespace stx
         CryptoSodium cryptoSodium_;
     };
 }
+
+#endif

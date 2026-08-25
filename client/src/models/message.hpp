@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MESSAGE_HPP
+#define MESSAGE_HPP
 
 #include <cstdint>
 #include <string>
@@ -19,3 +20,5 @@ struct Message
 
 void to_json(nlohmann::json& json, const Message& message);
 void from_json(const nlohmann::json& json, Message& message);
+
+#endif

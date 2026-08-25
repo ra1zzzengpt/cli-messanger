@@ -1,4 +1,6 @@
-#pragma once
+#ifndef APP_CONTROLLER_HPP
+#define APP_CONTROLLER_HPP
+
 #include <expected>
 #include <network/network_controller/i_network_controller.hpp>
 #include <models/app_config.hpp>
@@ -59,3 +61,5 @@ namespace app
         std::unique_ptr<stx::ITimeController> timeController_;
     };
 }
+
+#endif

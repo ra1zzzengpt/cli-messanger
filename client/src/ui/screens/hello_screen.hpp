@@ -1,4 +1,7 @@
-#pragma once
+#include "i_screen.hpp"
+#ifndef HELLO_SCREEN_HPP
+#define HELLO_SCREEN_HPP
+
 #include <ui/screens/i_screen.hpp>
 #include <app/app_controller.hpp>
 #include <utils/error/app_error.hpp>
@@ -22,3 +25,5 @@ namespace screen
         app::AppController& controller_;
     };
 }
+
+#endif

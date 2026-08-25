@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TIME_CONTROLLER_HPP
+#define TIME_CONTROLLER_HPP
+
 #include <chrono>
 #include "i_time_controller.hpp"
 
@@ -16,3 +18,4 @@ namespace stx
         std::chrono::time_point<std::chrono::steady_clock> lastRequestTime_;
     };
 }
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CURL_RAII_HPP
+#define CURL_RAII_HPP
+
 #include <curl/curl.h>
 #include <memory>
 #include <functional>
@@ -24,3 +26,5 @@ namespace net::curl
         std::unique_ptr<curl_slist,std::function<void(void*)>> headers_;
     };
 }
+
+#endif

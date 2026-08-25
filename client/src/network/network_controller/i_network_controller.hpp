@@ -1,4 +1,5 @@
-#pragma once
+#ifndef I_NETWORK_CONTROLLER_HPP
+#define I_NETWORK_CONTROLLER_HPP
 
 #include <network/api/messanger_api/https_api.hpp>
 #include <network/api/github_api/github_api.hpp>
@@ -70,3 +71,5 @@ namespace net
         [[nodiscard]] virtual  const std::string& lastestVersion() const = 0;
     };
 }
+
+#endif

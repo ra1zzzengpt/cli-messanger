@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CRYPTO_SODIUM_HPP
+#define CRYPTO_SODIUM_HPP
+
 #include <expected>
 #include <vector>
 #include <string>
@@ -33,3 +35,4 @@ namespace stx
         std::string machine_id_;
     };
 }
+#endif

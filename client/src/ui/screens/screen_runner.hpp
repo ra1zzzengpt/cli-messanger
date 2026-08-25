@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SCREEN_RUNNER_HPP
+#define SCREEN_RUNNER_HPP
+
 #include "auth_screen.hpp"
 #include "chats_screen.hpp"
 #include "entry_screen.hpp"
@@ -32,3 +34,5 @@ namespace screen
         std::thread updater_thread_;
     };
 }
+
+#endif

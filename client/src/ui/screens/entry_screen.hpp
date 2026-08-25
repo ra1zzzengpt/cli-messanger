@@ -1,4 +1,7 @@
-#pragma once
+#include "i_screen.hpp"
+#ifndef ENTRY_SCREEN_HPP
+#define ENTRY_SCREEN_HPP
+
 #include <ui/screens/i_screen.hpp>
 #include <app/app_controller.hpp>
 
@@ -21,3 +24,5 @@ namespace screen
         std::string url_;
     };
 }
+
+#endif

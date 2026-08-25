@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PATHS_HPP
+#define PATHS_HPP
 
 #include <filesystem>
 
@@ -30,3 +31,4 @@ namespace paths
     inline std::filesystem::path auth      = getAssetsBase() / "menu" / "auth.txt";
     inline std::filesystem::path logs      = getAssetsBase() / "logs" / "cli-messanger-session.log";
 }
+#endif

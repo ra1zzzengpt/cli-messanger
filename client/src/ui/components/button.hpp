@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BUTTON_HPP
+#define BUTTON_HPP
 
 #include <functional>
 #include <string>
@@ -46,3 +47,5 @@ namespace ui::cmp
         return ftxui::Button(std::move(option));
     }
 }
+
+#endif
