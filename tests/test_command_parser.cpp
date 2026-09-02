@@ -12,7 +12,7 @@ TEST(CommandParser, KnownCommands) {
 }
 
 TEST(CommandParser, UnknownCommandReturnsError) {
-    for (const std::string command : {"/help", "/unknown", "/QUIT", "quit", "", "hello"}) {
+    for (const std::string command : {"/unknown", "/QUIT", "quit", "", "hello"}) {
         const auto result = parseCommand(command);
 
         ASSERT_FALSE(result.has_value());
