@@ -126,7 +126,7 @@ namespace screen
             ftxui::Element profile_label = ftxui::text("PROFILE") | ftxui::bold;
             ftxui::Element profile_nickname = ftxui::text("Nickname: " + controller_.getAppConfig().user.nickname);
             ftxui::Element profile_id = ftxui::text("ID: " + std::to_string(controller_.getAppConfig().user.id));
-            ftxui::Element profile_password = ftxui::text("Password: " + std::string("*", controller_.getAppConfig().user.password.length()));
+            ftxui::Element profile_password = ftxui::text("Password: " + std::string(controller_.getAppConfig().user.password.length(),'*'));
 
             ftxui::Element server_label =ftxui::text("SERVER") | ftxui::bold;
             ftxui::Element server_url = ftxui::text("Current server: " + controller_.getAppConfig().server.url);
